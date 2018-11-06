@@ -1,4 +1,4 @@
 package com.ismaelrh.gameboy;
 
-public class CPU {
+public class TestUtils {
 }
