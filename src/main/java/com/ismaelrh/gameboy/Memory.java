@@ -1,11 +1,13 @@
 package com.ismaelrh.gameboy;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Memory {
 
 	//TO-DO: redirect external memory and I/O where it corresponds
-	private Logger log = Logger.getLogger(Memory.class);
+	private static final Logger log = LogManager.getLogger(Memory.class);
 
 	/**
 	 * 16-bit (2 Byte) bus, so a (byte) is used, as it is unsigned. Short is NOT unsigned.
@@ -13,32 +15,36 @@ public class Memory {
 	 */
 	//Cartridge: 0x0000 to 0x7FFF (32KB)
 	private final static char CARTRIDGE_START = 0x0000;
-	private final static int CARTRIDGE_SIZE_BYTES = 32000;
+	private final static int CARTRIDGE_SIZE_BYTES = 32768;
 	private byte[] cartridge;
 
 	//Video/tile RAM: 0x8000 to 0x9FFF (8KB)
 	private final static char VIDEO_RAM_START = 0x8000;
-	private final static int VIDEO_RAM_SIZE_BYTES = 8000;
+	private final static int VIDEO_RAM_SIZE_BYTES = 8192;
 	private byte[] videoRAM;
 
 	//External Cartridge RAM: 0xA000 - 0xBFFF (8KB)
 	private final static char EXTERNAL_RAM_START = 0xA000;
-	private final static int EXTERNAL_RAM_SIZE_BYTES = 8000;
+	private final static int EXTERNAL_RAM_SIZE_BYTES = 8192;
 	private byte[] externalRAM;
 
 	//Internal RAM: 0xC000 - 0xDFFF (8KB)
 	private final static char INTERNAL_RAM_START = 0xC000;
-	private final static int INTERNAL_RAM_SIZE_BYTES = 8000;
+	private final static int INTERNAL_RAM_SIZE_BYTES = 8192;
 	private byte[] internalRAM;
 
-	//Echo internal RAM: 0xE000 - 0xFDFF (8KB)
+	//Echo internal RAM: 0xE000 - 0xFDFF (7680 Bytes)
 	private final static char ECHO_RAM_START = 0xE000;
-	private final static int ECHO_RAM_SIZE_BYTES = 8000;
+	private final static int ECHO_RAM_SIZE_BYTES = 7680;
 
 	//Sprite Attribute Memory (OAM): 0xFE00 - 0xFE9F (160 Bytes)
 	private final static char SPRITE_RAM_START = 0xFE00;
 	private final static int SPRITE_RAM_SIZE_BYTES = 160;
 	private byte[] spriteRAM;
+
+	//Unusable zone: 0xFEA0-FEFF
+	private final static char UNUSABLE_RAM_START = 0xFEA0;
+	private final static int UNUSABLE_RAM_SIZE_BYTES = 96;
 
 	//I/O ports mapped RAM: 0xFF00 - 0xFF7F (128 Bytes)
 	private final static char IO_RAM_START = 0xFF00;
@@ -79,6 +85,9 @@ public class Memory {
 			result = highRAM[address - HIGH_RAM_START];
 		} else if (address >= IO_RAM_START) {
 			result = ioRAM[address - IO_RAM_START];
+		} else if (address >= UNUSABLE_RAM_START) {
+			log.warn("Read unusable RAM @" + String.format("%04x", (int) address));
+			result = 0x00; //In reality, returns garbage.
 		} else if (address >= SPRITE_RAM_START) {
 			result = spriteRAM[address - SPRITE_RAM_START];
 		} else if (address >= ECHO_RAM_START) {
@@ -92,7 +101,7 @@ public class Memory {
 		} else { //Cartridge mapped memory
 			result = cartridge[address];
 		}
-		log.debug("Read from @" + String.format("%04x", (int) address) + "=" + String.format("%04x", result));
+		log.debug("Read [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", result));
 		return result;
 	}
 
@@ -103,6 +112,9 @@ public class Memory {
 			highRAM[address - HIGH_RAM_START] = data;
 		} else if (address >= IO_RAM_START) {
 			ioRAM[address - IO_RAM_START] = data;
+		} else if (address >= UNUSABLE_RAM_START) {
+			log.warn("Ignored writing into unusable RAM @" + String.format("%02x", (int) address));
+			return;
 		} else if (address >= SPRITE_RAM_START) {
 			spriteRAM[address - SPRITE_RAM_START] = data;
 		} else if (address >= ECHO_RAM_START) {
@@ -116,6 +128,38 @@ public class Memory {
 		} else { //Cartridge mapped memory
 			cartridge[address] = data;
 		}
-		log.debug("Write to from @" + String.format("%04x", (int) address) + "=" + String.format("%04x", data));
+		log.debug("Write [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", data));
+	}
+
+	protected byte[] getCartridge() {
+		return cartridge;
+	}
+
+	protected byte[] getVideoRAM() {
+		return videoRAM;
+	}
+
+	protected byte[] getExternalRAM() {
+		return externalRAM;
+	}
+
+	protected byte[] getInternalRAM() {
+		return internalRAM;
+	}
+
+	protected byte[] getSpriteRAM() {
+		return spriteRAM;
+	}
+
+	protected byte[] getIoRAM() {
+		return ioRAM;
+	}
+
+	protected byte[] getHighRAM() {
+		return highRAM;
+	}
+
+	protected byte getInterruptEnable() {
+		return interruptEnable;
 	}
 }

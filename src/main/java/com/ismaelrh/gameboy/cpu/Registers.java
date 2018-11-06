@@ -1,6 +1,20 @@
 package com.ismaelrh.gameboy.cpu;
 
-public class ProcessUnit {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class Registers {
+
+	private static final Logger log = LogManager.getLogger(Registers.class);
+
+	public final static byte A = 0x07;
+	public final static byte B = 0x00;
+	public final static byte C = 0x01;
+	public final static byte D = 0x02;
+	public final static byte E = 0x03;
+	public final static byte H = 0x04;
+	public final static byte L = 0x05;
+	public final static byte NONE = 0xF;
 
 	//Program Counter, 16bit
 	private char pc;
@@ -23,7 +37,7 @@ public class ProcessUnit {
 	//HL: 16bit
 	private char hl;
 
-	public ProcessUnit() {
+	public Registers() {
 		init();
 	}
 
@@ -37,109 +51,157 @@ public class ProcessUnit {
 		this.hl = 0x0;
 	}
 
-	char getPC() {
+	public char getPC() {
 		return pc;
 	}
 
-	char getSP() {
+	public char getSP() {
 		return sp;
 	}
 
-	byte getA() {
+	public byte getA() {
 		return a;
 	}
 
-	byte getF() {
+	public byte getF() {
 		return f;
 	}
 
-	char getBC() {
+	public char getBC() {
 		return bc;
 	}
 
-	byte getB() {
+	public byte getB() {
 		return (byte) ((bc & 0xFF00) >> 8);
 	}
 
-	byte getC() {
+	public byte getC() {
 		return (byte) (bc & 0xFF);
 	}
 
-	char getDE() {
+	public char getDE() {
 		return de;
 	}
 
-	byte getD() {
+	public byte getD() {
 		return (byte) ((de & 0xFF00) >> 8);
 	}
 
-	byte getE() {
+	public byte getE() {
 		return (byte) (de & 0xFF);
 	}
 
-	char getHL() {
+	public char getHL() {
 		return hl;
 	}
 
-	byte getH() {
+	public byte getH() {
 		return (byte) ((hl & 0xFF00) >> 8);
 	}
 
-	byte getL() {
+	public byte getL() {
 		return (byte) (hl & 0xFF);
 	}
 
-	void setPC(char pc) {
+	public void setPC(char pc) {
 		this.pc = pc;
 	}
 
-	void setSP(char sp) {
+	public void setSP(char sp) {
 		this.sp = sp;
 	}
 
-	void setA(byte a) {
+	public void setA(byte a) {
 		this.a = a;
 	}
 
-	void setF(byte f) {
+	public void setF(byte f) {
 		this.f = f;
 	}
 
-	void setBC(char bc) {
+	public void setBC(char bc) {
 		this.bc = bc;
 	}
 
-	void setB(byte b) {
+	public void setB(byte b) {
 		this.bc = (char) ((this.bc & 0x00FF) | (b << 8));
 	}
 
-	void setC(byte c) {
+	public void setC(byte c) {
 		this.bc = (char) ((this.bc & 0xFF00) | (c));
 	}
 
-	void setDE(char de) {
+	public void setDE(char de) {
 		this.de = de;
 	}
 
-	void setD(byte d) {
+	public void setD(byte d) {
 		this.de = (char) ((this.de & 0x00FF) | (d << 8));
 	}
 
-	void setE(byte e) {
+	public void setE(byte e) {
 		this.de = (char) ((this.de & 0xFF00) | (e));
 	}
 
-	void setHL(char hl) {
+	public void setHL(char hl) {
 		this.hl = hl;
 	}
 
-	void setH(byte h) {
+	public void setH(byte h) {
 		this.hl = (char) ((this.hl & 0x00FF) | (h << 8));
 	}
 
-	void setL(byte l) {
+	public void setL(byte l) {
 		this.hl = (char) ((this.hl & 0xFF00) | (l));
 	}
 
+	public byte getByCode(byte regCode) {
+		switch (regCode) {
+			case A:
+				return getA();
+			case B:
+				return getB();
+			case C:
+				return getC();
+			case D:
+				return getD();
+			case E:
+				return getE();
+			case H:
+				return getH();
+			case L:
+				return getL();
+			default:
+				log.error("Incorrect read register by code: " + String.format("%02x", (int) regCode));
+				return 0x0;
+		}
+	}
 
+	public void setByCode(byte regCode, byte data) {
+		switch (regCode) {
+			case A:
+				setA(data);
+				break;
+			case B:
+				setB(data);
+				break;
+			case C:
+				setC(data);
+				break;
+			case D:
+				setD(data);
+				break;
+			case E:
+				setE(data);
+				break;
+			case H:
+				setH(data);
+				break;
+			case L:
+				setL(data);
+				break;
+			default:
+				log.error("Incorrect store to register by code: " + String.format("%02x", (int) regCode));
+		}
+	}
 }

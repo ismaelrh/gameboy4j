@@ -2,101 +2,100 @@ package com.ismaelrh.gameboy.cpu;
 
 import org.junit.Test;
 
-import static com.ismaelrh.gameboy.TestUtils.assertEquals8;
 import static com.ismaelrh.gameboy.TestUtils.assertEquals16;
+import static com.ismaelrh.gameboy.TestUtils.assertEquals8;
 import static org.junit.Assert.assertEquals;
 
-public class ProcessUnitTest {
+public class RegistersTest {
 
-	private ProcessUnit processUnit = new ProcessUnit();
+	private Registers registers = new Registers();
 
 	@Test
 	public void readsAndWritesSP() {
-		processUnit.setSP((char) 0xBEEF);
-		assertEquals(0xBEEF, processUnit.getSP());
+		registers.setSP((char) 0xBEEF);
+		assertEquals(0xBEEF, registers.getSP());
 	}
 
 	@Test
 	public void readsAndWritesPC() {
-		processUnit.setPC((char) 0xBEEF);
-		assertEquals(0xBEEF, processUnit.getPC());
+		registers.setPC((char) 0xBEEF);
+		assertEquals(0xBEEF, registers.getPC());
 	}
 
 	@Test
 	public void readsAndWritesA() {
-		processUnit.setA((byte) 0x12);
-		assertEquals8(0x12, processUnit.getA());
+		registers.setA((byte) 0x12);
+		assertEquals8(0x12, registers.getA());
 	}
 
 	@Test
 	public void readsAndWritesF() {
-		processUnit.setF((byte) 0x12);
-		assertEquals8(0x12, processUnit.getF());
+		registers.setF((byte) 0x12);
+		assertEquals8(0x12, registers.getF());
 	}
 
 	@Test
 	public void readsAndWritesBC() {
-		processUnit.setBC((char) 0xBEEF);
-		assertEquals16(0xBEEF, processUnit.getBC());
-		assertEquals8(0xBE, processUnit.getB());
-		assertEquals8(0xEF, processUnit.getC());
+		registers.setBC((char) 0xBEEF);
+		assertEquals16(0xBEEF, registers.getBC());
+		assertEquals8(0xBE, registers.getB());
+		assertEquals8(0xEF, registers.getC());
 	}
 
 	@Test
 	public void readsAndWritesBCseparately() {
-		processUnit.setBC((char) 0xFFFF);
+		registers.setBC((char) 0xFFFF);
 
-		processUnit.setB((byte) 0x12);
-		assertEquals8(0x12, processUnit.getB());
-		assertEquals16(0x12FF, processUnit.getBC());
+		registers.setB((byte) 0x12);
+		assertEquals8(0x12, registers.getB());
+		assertEquals16(0x12FF, registers.getBC());
 
-		processUnit.setC((byte) 0x34);
-		assertEquals8(0x34, processUnit.getC());
-		assertEquals16(0x1234, processUnit.getBC());
+		registers.setC((byte) 0x34);
+		assertEquals8(0x34, registers.getC());
+		assertEquals16(0x1234, registers.getBC());
 	}
 
 	@Test
 	public void readsAndWritesDE() {
-		processUnit.setDE((char) 0xBEEF);
-		assertEquals16(0xBEEF, processUnit.getDE());
-		assertEquals8(0xBE, processUnit.getD());
-		assertEquals8(0xEF, processUnit.getE());
+		registers.setDE((char) 0xBEEF);
+		assertEquals16(0xBEEF, registers.getDE());
+		assertEquals8(0xBE, registers.getD());
+		assertEquals8(0xEF, registers.getE());
 	}
 
 	@Test
 	public void readsAndWritesDEseparately() {
-		processUnit.setDE((char) 0xFFFF);
+		registers.setDE((char) 0xFFFF);
 
-		processUnit.setD((byte) 0x12);
-		assertEquals8(0x12, processUnit.getD());
-		assertEquals16(0x12FF, processUnit.getDE());
+		registers.setD((byte) 0x12);
+		assertEquals8(0x12, registers.getD());
+		assertEquals16(0x12FF, registers.getDE());
 
-		processUnit.setE((byte) 0x34);
-		assertEquals8(0x34, processUnit.getE());
-		assertEquals16(0x1234, processUnit.getDE());
+		registers.setE((byte) 0x34);
+		assertEquals8(0x34, registers.getE());
+		assertEquals16(0x1234, registers.getDE());
 	}
 
 	@Test
 	public void readsAndWritesHL() {
-		processUnit.setHL((char) 0xBEEF);
-		assertEquals16(0xBEEF, processUnit.getHL());
-		assertEquals8(0xBE, processUnit.getH());
-		assertEquals8(0xEF, processUnit.getL());
+		registers.setHL((char) 0xBEEF);
+		assertEquals16(0xBEEF, registers.getHL());
+		assertEquals8(0xBE, registers.getH());
+		assertEquals8(0xEF, registers.getL());
 	}
 
 	@Test
 	public void readsAndWritesHLseparately() {
-		processUnit.setHL((char) 0xFFFF);
+		registers.setHL((char) 0xFFFF);
 
-		processUnit.setH((byte) 0x12);
-		assertEquals8(0x12, processUnit.getH());
-		assertEquals16(0x12FF, processUnit.getHL());
+		registers.setH((byte) 0x12);
+		assertEquals8(0x12, registers.getH());
+		assertEquals16(0x12FF, registers.getHL());
 
-		processUnit.setL((byte) 0x34);
-		assertEquals8(0x34, processUnit.getL());
-		assertEquals16(0x1234, processUnit.getHL());
+		registers.setL((byte) 0x34);
+		assertEquals8(0x34, registers.getL());
+		assertEquals16(0x1234, registers.getHL());
 	}
-
 
 
 }
