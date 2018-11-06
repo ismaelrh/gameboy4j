@@ -4,6 +4,7 @@ import com.ismaelrh.gameboy.Memory;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.ismaelrh.gameboy.TestUtils.assertEquals16;
 import static com.ismaelrh.gameboy.TestUtils.assertEquals8;
 import static com.ismaelrh.gameboy.TestUtils.makeInst;
 import static com.ismaelrh.gameboy.cpu.Registers.A;
@@ -151,7 +152,112 @@ public class LoadUnitTest {
 
 	@Test
 	public void loadA_C() {
+		//C = 0x32, (FF32) = 0x12, A <- 0x12
+		registers.setC((byte) 0x32);
+		memory.write((char) 0xFF32, (byte) 0x12);
+		short cycles = loadUnit.loadA_C();
+		assertEquals8(0x12, registers.getA());
+		assertEquals(8, cycles);
+	}
 
+	@Test
+	public void loadA_n() {
+		//n = 0x32, (FF32) = 0x12, A <- 0x12
+		memory.write((char) 0xFF32, (byte) 0x12);
+		short cycles = loadUnit.loadA_n((byte) 0x32);
+		assertEquals8(0x12, registers.getA());
+		assertEquals(12, cycles);
+	}
+
+	@Test
+	public void loadC_A() {
+		//C = 0x32, A = 0x12, (0xFF32) <- 0x12
+		registers.setC((byte) 0x32);
+		registers.setA((byte) 0x12);
+		short cycles = loadUnit.loadC_A();
+		assertEquals8(0x12, memory.read((char) 0xFF32));
+		assertEquals(8, cycles);
+	}
+
+	@Test
+	public void loadN_A() {
+		//n = 0x32, A = 0x12, (0xFF32) <- 0x12
+		registers.setA((byte) 0x12);
+		short cycles = loadUnit.loadN_A((byte) 0x32);
+		assertEquals8(0x12, memory.read((char) 0xFF32));
+		assertEquals(12, cycles);
+	}
+
+	@Test
+	public void loadHLI_A() {
+		//HL = 0xC003, A = 0x12, (0xC003) <- 0x12, HL <- 0xC004
+		registers.setHL((char) 0xC003);
+		registers.setA((byte) 0x12);
+		short cycles = loadUnit.loadHLI_A();
+		assertEquals8(0x12, memory.read((char) 0xC003));
+		assertEquals16(0xC004, registers.getHL());
+		assertEquals(8, cycles);
+
+		//HL = 0xFFFF, A = 0x13, (0xFFFF) <- 0x13, HL <- 0x0000
+		registers.setHL((char) 0xFFFF);
+		registers.setA((byte) 0x13);
+		loadUnit.loadHLI_A();
+		assertEquals8(0x13, memory.read((char) 0xFFFF));
+		assertEquals16(0x0000, registers.getHL());
+	}
+
+	@Test
+	public void loadHLD_A() {
+		//HL = 0xC003, A = 0x12, (0xC003) <- 0x12, HL <- 0xC002
+		registers.setHL((char) 0xC003);
+		registers.setA((byte) 0x12);
+		short cycles = loadUnit.loadHLD_A();
+		assertEquals8(0x12, memory.read((char) 0xC003));
+		assertEquals16(0xC002, registers.getHL());
+		assertEquals(8, cycles);
+
+		//HL = 0x0000, A = 0x13, (0x0000) <- 0x13, HL <- 0xFFFF
+		registers.setHL((char) 0x0000);
+		registers.setA((byte) 0x13);
+		loadUnit.loadHLD_A();
+		assertEquals8(0x13, memory.read((char) 0x0000));
+		assertEquals16(0xFFFF, registers.getHL());
+	}
+
+	@Test
+	public void loadA_HLI() {
+		//HL = 0xC003, (HL) = 0x12, A <- 0x12, HL <- 0xC004
+		registers.setHL((char) 0xC003);
+		memory.write((char) 0xC003, (byte) 0x12);
+		short cycles = loadUnit.loadA_HLI();
+		assertEquals8(0x12, registers.getA());
+		assertEquals16(0xC004, registers.getHL());
+		assertEquals(8, cycles);
+
+		//HL = 0xFFFF, (HL) = 0x13, A <- 0x13, HL <- 0x0000
+		registers.setHL((char) 0xFFFF);
+		memory.write((char) 0xFFFF, (byte) 0x13);
+		loadUnit.loadA_HLI();
+		assertEquals8(0x13, registers.getA());
+		assertEquals16(0x0000, registers.getHL());
+	}
+
+	@Test
+	public void loadA_HLD() {
+		//HL = 0xC003, (HL) = 0x12, A <- 0x12, HL <- 0xC002
+		registers.setHL((char) 0xC003);
+		memory.write((char) 0xC003, (byte) 0x12);
+		short cycles = loadUnit.loadA_HLD();
+		assertEquals8(0x12, registers.getA());
+		assertEquals16(0xC002, registers.getHL());
+		assertEquals(8, cycles);
+
+		//HL = 0x0000, (HL) = 0x13, A <- 0x13, HL <- 0xFFFF
+		registers.setHL((char) 0x0000);
+		memory.write((char) 0x0000, (byte) 0x13);
+		loadUnit.loadA_HLD();
+		assertEquals8(0x13, registers.getA());
+		assertEquals16(0xFFFF, registers.getHL());
 	}
 
 }

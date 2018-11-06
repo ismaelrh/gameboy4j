@@ -126,6 +126,74 @@ public class LoadUnit {
 		return 8;
 	}
 
+	//ld A, (FF00+n) [A <- (FF00+n)]
+	public short loadA_n(byte immediate) {
+		char addressToRead = (char) (0xFF00 + immediate);
+		byte memData = memory.read(addressToRead);
+		registers.setA(memData);
+
+		return 12;
+	}
+
+	//ld (FF00+C), A [(FF00+C) <- A]
+	public short loadC_A() {
+		byte regData = registers.getA();
+		byte c = registers.getC();
+		char addressToWrite = (char) (0xFF00 + c);
+		memory.write(addressToWrite, regData);
+
+		return 8;
+	}
+
+	//ld (FF00+n), A  [(FF00+n) <- A]
+	public short loadN_A(byte immediate) {
+		byte regData = registers.getA();
+		char addressToWrite = (char) (0xFF00 + immediate);
+		memory.write(addressToWrite, regData);
+
+		return 12;
+	}
+
+	//ld (HLI), A [(HL) <- A; HL <- HL +1]
+	public short loadHLI_A() {
+		char addressToWrite = registers.getHL();
+		byte regData = registers.getA();
+		memory.write(addressToWrite, regData);
+		registers.setHL((char) (addressToWrite + 1));
+
+		return 8;
+	}
+
+	//ld (HLI), A [(HL) <- A; HL <- HL - 1]
+	public short loadHLD_A() {
+		char addressToWrite = registers.getHL();
+		byte regData = registers.getA();
+		memory.write(addressToWrite, regData);
+		registers.setHL((char) (addressToWrite - 1));
+
+		return 8;
+	}
+
+	//LD A, (HLI) [A <- (HL), HL <- HL + 1]
+	public short loadA_HLI() {
+		char addressToRead = registers.getHL();
+		byte memData = memory.read(addressToRead);
+		registers.setA(memData);
+		registers.setHL((char) (addressToRead + 1));
+
+		return 8;
+	}
+
+	//LD A, (HLI) [A <- (HL), HL <- HL - 1]
+	public short loadA_HLD() {
+		char addressToRead = registers.getHL();
+		byte memData = memory.read(addressToRead);
+		registers.setA(memData);
+		registers.setHL((char) (addressToRead - 1));
+
+		return 8;
+	}
+
 	private byte getOpcodeFirstOperand(byte opcode) {
 		return (byte) ((opcode & 0x38) >> 3);
 	}
