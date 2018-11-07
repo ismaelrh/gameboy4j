@@ -8,7 +8,9 @@ import static com.ismaelrh.gameboy.TestUtils.assertEquals16;
 import static com.ismaelrh.gameboy.TestUtils.assertEquals8;
 import static com.ismaelrh.gameboy.TestUtils.makeInst;
 import static com.ismaelrh.gameboy.cpu.Registers.A;
+import static com.ismaelrh.gameboy.cpu.Registers.AF_SP;
 import static com.ismaelrh.gameboy.cpu.Registers.B;
+import static com.ismaelrh.gameboy.cpu.Registers.BC;
 import static com.ismaelrh.gameboy.cpu.Registers.H;
 import static com.ismaelrh.gameboy.cpu.Registers.NONE;
 import static org.junit.Assert.assertEquals;
@@ -260,4 +262,54 @@ public class LoadUnitTest {
 		assertEquals16(0xFFFF, registers.getHL());
 	}
 
+	@Test
+	public void loadRR_NN() {
+		//nn <- 0xBEEF, BC <- 0xBEEF
+		byte opcode = makeInst(0x00, BC, NONE);
+		short cycles = loadUnit.loadRR_NN(opcode, (char) 0xBEEF);
+		assertEquals16(0xBEEF, registers.getBC());
+		assertEquals(12, cycles);
+
+		//nn <- 0xDEAD, SP <- 0xDEAD
+		opcode = makeInst(0x00, AF_SP, NONE);
+		loadUnit.loadRR_NN(opcode, (char) 0xDEAD);
+		assertEquals16(0xDEAD, registers.getSP());
+	}
+
+	@Test
+	public void loadSP_HL() {
+		//HL = 0xBEEF, SP <- 0xBEEF
+		registers.setHL((char) 0xBEEF);
+		short cycles = loadUnit.loadSP_HL();
+		assertEquals16(0xBEEF, registers.getSP());
+		assertEquals(8, cycles);
+	}
+
+	@Test
+	public void push_QQ() {
+		//SP = 0x0001, AF = 0xBEEF, (0x0000) <- 0xBE, (0xFFFF) <- 0xEF, SP <- 0xFFFF
+		registers.setSP((char) 0x0001);
+		registers.setAF((char) 0xBEEF);
+		byte opcode = makeInst(0x3, AF_SP, NONE);
+		short cycles = loadUnit.push_QQ(opcode);
+
+		assertEquals8(0xBE, memory.read((char) 0x0000));
+		assertEquals8(0xEF, memory.read((char) 0xFFFF));
+		assertEquals16(0xFFFF, registers.getSP());
+		assertEquals(16, cycles);
+	}
+
+	@Test
+	public void pop_QQ() {
+		//SP = 0xFFFF, (0xFFFF) = 0xEF, (0x0000) = 0xBE, AF <- 0xBEEF, SP <- 0x0001
+		registers.setSP((char) 0xFFFF);
+		memory.write((char) 0xFFFF, (byte) 0xEF);
+		memory.write((char) 0x0000, (byte) 0xBE);
+		byte opcode = makeInst(0x3, AF_SP, NONE);
+		short cycles = loadUnit.pop_QQ(opcode);
+
+		assertEquals16(0xBEEF, registers.getAF());
+		assertEquals16(0x0001, registers.getSP());
+		assertEquals(12, cycles);
+	}
 }

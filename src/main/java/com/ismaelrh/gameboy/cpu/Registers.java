@@ -14,6 +14,11 @@ public class Registers {
 	public final static byte E = 0x03;
 	public final static byte H = 0x04;
 	public final static byte L = 0x05;
+	public final static byte BC = 0x00; //000
+	public final static byte DE = 0x02; //010
+	public final static byte HL = 0x04; //100
+	public final static byte AF_SP = 0x06; //110
+
 	public final static byte NONE = 0xF;
 
 	//Program Counter, 16bit
@@ -22,12 +27,8 @@ public class Registers {
 	//Stack pointer, 16bit
 	private char sp;
 
-	//Accumulator
-	private byte a;
-
-	//Flags
-	private byte f;
-
+	//Accumulator and flags
+	private char af;
 	//BC: 16bit
 	private char bc;
 
@@ -44,8 +45,7 @@ public class Registers {
 	public void init() {
 		this.pc = 0x0;
 		this.sp = 0x0;
-		this.a = 0x0;
-		this.f = 0x0;
+		this.af = 0x0;
 		this.bc = 0x0;
 		this.de = 0x0;
 		this.hl = 0x0;
@@ -59,12 +59,16 @@ public class Registers {
 		return sp;
 	}
 
+	public char getAF() {
+		return af;
+	}
+
 	public byte getA() {
-		return a;
+		return (byte) ((af & 0xFF00) >> 8);
 	}
 
 	public byte getF() {
-		return f;
+		return (byte) (af & 0xFF);
 	}
 
 	public char getBC() {
@@ -111,12 +115,16 @@ public class Registers {
 		this.sp = sp;
 	}
 
+	public void setAF(char af) {
+		this.af = af;
+	}
+
 	public void setA(byte a) {
-		this.a = a;
+		this.af = (char) ((this.af & 0x00FF) | (a << 8));
 	}
 
 	public void setF(byte f) {
-		this.f = f;
+		this.af = (char) ((this.af & 0xFF00) | (f));
 	}
 
 	public void setBC(char bc) {
@@ -202,6 +210,46 @@ public class Registers {
 				break;
 			default:
 				log.error("Incorrect store to register by code: " + String.format("%02x", (int) regCode));
+		}
+	}
+
+	public void setByDoubleCode(byte regCode, char data, boolean useSP) {
+		switch (regCode) {
+			case BC:
+				setBC(data);
+				break;
+			case DE:
+				setDE(data);
+				break;
+			case HL:
+				setHL(data);
+				break;
+			case AF_SP:
+				if (useSP) {
+					setSP(data);
+				} else {
+					setAF(data);
+				}
+				break;
+			default:
+				log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
+		}
+	}
+
+	//This always uses 0x3 as AF
+	public char getByDoubleCode(byte regCode) {
+		switch (regCode) {
+			case BC:
+				return getBC();
+			case DE:
+				return getDE();
+			case HL:
+				return getHL();
+			case AF_SP:
+				return getAF();
+			default:
+				log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
+				return 0x0;
 		}
 	}
 }

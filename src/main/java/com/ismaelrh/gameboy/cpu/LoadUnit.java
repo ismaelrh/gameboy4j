@@ -194,6 +194,49 @@ public class LoadUnit {
 		return 8;
 	}
 
+	//LD rr, nn [rr <- nn] (rr is pair of registers)
+	public short loadRR_NN(byte opcode, char immediate16) {
+		byte regCode = getOpcodeFirstOperand(opcode);
+		registers.setByDoubleCode(regCode, immediate16, true);
+
+		return 12;
+	}
+
+	//LD SP, HL (SP <- HL)
+	public short loadSP_HL() {
+		char hlContent = registers.getHL();
+		registers.setSP(hlContent);
+
+		return 8;
+	}
+
+	//push qq ((SP -1) <- qqH; (SP -2) <- qqL; SP <- SP -2)
+	public short push_QQ(byte opcode) {
+		byte regCode = getOpcodeFirstOperand(opcode);
+		char regContent = registers.getByDoubleCode(regCode);
+		byte high = (byte) ((regContent >> 8) & 0xFF);
+		byte low = (byte) (regContent & 0xFF);
+		char curSP = registers.getSP();
+		memory.write((char) (curSP - 1), high);
+		memory.write((char) (curSP - 2), low);
+		registers.setSP((char) (curSP - 2));
+
+		return 16;
+	}
+
+	//pop qq (qqL <- (SP); qqH <- (SP+1); SP <- SP + 2)
+	public short pop_QQ(byte opcode) {
+		byte regCode = getOpcodeFirstOperand(opcode);
+		char spPointer = registers.getSP();
+		char spPlusOnePointer = (char) (spPointer + 1);
+		byte lowContent = memory.read(spPointer);
+		byte highContent = memory.read(spPlusOnePointer);
+		char dataToWrite = (char) ((highContent << 8) | (lowContent & 0xFF));
+		registers.setByDoubleCode(regCode, dataToWrite, false);
+		registers.setSP((char) (spPointer + 0x2));
+		return 12;
+	}
+
 	private byte getOpcodeFirstOperand(byte opcode) {
 		return (byte) ((opcode & 0x38) >> 3);
 	}
