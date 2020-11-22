@@ -5,251 +5,297 @@ import org.apache.logging.log4j.Logger;
 
 public class Registers {
 
-	private static final Logger log = LogManager.getLogger(Registers.class);
+    private static final Logger log = LogManager.getLogger(Registers.class);
 
-	public final static byte A = 0x07;
-	public final static byte B = 0x00;
-	public final static byte C = 0x01;
-	public final static byte D = 0x02;
-	public final static byte E = 0x03;
-	public final static byte H = 0x04;
-	public final static byte L = 0x05;
-	public final static byte BC = 0x00; //000
-	public final static byte DE = 0x02; //010
-	public final static byte HL = 0x04; //100
-	public final static byte AF_SP = 0x06; //110
+    public final static byte A = 0x07;
+    public final static byte B = 0x00;
+    public final static byte C = 0x01;
+    public final static byte D = 0x02;
+    public final static byte E = 0x03;
+    public final static byte H = 0x04;
+    public final static byte L = 0x05;
+    public final static byte BC = 0x00; //000
+    public final static byte DE = 0x02; //010
+    public final static byte HL = 0x04; //100
+    public final static byte AF_SP = 0x06; //110
 
-	public final static byte NONE = 0xF;
+    public final static byte NONE = 0xF;
 
-	//Program Counter, 16bit
-	private char pc;
+    //Program Counter, 16bit
+    private char pc;
 
-	//Stack pointer, 16bit
-	private char sp;
+    //Stack pointer, 16bit
+    private char sp;
 
-	//Accumulator and flags
-	private char af;
-	//BC: 16bit
-	private char bc;
+    //Accumulator and flags (16bit, contains A and F)
+    private char af;
 
-	//DE: 16bit
-	private char de;
+    //BC: 16bit (contains B and C)
+    private char bc;
 
-	//HL: 16bit
-	private char hl;
+    //DE: 16bit (contains D and E)
+    private char de;
 
-	public Registers() {
-		init();
-	}
+    //HL: 16bit (contains H and L)
+    private char hl;
 
-	public void init() {
-		this.pc = 0x0;
-		this.sp = 0x0;
-		this.af = 0x0;
-		this.bc = 0x0;
-		this.de = 0x0;
-		this.hl = 0x0;
-	}
+    public Registers() {
+        init();
+    }
 
-	public char getPC() {
-		return pc;
-	}
+    public void init() {
+        this.pc = 0x100; //PC is initialized at 0x100 (corresponds to ROM BANK)
+        this.sp = 0xFFFE; //SP initialized to 0xFFFE on power up, bu tprogrammer should not rely on this setting.
+        this.af = 0x0;
+        this.bc = 0x0;
+        this.de = 0x0;
+        this.hl = 0x0;
+    }
 
-	public char getSP() {
-		return sp;
-	}
+    public char getPC() {
+        return pc;
+    }
 
-	public char getAF() {
-		return af;
-	}
+    public char getSP() {
+        return sp;
+    }
 
-	public byte getA() {
-		return (byte) ((af & 0xFF00) >> 8);
-	}
+    public char getAF() {
+        return af;
+    }
 
-	public byte getF() {
-		return (byte) (af & 0xFF);
-	}
+    public byte getA() {
+        return (byte) ((af & 0xFF00) >> 8);
+    }
 
-	public char getBC() {
-		return bc;
-	}
+    public byte getF() {
+        return (byte) (af & 0xFF);
+    }
 
-	public byte getB() {
-		return (byte) ((bc & 0xFF00) >> 8);
-	}
+    public char getBC() {
+        return bc;
+    }
 
-	public byte getC() {
-		return (byte) (bc & 0xFF);
-	}
+    public byte getB() {
+        return (byte) ((bc & 0xFF00) >> 8);
+    }
 
-	public char getDE() {
-		return de;
-	}
+    public byte getC() {
+        return (byte) (bc & 0xFF);
+    }
 
-	public byte getD() {
-		return (byte) ((de & 0xFF00) >> 8);
-	}
+    public char getDE() {
+        return de;
+    }
 
-	public byte getE() {
-		return (byte) (de & 0xFF);
-	}
+    public byte getD() {
+        return (byte) ((de & 0xFF00) >> 8);
+    }
 
-	public char getHL() {
-		return hl;
-	}
+    public byte getE() {
+        return (byte) (de & 0xFF);
+    }
 
-	public byte getH() {
-		return (byte) ((hl & 0xFF00) >> 8);
-	}
+    public char getHL() {
+        return hl;
+    }
 
-	public byte getL() {
-		return (byte) (hl & 0xFF);
-	}
+    public byte getH() {
+        return (byte) ((hl & 0xFF00) >> 8);
+    }
 
-	public void setPC(char pc) {
-		this.pc = pc;
-	}
+    public byte getL() {
+        return (byte) (hl & 0xFF);
+    }
 
-	public void setSP(char sp) {
-		this.sp = sp;
-	}
+    public void setPC(char pc) {
+        this.pc = pc;
+    }
 
-	public void setAF(char af) {
-		this.af = af;
-	}
+    public void setSP(char sp) {
+        this.sp = sp;
+    }
 
-	public void setA(byte a) {
-		this.af = (char) ((this.af & 0x00FF) | (a << 8));
-	}
+    public void setAF(char af) {
+        this.af = af;
+    }
 
-	public void setF(byte f) {
-		this.af = (char) ((this.af & 0xFF00) | (f));
-	}
+    public void setA(byte a) {
+        this.af = (char) ((this.af & 0x00FF) | ((a & 0xFF) << 8));
+    }
 
-	public void setBC(char bc) {
-		this.bc = bc;
-	}
+    /*
+     * Explanation why & 0xFF is needed in input.
+     * Java bytes are unsigned. That means that, when storing 1000-0000 (80), it is interpreted means -127 instead of 128 for Java.
+     * When applying an operator between this and other byte, everything is OK. However, when operating with a larger type (char, it is 2 bytes),
+     * it transform the byte to a char, and to keep with the negative, adds 1's at the left (Two-complement). When doing the OR, sets all positions at left to 1's.
+     */
+    public void setF(byte f) {
+        this.af = (char) ((this.af & 0xFF00) | ((f & 0xFF)));
+    }
 
-	public void setB(byte b) {
-		this.bc = (char) ((this.bc & 0x00FF) | (b << 8));
-	}
+    public void setBC(char bc) {
+        this.bc = bc;
+    }
 
-	public void setC(byte c) {
-		this.bc = (char) ((this.bc & 0xFF00) | (c));
-	}
+    public void setB(byte b) {
+        this.bc = (char) ((this.bc & 0x00FF) | ((b & 0xFF) << 8));
+    }
 
-	public void setDE(char de) {
-		this.de = de;
-	}
+    public void setC(byte c) {
+        this.bc = (char) ((this.bc & 0xFF00) | (c & 0xFF));
+    }
 
-	public void setD(byte d) {
-		this.de = (char) ((this.de & 0x00FF) | (d << 8));
-	}
+    public void setDE(char de) {
+        this.de = de;
+    }
 
-	public void setE(byte e) {
-		this.de = (char) ((this.de & 0xFF00) | (e));
-	}
+    public void setD(byte d) {
+        this.de = (char) ((this.de & 0x00FF) | ((d & 0xFF) << 8));
+    }
 
-	public void setHL(char hl) {
-		this.hl = hl;
-	}
+    public void setE(byte e) {
+        this.de = (char) ((this.de & 0xFF00) | (e & 0xFF));
+    }
 
-	public void setH(byte h) {
-		this.hl = (char) ((this.hl & 0x00FF) | (h << 8));
-	}
+    public void setHL(char hl) {
+        this.hl = hl;
+    }
 
-	public void setL(byte l) {
-		this.hl = (char) ((this.hl & 0xFF00) | (l));
-	}
+    public void setH(byte h) {
+        this.hl = (char) ((this.hl & 0x00FF) | ((h & 0xFF) << 8));
+    }
 
-	public byte getByCode(byte regCode) {
-		switch (regCode) {
-			case A:
-				return getA();
-			case B:
-				return getB();
-			case C:
-				return getC();
-			case D:
-				return getD();
-			case E:
-				return getE();
-			case H:
-				return getH();
-			case L:
-				return getL();
-			default:
-				log.error("Incorrect read register by code: " + String.format("%02x", (int) regCode));
-				return 0x0;
-		}
-	}
+    public void setL(byte l) {
+        this.hl = (char) ((this.hl & 0xFF00) | (l & 0xFF));
+    }
 
-	public void setByCode(byte regCode, byte data) {
-		switch (regCode) {
-			case A:
-				setA(data);
-				break;
-			case B:
-				setB(data);
-				break;
-			case C:
-				setC(data);
-				break;
-			case D:
-				setD(data);
-				break;
-			case E:
-				setE(data);
-				break;
-			case H:
-				setH(data);
-				break;
-			case L:
-				setL(data);
-				break;
-			default:
-				log.error("Incorrect store to register by code: " + String.format("%02x", (int) regCode));
-		}
-	}
+    public void resetFlags() {
+        this.setF((byte) 0x0);
+    }
 
-	public void setByDoubleCode(byte regCode, char data, boolean useSP) {
-		switch (regCode) {
-			case BC:
-				setBC(data);
-				break;
-			case DE:
-				setDE(data);
-				break;
-			case HL:
-				setHL(data);
-				break;
-			case AF_SP:
-				if (useSP) {
-					setSP(data);
-				} else {
-					setAF(data);
-				}
-				break;
-			default:
-				log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
-		}
-	}
+    public void setFlagZ() {
+        this.setF((byte) (this.getF() | 0x80));
+    }
 
-	//This always uses 0x3 as AF
-	public char getByDoubleCode(byte regCode) {
-		switch (regCode) {
-			case BC:
-				return getBC();
-			case DE:
-				return getDE();
-			case HL:
-				return getHL();
-			case AF_SP:
-				return getAF();
-			default:
-				log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
-				return 0x0;
-		}
-	}
+    public void setFlagN() {
+        this.setF((byte) (this.getF() | 0x40));
+    }
+
+    public void setFlagH() {
+        this.setF((byte) (this.getF() | 0x20));
+    }
+
+    public void setFlagC() {
+        this.setF((byte) (this.getF() | 0x10));
+    }
+
+
+    //IMPORTANT: use this functions only for testing and not performance-critical actions
+    public boolean checkFlagZ() {
+        return ((byte) (this.getF() & 0x80)) != 0x0;
+    }
+
+    public boolean checkFlagN() {
+        return ((byte) (this.getF() & 0x40)) != 0x0;
+    }
+
+    public boolean checkFlagH() {
+        return ((byte) (this.getF() & 0x20)) != 0x0;
+    }
+
+    public boolean checkFlagC() {
+        return ((byte) (this.getF() & 0x10)) != 0x0;
+    }
+
+
+    public byte getByCode(byte regCode) {
+        switch (regCode) {
+            case A:
+                return getA();
+            case B:
+                return getB();
+            case C:
+                return getC();
+            case D:
+                return getD();
+            case E:
+                return getE();
+            case H:
+                return getH();
+            case L:
+                return getL();
+            default:
+                log.error("Incorrect read register by code: " + String.format("%02x", (int) regCode));
+                return 0x0;
+        }
+    }
+
+    public void setByCode(byte regCode, byte data) {
+        switch (regCode) {
+            case A:
+                setA(data);
+                break;
+            case B:
+                setB(data);
+                break;
+            case C:
+                setC(data);
+                break;
+            case D:
+                setD(data);
+                break;
+            case E:
+                setE(data);
+                break;
+            case H:
+                setH(data);
+                break;
+            case L:
+                setL(data);
+                break;
+            default:
+                log.error("Incorrect store to register by code: " + String.format("%02x", (int) regCode));
+        }
+    }
+
+    public void setByDoubleCode(byte regCode, char data, boolean useSP) {
+        switch (regCode) {
+            case BC:
+                setBC(data);
+                break;
+            case DE:
+                setDE(data);
+                break;
+            case HL:
+                setHL(data);
+                break;
+            case AF_SP:
+                if (useSP) {
+                    setSP(data);
+                } else {
+                    setAF(data);
+                }
+                break;
+            default:
+                log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
+        }
+    }
+
+    //This always uses 0x3 as AF
+    public char getByDoubleCode(byte regCode) {
+        switch (regCode) {
+            case BC:
+                return getBC();
+            case DE:
+                return getDE();
+            case HL:
+                return getHL();
+            case AF_SP:
+                return getAF();
+            default:
+                log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
+                return 0x0;
+        }
+    }
 }

@@ -10,9 +10,10 @@ public class Memory {
 	private static final Logger log = LogManager.getLogger(Memory.class);
 
 	/**
-	 * 16-bit (2 Byte) bus, so a (byte) is used, as it is unsigned. Short is NOT unsigned.
+	 * 16-bit (2 Byte) bus, so a (char) is used, as it is unsigned. Short is NOT unsigned.
 	 * Allows to read/write 8-bit (1 Byte) at a time (byte)
 	 */
+
 	//Cartridge: 0x0000 to 0x7FFF (32KB)
 	private final static char CARTRIDGE_START = 0x0000;
 	private final static int CARTRIDGE_SIZE_BYTES = 32768;
@@ -73,7 +74,7 @@ public class Memory {
 		spriteRAM = new byte[SPRITE_RAM_SIZE_BYTES];
 		ioRAM = new byte[IO_RAM_SIZE_BYTES];
 		highRAM = new byte[HIGH_RAM_SIZE_BYTES];
-		interruptEnable = 0x0;
+		interruptEnable = 0x0;	//TODO: Is this really initialized as 0x0? Check manual
 		log.debug("Memory cleared");
 	}
 
