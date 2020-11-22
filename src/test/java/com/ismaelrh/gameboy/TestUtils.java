@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TestUtils {
 
+    //This should be used instead of assertEquals, as that casts the byte to an int, and causes problems!!
     public static void assertEquals8(int a, byte b) {
         assertEquals((byte) a, b);
     }

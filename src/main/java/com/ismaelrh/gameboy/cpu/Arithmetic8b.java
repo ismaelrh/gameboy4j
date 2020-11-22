@@ -5,14 +5,14 @@ import com.ismaelrh.gameboy.Memory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ArithmeticCommands8b {
+public class Arithmetic8b {
 
-    private static final Logger log = LogManager.getLogger(ArithmeticCommands8b.class);
+    private static final Logger log = LogManager.getLogger(Arithmetic8b.class);
 
     private Registers registers;
     private Memory memory;
 
-    public ArithmeticCommands8b(Registers registers, Memory memory) {
+    public Arithmetic8b(Registers registers, Memory memory) {
         this.registers = registers;
         this.memory = memory;
     }
@@ -40,6 +40,105 @@ public class ArithmeticCommands8b {
         addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstOperand() == 0x1);
         return 8;
     }
+
+    public short sub_r(Instruction inst) {
+        //TODO
+        return 4;
+    }
+
+    public short sub_n(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short sub_HL(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short and_r(Instruction inst) {
+        //TODO
+        return 4;
+    }
+
+    public short and_n(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short and_HL(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short xor_r(Instruction inst) {
+        //TODO
+        return 4;
+    }
+
+    public short xor_n(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short xor_HL(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short or_r(Instruction inst) {
+        //TODO
+        return 4;
+    }
+
+    public short or_n(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short or_HL(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short cp_r(Instruction inst) {
+        //TODO
+        return 4;
+    }
+
+    public short cp_n(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+    public short cp_HL(Instruction inst) {
+        //TODO
+        return 8;
+    }
+
+
+    public short inc_r(Instruction inst){
+        //TODO
+        return 4;
+    }
+
+    public short inc_HL(Instruction inst){
+        //TODO
+        return 12;
+    }
+
+    public short dec_r(Instruction inst){
+        //TODO
+        return 4;
+    }
+
+    public short dec_HL(Instruction inst){
+        //TODO
+        return 12;
+    }
+
+
+
 
     private void addToA(Registers registers, byte oldValue, byte valueToAdd, boolean checkForCarry) {
 

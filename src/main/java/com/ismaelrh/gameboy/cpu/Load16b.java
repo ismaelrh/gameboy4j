@@ -10,14 +10,14 @@ import org.apache.logging.log4j.Logger;
  * 2nd operand is 3 least significant bits.
  * 1st operand is 4-6 least significant bits
  */
-public class LoadCommands16b {
+public class Load16b {
 
-    private static final Logger log = LogManager.getLogger(LoadCommands16b.class);
+    private static final Logger log = LogManager.getLogger(Load16b.class);
 
     private Registers registers;
     private Memory memory;
 
-    public LoadCommands16b(Registers registers, Memory memory) {
+    public Load16b(Registers registers, Memory memory) {
         this.registers = registers;
         this.memory = memory;
     }
