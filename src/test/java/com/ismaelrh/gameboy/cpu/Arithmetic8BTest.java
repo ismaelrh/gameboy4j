@@ -9,8 +9,7 @@ import org.junit.Test;
 import static com.ismaelrh.gameboy.TestUtils.assertEquals8;
 import static com.ismaelrh.gameboy.TestUtils.assertFlags;
 import static com.ismaelrh.gameboy.cpu.Registers.E;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class Arithmetic8BTest {
 
@@ -388,9 +387,273 @@ public class Arithmetic8BTest {
 
         short cycles = arithmetic8B.addA_HL(inst);
 
-        assertEquals((byte) 0xF1, registers.getA());
+        assertEquals8(0xF1, registers.getA());
         assertFlags(registers, false, false, true, false);
         assertEquals(8, cycles);
+    }
+
+    @Test
+    public void and_r_not_zero() {
+        registers.setA((byte) 0x5A);
+        registers.setE((byte) 0x3F);
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.and_r(inst);
+        assertEquals(4, cycles);
+        assertEquals8(0x1A, registers.getA());
+        assertFlags(registers, false, false, true, false);
+    }
+
+    @Test
+    public void and_r_zero() {
+        registers.setA((byte) 0xF0);
+        registers.setE((byte) 0x0F);
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.and_r(inst);
+        assertEquals(4, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, true, false);
+    }
+
+    @Test
+    public void and_n_not_zero() {
+        registers.setA((byte) 0x5A);
+        Instruction inst = new InstructionBuilder()
+                .withImmediate8b((byte)0x3F)
+                .build();
+
+        short cycles = arithmetic8B.and_n(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x1A, registers.getA());
+        assertFlags(registers, false, false, true, false);
+    }
+
+    @Test
+    public void and_n_zero() {
+        registers.setA((byte) 0xF0);
+        Instruction inst = new InstructionBuilder()
+                .withImmediate8b((byte)0x0F)
+                .build();
+
+        short cycles = arithmetic8B.and_n(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, true, false);
+    }
+
+    @Test
+    public void and_HL_not_zero() {
+        registers.setA((byte) 0x5A);
+        registers.setHL((char)0xBEBA);
+        memory.write((char)0xBEBA,(byte)0x3F);
+
+        Instruction inst = new InstructionBuilder()
+                .build();
+
+        short cycles = arithmetic8B.and_HL(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x1A, registers.getA());
+        assertFlags(registers, false, false, true, false);
+    }
+
+    @Test
+    public void and_HL_zero() {
+        registers.setA((byte) 0xF0);
+        registers.setHL((char)0xBEBA);
+        memory.write((char)0xBEBA,(byte)0x0F);
+
+        Instruction inst = new InstructionBuilder()
+                .build();
+
+        short cycles = arithmetic8B.and_HL(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, true, false);
+    }
+
+    @Test
+    public void or_r_not_zero() {
+        registers.setA((byte) 0xF0);
+        registers.setE((byte) 0x0F);
+
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.or_r(inst);
+        assertEquals(4, cycles);
+        assertEquals8(0xFF, registers.getA());
+        assertFlags(registers, false, false, false, false);
+    }
+
+    @Test
+    public void or_r_zero() {
+        registers.setA((byte) 0x00);
+        registers.setE((byte) 0x00);
+
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.or_r(inst);
+        assertEquals(4, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, false, false);
+    }
+
+    @Test
+    public void or_n_not_zero() {
+        registers.setA((byte) 0xF0);
+
+        Instruction inst = new InstructionBuilder()
+                .withImmediate8b((byte)0x0F)
+                .build();
+
+        short cycles = arithmetic8B.or_n(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0xFF, registers.getA());
+        assertFlags(registers, false, false, false, false);
+    }
+
+    @Test
+    public void or_n_zero() {
+        registers.setA((byte) 0x00);
+
+        Instruction inst = new InstructionBuilder()
+                .withImmediate8b((byte)0x00)
+                .build();
+
+        short cycles = arithmetic8B.or_n(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, false, false);
+    }
+
+    @Test
+    public void or_HL_not_zero() {
+        registers.setA((byte) 0xF0);
+        registers.setHL((char)0xBEBA);
+        memory.write((char)0xBEBA,(byte)0x0F);
+
+        Instruction inst = new InstructionBuilder()
+                .build();
+
+        short cycles = arithmetic8B.or_HL(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0xFF, registers.getA());
+        assertFlags(registers, false, false, false, false);
+    }
+
+    @Test
+    public void or_HL_zero() {
+        registers.setA((byte) 0x00);
+        registers.setHL((char)0xBEBA);
+        memory.write((char)0xBEBA,(byte)0x00);
+
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.or_HL(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, false, false);
+    }
+
+
+    @Test
+    public void xor_r_not_zero() {
+        registers.setA((byte) 0x3F);
+        registers.setE((byte) 0x3E);
+
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.xor_r(inst);
+        assertEquals(4, cycles);
+        assertEquals8(0x01, registers.getA());
+        assertFlags(registers, false, false, false, false);
+    }
+
+    @Test
+    public void xor_r_zero() {
+        registers.setA((byte) 0x3F);
+        registers.setE((byte) 0x3F);
+
+        Instruction inst = new InstructionBuilder()
+                .withSecondOperand(E)
+                .build();
+
+        short cycles = arithmetic8B.xor_r(inst);
+        assertEquals(4, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, false, false);
+    }
+
+
+    @Test
+    public void xor_n_not_zero() {
+        registers.setA((byte) 0x3F);
+
+        Instruction inst = new InstructionBuilder()
+                .withImmediate8b((byte)0x3E)
+                .build();
+
+        short cycles = arithmetic8B.xor_n(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x01, registers.getA());
+        assertFlags(registers, false, false, false, false);
+    }
+
+    @Test
+    public void xor_n_zero() {
+        registers.setA((byte) 0x3F);
+
+        Instruction inst = new InstructionBuilder()
+                .withImmediate8b((byte)0x3F)
+                .build();
+
+        short cycles = arithmetic8B.xor_n(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, false, false);
+    }
+
+
+    @Test
+    public void xor_HL_not_zero() {
+        registers.setA((byte) 0x3F);
+        registers.setHL((char)0xBEBA);
+        memory.write((char)0xBEBA,(byte)0x3E);
+
+        Instruction inst = new InstructionBuilder()
+                .build();
+
+        short cycles = arithmetic8B.xor_HL(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x01, registers.getA());
+        assertFlags(registers, false, false, false, false);
+    }
+
+    @Test
+    public void xor_HL_zero() {
+        registers.setA((byte) 0x3F);
+        registers.setHL((char)0xBEBA);
+        memory.write((char)0xBEBA,(byte)0x3F);
+
+        Instruction inst = new InstructionBuilder()
+                .build();
+
+        short cycles = arithmetic8B.xor_HL(inst);
+        assertEquals(8, cycles);
+        assertEquals8(0x00, registers.getA());
+        assertFlags(registers, true, false, false, false);
     }
 
 }

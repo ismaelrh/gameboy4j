@@ -57,49 +57,97 @@ public class Arithmetic8b {
     }
 
     public short and_r(Instruction inst) {
-        //TODO
+        byte valueToAnd = registers.getByCode(inst.getOpcodeSecondOperand());
+        and(valueToAnd);
         return 4;
     }
 
     public short and_n(Instruction inst) {
-        //TODO
+        byte valueToAnd = inst.getImmediate8b();
+        and(valueToAnd);
         return 8;
     }
 
     public short and_HL(Instruction inst) {
-        //TODO
+        char memAddress = registers.getHL();
+        byte valueToAnd = memory.read(memAddress);
+        and(valueToAnd);
         return 8;
     }
 
-    public short xor_r(Instruction inst) {
-        //TODO
-        return 4;
+    private void and(byte valueToAnd) {
+        byte newValue = (byte) (registers.getA() & valueToAnd & 0xFF);
+        registers.setA(newValue);
+
+        registers.setF((byte) 0x20); //0010_0000
+
+        if (newValue == (byte) 0x0) {
+            registers.setFlagZ();
+        }
     }
 
-    public short xor_n(Instruction inst) {
-        //TODO
-        return 8;
-    }
-
-    public short xor_HL(Instruction inst) {
-        //TODO
-        return 8;
-    }
 
     public short or_r(Instruction inst) {
-        //TODO
+        byte valueToAnd = registers.getByCode(inst.getOpcodeSecondOperand());
+        or(valueToAnd);
         return 4;
     }
 
     public short or_n(Instruction inst) {
-        //TODO
+        byte valueToAnd = inst.getImmediate8b();
+        or(valueToAnd);
         return 8;
     }
 
     public short or_HL(Instruction inst) {
-        //TODO
+        char memAddress = registers.getHL();
+        byte valueToAnd = memory.read(memAddress);
+        or(valueToAnd);
         return 8;
     }
+
+
+    private void or(byte valueToOr) {
+        byte newValue = (byte) (registers.getA() | valueToOr & 0xFF);
+        registers.setA(newValue);
+
+        registers.resetFlags();
+
+        if (newValue == (byte) 0x0) {
+            registers.setFlagZ();
+        }
+    }
+
+    public short xor_r(Instruction inst) {
+        byte valueToAnd = registers.getByCode(inst.getOpcodeSecondOperand());
+        xor(valueToAnd);
+        return 4;
+    }
+
+    public short xor_n(Instruction inst) {
+        byte valueToAnd = inst.getImmediate8b();
+        xor(valueToAnd);
+        return 8;
+    }
+
+    public short xor_HL(Instruction inst) {
+        char memAddress = registers.getHL();
+        byte valueToAnd = memory.read(memAddress);
+        xor(valueToAnd);
+        return 8;
+    }
+
+    private void xor(byte valueToOr) {
+        byte newValue = (byte) (registers.getA() ^ valueToOr & 0xFF);
+        registers.setA(newValue);
+
+        registers.resetFlags();
+
+        if (newValue == (byte) 0x0) {
+            registers.setFlagZ();
+        }
+    }
+
 
     public short cp_r(Instruction inst) {
         //TODO
@@ -117,27 +165,25 @@ public class Arithmetic8b {
     }
 
 
-    public short inc_r(Instruction inst){
+    public short inc_r(Instruction inst) {
         //TODO
         return 4;
     }
 
-    public short inc_HL(Instruction inst){
+    public short inc_HL(Instruction inst) {
         //TODO
         return 12;
     }
 
-    public short dec_r(Instruction inst){
+    public short dec_r(Instruction inst) {
         //TODO
         return 4;
     }
 
-    public short dec_HL(Instruction inst){
+    public short dec_HL(Instruction inst) {
         //TODO
         return 12;
     }
-
-
 
 
     private void addToA(Registers registers, byte oldValue, byte valueToAdd, boolean checkForCarry) {
