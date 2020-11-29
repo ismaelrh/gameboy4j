@@ -76,8 +76,12 @@ public class Instruction {
         return (byte) ((opcode & 0xC0) >> 6);
     }
 
-    public byte getOpcodeFirstOperand() {
+    public byte getOpcodeFirstSingleRegister() {
         return (byte) ((opcode & 0x38) >> 3);
+    }
+
+    public byte getOpcodeFirstDoubleRegister() {
+        return (byte) ((opcode & 0x38) >> 4);
     }
 
     public byte getOpcodeSecondOperand() {

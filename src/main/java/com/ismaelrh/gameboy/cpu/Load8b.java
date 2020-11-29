@@ -26,7 +26,7 @@ public class Load8b {
     //ld r,r' [r <- r']
     public short loadRR(Instruction inst) {
         byte secondOp = inst.getOpcodeSecondOperand();
-        byte firstOp = inst.getOpcodeFirstOperand();
+        byte firstOp = inst.getOpcodeFirstSingleRegister();
         byte data = registers.getByCode(secondOp);
         registers.setByCode(firstOp, data);
         return 4;
@@ -34,14 +34,14 @@ public class Load8b {
 
     //ld r,n  [r <- n]
     public short loadRImmediate(Instruction inst) {
-        byte operand = inst.getOpcodeFirstOperand();
+        byte operand = inst.getOpcodeFirstSingleRegister();
         registers.setByCode(operand, inst.getImmediate8b());
         return 8;
     }
 
     //ld r, (HL)  [r<-(HL)]
     public short loadRHL(Instruction inst) {
-        byte operand = inst.getOpcodeFirstOperand();
+        byte operand = inst.getOpcodeFirstSingleRegister();
         char addressToRead = registers.getHL();
         byte memData = memory.read(addressToRead);
         registers.setByCode(operand, memData);

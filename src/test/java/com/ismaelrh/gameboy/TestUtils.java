@@ -24,6 +24,14 @@ public class TestUtils {
         return res;
     }
 
+    public static byte getOpcodeDoubleRegister(int opcode, byte first, byte second) {
+        byte res = 0x0; //00 000 000
+        res = (byte) (res | (opcode << 6)); //OP 000 000
+        res = (byte) (res | ((first & 0x3) << 4));//OP FST 000
+        res = (byte) (res | (second & 0x7)); //OP FST SND
+        return res;
+    }
+
     public static void assertFlags(Registers registers, boolean z, boolean n, boolean h, boolean c) {
         assertEquals("Flag z. Expected="+z + ",Got=" + registers.checkFlagZ(),registers.checkFlagZ(),z);
         assertEquals("Flag n. Expected="+n + ",Got=" + registers.checkFlagN(),registers.checkFlagN(),n);

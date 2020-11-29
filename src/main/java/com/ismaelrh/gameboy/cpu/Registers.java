@@ -14,10 +14,10 @@ public class Registers {
     public final static byte E = 0x03;
     public final static byte H = 0x04;
     public final static byte L = 0x05;
-    public final static byte BC = 0x00; //000
-    public final static byte DE = 0x02; //010
-    public final static byte HL = 0x04; //100
-    public final static byte AF_SP = 0x06; //110
+    public final static byte BC = 0x00; //00x
+    public final static byte DE = 0x01; //01x
+    public final static byte HL = 0x02; //10x
+    public final static byte AF_SP = 0x03; //11x
 
     public final static byte NONE = 0xF;
 
@@ -178,18 +178,33 @@ public class Registers {
         this.setF((byte) (this.getF() | 0x80));
     }
 
+    public void clearFlagZ() {
+        this.setF((byte) (this.getF() & 0x7F));
+    }
+
     public void setFlagN() {
         this.setF((byte) (this.getF() | 0x40));
+    }
+
+    public void clearFlagN() {
+        this.setF((byte) (this.getF() & 0xBF));
     }
 
     public void setFlagH() {
         this.setF((byte) (this.getF() | 0x20));
     }
 
+    public void clearFlagH() {
+        this.setF((byte) (this.getF() & 0xDF));
+    }
+
     public void setFlagC() {
         this.setF((byte) (this.getF() | 0x10));
     }
 
+    public void clearFlagC() {
+        this.setF((byte) (this.getF() & 0xEF));
+    }
 
     //IMPORTANT: use this functions only for testing and not performance-critical actions
     public boolean checkFlagZ() {
@@ -274,7 +289,7 @@ public class Registers {
                 if (useSP) {
                     setSP(data);
                 } else {
-                    setAF(data);
+                    setAF(data);    //AF is only used in popQQ
                 }
                 break;
             default:
@@ -283,7 +298,7 @@ public class Registers {
     }
 
     //This always uses 0x3 as AF
-    public char getByDoubleCode(byte regCode) {
+    public char getByDoubleCode(byte regCode, boolean useSP) {
         switch (regCode) {
             case BC:
                 return getBC();
@@ -292,7 +307,11 @@ public class Registers {
             case HL:
                 return getHL();
             case AF_SP:
-                return getAF();
+                if (useSP) {
+                    return getSP();
+                } else {
+                    return getAF();
+                }
             default:
                 log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
                 return 0x0;

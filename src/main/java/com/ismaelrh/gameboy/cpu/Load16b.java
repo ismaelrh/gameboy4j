@@ -28,7 +28,7 @@ public class Load16b {
 
     //LD rr, nn [rr <- nn] (rr is pair of registers)
     public short loadRR_NN(Instruction inst) {
-        byte regCode = inst.getOpcodeFirstOperand();
+        byte regCode = inst.getOpcodeFirstDoubleRegister();
         registers.setByDoubleCode(regCode, inst.getImmediate16b(), true);
 
         return 12;
@@ -44,8 +44,8 @@ public class Load16b {
 
     //push qq ((SP -1) <- qqH; (SP -2) <- qqL; SP <- SP -2)
     public short push_QQ(Instruction inst) {
-        byte regCode = inst.getOpcodeFirstOperand();
-        char regContent = registers.getByDoubleCode(regCode);
+        byte regCode = inst.getOpcodeFirstDoubleRegister();
+        char regContent = registers.getByDoubleCode(regCode,false);
         byte high = (byte) ((regContent >> 8) & 0xFF);
         byte low = (byte) (regContent & 0xFF);
         char curSP = registers.getSP();
@@ -58,7 +58,7 @@ public class Load16b {
 
     //pop qq (qqL <- (SP); qqH <- (SP+1); SP <- SP + 2)
     public short pop_QQ(Instruction inst) {
-        byte regCode = inst.getOpcodeFirstOperand();
+        byte regCode = inst.getOpcodeFirstDoubleRegister();
         char spPointer = registers.getSP();
         char spPlusOnePointer = (char) (spPointer + 1);
         byte lowContent = memory.read(spPointer);

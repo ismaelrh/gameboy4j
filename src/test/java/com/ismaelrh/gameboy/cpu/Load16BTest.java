@@ -33,13 +33,13 @@ public class Load16BTest {
     @Test
     public void loadRR_NN() {
         //nn <- 0xBEEF, BC <- 0xBEEF
-        Instruction inst1 = new Instruction(getOpcode(0x00, BC, NONE), (char) 0xBEEF);
+        Instruction inst1 = new Instruction(getOpcodeDoubleRegister(0x00, BC, NONE), (char) 0xBEEF);
         short cycles = load16B.loadRR_NN(inst1);
         assertEquals16(0xBEEF, registers.getBC());
         assertEquals(12, cycles);
 
         //nn <- 0xDEAD, SP <- 0xDEAD
-        Instruction inst2 = new Instruction(getOpcode(0x00, AF_SP, NONE), (char) 0xDEAD);
+        Instruction inst2 = new Instruction(getOpcodeDoubleRegister(0x00, AF_SP, NONE), (char) 0xDEAD);
 
         load16B.loadRR_NN(inst2);
         assertEquals16(0xDEAD, registers.getSP());
@@ -59,7 +59,7 @@ public class Load16BTest {
         //SP = 0x0001, AF = 0xBEEF, (0x0000) <- 0xBE, (0xFFFF) <- 0xEF, SP <- 0xFFFF
         registers.setSP((char) 0x0001);
         registers.setAF((char) 0xBEEF);
-        Instruction inst = new Instruction(getOpcode(0x3, AF_SP, NONE));
+        Instruction inst = new Instruction(getOpcodeDoubleRegister(0x3, AF_SP, NONE));
         short cycles = load16B.push_QQ(inst);
 
         assertEquals8(0xBE, memory.read((char) 0x0000));
@@ -74,7 +74,7 @@ public class Load16BTest {
         registers.setSP((char) 0xFFFF);
         memory.write((char) 0xFFFF, (byte) 0xEF);
         memory.write((char) 0x0000, (byte) 0xBE);
-        Instruction inst = new Instruction(getOpcode(0x3, AF_SP, NONE));
+        Instruction inst = new Instruction(getOpcodeDoubleRegister(0x3, AF_SP, NONE));
         short cycles = load16B.pop_QQ(inst);
 
         assertEquals16(0xBEEF, registers.getAF());

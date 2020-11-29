@@ -21,7 +21,7 @@ public class Arithmetic8b {
     public short addA_r(Instruction inst) {
         byte valueToAdd = registers.getByCode(inst.getOpcodeSecondOperand());
         byte oldValue = registers.getA();
-        addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstOperand() == 0x1);
+        addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstSingleRegister() == 0x1);
         return 4;
     }
 
@@ -29,7 +29,7 @@ public class Arithmetic8b {
     public short addA_n(Instruction inst) {
         byte valueToAdd = inst.getImmediate8b();
         byte oldValue = registers.getA();
-        addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstOperand() == 0x1);
+        addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstSingleRegister() == 0x1);
         return 8;
     }
 
@@ -37,28 +37,28 @@ public class Arithmetic8b {
     public short addA_HL(Instruction inst) {
         byte valueToAdd = memory.read(registers.getHL());
         byte oldValue = registers.getA();
-        addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstOperand() == 0x1);
+        addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstSingleRegister() == 0x1);
         return 8;
     }
 
     public short sub_r(Instruction inst) {
         byte valueToSub = registers.getByCode(inst.getOpcodeSecondOperand());
         byte oldValue = registers.getA();
-        subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstOperand() == 0x3, inst.getOpcodeFirstOperand() == 0x7);
+        subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstSingleRegister() == 0x3, inst.getOpcodeFirstSingleRegister() == 0x7);
         return 4;
     }
 
     public short sub_n(Instruction inst) {
         byte valueToSub = inst.getImmediate8b();
         byte oldValue = registers.getA();
-        subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstOperand() == 0x3, inst.getOpcodeFirstOperand() == 0x7);
+        subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstSingleRegister() == 0x3, inst.getOpcodeFirstSingleRegister() == 0x7);
         return 8;
     }
 
     public short sub_HL(Instruction inst) {
         byte valueToSub = memory.read(registers.getHL());
         byte oldValue = registers.getA();
-        subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstOperand() == 0x3, inst.getOpcodeFirstOperand() == 0x7);
+        subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstSingleRegister() == 0x3, inst.getOpcodeFirstSingleRegister() == 0x7);
         return 8;
     }
 
@@ -165,11 +165,11 @@ public class Arithmetic8b {
     }
 
     public short inc_r(Instruction inst) {
-        byte originalValue = registers.getByCode(inst.getOpcodeFirstOperand());
+        byte originalValue = registers.getByCode(inst.getOpcodeFirstSingleRegister());
         byte newValue = (byte) (originalValue + (byte) 0x01);
         byte newFlags = getIncrementFlags(originalValue);
         registers.setF(newFlags);
-        registers.setByCode(inst.getOpcodeFirstOperand(), newValue);
+        registers.setByCode(inst.getOpcodeFirstSingleRegister(), newValue);
         return 4;
     }
 
@@ -185,11 +185,11 @@ public class Arithmetic8b {
     }
 
     public short dec_r(Instruction inst) {
-        byte originalValue = registers.getByCode(inst.getOpcodeFirstOperand());
+        byte originalValue = registers.getByCode(inst.getOpcodeFirstSingleRegister());
         byte newValue = (byte) (originalValue - (byte) 0x01);
         byte newFlags = getDecrementFlags(originalValue);
         registers.setF(newFlags);
-        registers.setByCode(inst.getOpcodeFirstOperand(), newValue);
+        registers.setByCode(inst.getOpcodeFirstSingleRegister(), newValue);
         return 4;
     }
 
@@ -210,6 +210,46 @@ public class Arithmetic8b {
         byte result = (byte) (baseValue ^ 0xFF);
         registers.setF(newFlags);
         registers.setA(result);
+        return 4;
+    }
+
+    public short daa(Instruction inst) {
+        /*
+         * // note: assumes a is a uint8_t and wraps from 0xff to 0
+         * if (!n_flag) {  // after an addition, adjust if (half-)carry occurred or if result is out of bounds
+         *   if (c_flag || a > 0x99) { a += 0x60; c_flag = 1; }
+         *   if (h_flag || (a & 0x0f) > 0x09) { a += 0x6; }
+         * } else {  // after a subtraction, only adjust if (half-)carry occurred
+         *   if (c_flag) { a -= 0x60; }
+         *   if (h_flag) { a -= 0x6; }
+         * }
+         * // these flags are always updated
+         * z_flag = (a == 0); // the usual z flag
+         * h_flag = 0; // h flag is always cleared
+         */
+        if (!registers.checkFlagN()) {
+            if (registers.checkFlagC() || registers.getA() > (byte) 0x99) {
+                registers.setA((byte) (registers.getA() + (byte) 0x60));
+                registers.setFlagC();
+            }
+            if (registers.checkFlagH() || (registers.getA() & 0x0F) > (byte) 0x09) {
+                registers.setA((byte) (registers.getA() + (byte) 0x6));
+            }
+        } else {
+            if (registers.checkFlagC()) {
+                registers.setA((byte) (registers.getA() - (byte) 0x60));
+            }
+            if (registers.checkFlagH()) {
+                registers.setA((byte) (registers.getA() - (byte) 0x6));
+            }
+        }
+        if (registers.getA() == 0x00) {
+            registers.setFlagZ();
+        } else {
+            registers.clearFlagZ();
+        }
+        registers.clearFlagH();
+
         return 4;
     }
 
