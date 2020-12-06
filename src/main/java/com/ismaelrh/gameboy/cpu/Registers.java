@@ -113,7 +113,7 @@ public class Registers {
     }
 
     public void setSP(char sp) {
-        this.sp = sp;
+        this.sp = (char) (sp & 0xFFFF);
     }
 
     public void setAF(char af) {
