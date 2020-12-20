@@ -371,7 +371,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.sra_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0x00, memory.read((char)0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xBEBA));
         assertFlags(registers, true, false, false, false);
     }
 
@@ -398,7 +398,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.sra_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0x07, memory.read((char)0xBEBA));
+        assertEquals8(0x07, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -425,7 +425,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.sra_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0xC0, memory.read((char)0xBEBA));
+        assertEquals8(0xC0, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -452,7 +452,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.sra_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0xC7, memory.read((char)0xBEBA));
+        assertEquals8(0xC7, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -479,7 +479,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.srl_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0x00, memory.read((char)0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xBEBA));
         assertFlags(registers, true, false, false, false);
     }
 
@@ -506,7 +506,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.srl_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0x07, memory.read((char)0xBEBA));
+        assertEquals8(0x07, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -533,7 +533,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.srl_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0x40, memory.read((char)0xBEBA));
+        assertEquals8(0x40, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -560,7 +560,7 @@ public class RotateShiftTest {
                 .build();
         short cycles = rotateShift.srl_hl(inst);
         assertEquals(16, cycles);
-        assertEquals8(0x47, memory.read((char)0xBEBA));
+        assertEquals8(0x47, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, true);
     }
 
