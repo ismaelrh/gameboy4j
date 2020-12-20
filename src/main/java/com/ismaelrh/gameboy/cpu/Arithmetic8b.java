@@ -115,7 +115,7 @@ public class Arithmetic8b {
         byte newValue = (byte) (registers.getA() | valueToOr & 0xFF);
         registers.setA(newValue);
 
-        registers.resetFlags();
+        registers.clearFlags();
 
         if (newValue == (byte) 0x0) {
             registers.setFlagZ();
@@ -145,7 +145,7 @@ public class Arithmetic8b {
         byte newValue = (byte) (registers.getA() ^ valueToOr & 0xFF);
         registers.setA(newValue);
 
-        registers.resetFlags();
+        registers.clearFlags();
 
         if (newValue == (byte) 0x0) {
             registers.setFlagZ();
@@ -264,7 +264,7 @@ public class Arithmetic8b {
 
         //Set flags
         //TODO: improve so the addition and the flag calculation is done at same time? I doubt this causes any performance improvement.
-        registers.resetFlags();
+        registers.clearFlags();
 
         //1st flags and ops
         byte flags = getOverflowFlagsForAddition(oldValue, valueToAddWithCarry);
@@ -312,7 +312,7 @@ public class Arithmetic8b {
         }
 
         //Set flags
-        registers.resetFlags();
+        registers.clearFlags();
 
         //1st flags and ops
         byte valueToSubWithCarry = (byte) ((valueToSub + removedCarry) & 0xFF);

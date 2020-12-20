@@ -55,7 +55,7 @@ public class Arithmetic16b {
         // lower byte of sp. The addition itself is done with the value as a signed byte.
 
         //Clear all flags. Z and N will remain reset.
-        registers.resetFlags();
+        registers.clearFlags();
 
         //The addition itself is done with the value as a signed byte.
         char sp = registers.getSP();
@@ -81,7 +81,7 @@ public class Arithmetic16b {
         // lower byte of sp. The addition itself is done with the value as a signed byte.
 
         //Clear all flags. Z and N will remain reset.
-        registers.resetFlags();
+        registers.clearFlags();
 
         //The addition itself is done with the value as a signed byte.
         char sp = registers.getSP();

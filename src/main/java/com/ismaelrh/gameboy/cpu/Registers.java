@@ -170,7 +170,7 @@ public class Registers {
         this.hl = (char) ((this.hl & 0xFF00) | (l & 0xFF));
     }
 
-    public void resetFlags() {
+    public void clearFlags() {
         this.setF((byte) 0x0);
     }
 
@@ -200,6 +200,13 @@ public class Registers {
 
     public void setFlagC() {
         this.setF((byte) (this.getF() | 0x10));
+    }
+
+    public void setAllFlags(){
+        setFlagZ();
+        setFlagN();
+        setFlagH();
+        setFlagC();
     }
 
     public void clearFlagC() {
