@@ -19,18 +19,30 @@ public class ControlCommands {
 
     public short nop(Instruction inst) {
         //Does nothing
+        //If CY is different to
         return 4;
     }
 
     public short ccf(Instruction inst) {
-        //cy=cy xor 1
-        //TODO
+
+        //Get actual value of CY
+        boolean cySet = (registers.getF() & 0x10 & 0xFF) == 0x10;
+
+        //Clear  NHC flags
+        registers.setF((byte) (registers.getF() & 0x80));
+
+        //cy=1 => result 0
+        //cy=0 => result 1
+        if (!cySet) {
+            registers.setFlagC();
+        }
+
         return 4;
     }
 
     public short scf(Instruction inst) {
-        //cy=1
-        //TODO
+        //Set flags to -001
+        registers.setF((byte)((registers.getF() & 0x80) | (0x10)));
         return 4;
     }
 
