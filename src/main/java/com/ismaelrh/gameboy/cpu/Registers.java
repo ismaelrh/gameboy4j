@@ -39,6 +39,9 @@ public class Registers {
     //HL: 16bit (contains H and L)
     private char hl;
 
+    //Interruption master enable flag
+    private boolean ime = false;
+
     public Registers() {
         init();
     }
@@ -170,6 +173,14 @@ public class Registers {
         this.hl = (char) ((this.hl & 0xFF00) | (l & 0xFF));
     }
 
+    public boolean isIme() {
+        return ime;
+    }
+
+    public void setIme(boolean ime) {
+        this.ime = ime;
+    }
+
     public void clearFlags() {
         this.setF((byte) 0x0);
     }
@@ -202,7 +213,7 @@ public class Registers {
         this.setF((byte) (this.getF() | 0x10));
     }
 
-    public void setAllFlags(){
+    public void setAllFlags() {
         setFlagZ();
         setFlagN();
         setFlagH();

@@ -132,6 +132,8 @@ public class Memory {
 		log.debug("Write [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", data));
 	}
 
+
+
 	protected byte[] getCartridge() {
 		return cartridge;
 	}

@@ -1,8 +1,10 @@
-package com.ismaelrh.gameboy.cpu;
+package com.ismaelrh.gameboy.cpu.instructions;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.InstructionBuilder;
 import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.Registers;
+import com.ismaelrh.gameboy.cpu.instructions.Arithmetic8b;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -1,7 +1,8 @@
-package com.ismaelrh.gameboy.cpu;
+package com.ismaelrh.gameboy.cpu.instructions;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.Registers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

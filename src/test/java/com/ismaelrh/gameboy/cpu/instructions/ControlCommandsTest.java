@@ -1,13 +1,15 @@
-package com.ismaelrh.gameboy.cpu;
+package com.ismaelrh.gameboy.cpu.instructions;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.InstructionBuilder;
 import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.Registers;
+import com.ismaelrh.gameboy.cpu.instructions.ControlCommands;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.ismaelrh.gameboy.TestUtils.assertFlags;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ControlCommandsTest {
 
@@ -104,6 +106,26 @@ public class ControlCommandsTest {
         assertEquals(4, controlCommands.scf(inst));
         assertEquals(4, cycles);
         assertFlags(registers, false, false, false, true);
+    }
+
+    @Test
+    public void di() {
+        registers.setIme(true);
+        Instruction inst = new InstructionBuilder()
+                .build();
+        short cycles = controlCommands.di(inst);
+        assertEquals(4, cycles);
+        assertFalse(registers.isIme());
+    }
+
+    @Test
+    public void ei() {
+        registers.setIme(false);
+        Instruction inst = new InstructionBuilder()
+                .build();
+        short cycles = controlCommands.ei(inst);
+        assertEquals(4, cycles);
+        assertTrue(registers.isIme());
     }
 }
 

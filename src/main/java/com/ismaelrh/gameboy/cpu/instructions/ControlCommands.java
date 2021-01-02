@@ -1,7 +1,8 @@
-package com.ismaelrh.gameboy.cpu;
+package com.ismaelrh.gameboy.cpu.instructions;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.Registers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +43,7 @@ public class ControlCommands {
 
     public short scf(Instruction inst) {
         //Set flags to -001
-        registers.setF((byte)((registers.getF() & 0x80) | (0x10)));
+        registers.setF((byte) ((registers.getF() & 0x80) | (0x10)));
         return 4;
     }
 
@@ -57,12 +58,12 @@ public class ControlCommands {
     }
 
     public short di(Instruction inst) {
-        //TODO
+        registers.setIme(false);
         return 4;
     }
 
     public short ei(Instruction inst) {
-        //TODO
+        registers.setIme(true);
         return 4;
     }
 }
