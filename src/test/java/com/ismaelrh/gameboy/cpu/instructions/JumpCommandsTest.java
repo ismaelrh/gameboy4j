@@ -4,7 +4,7 @@ import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.InstructionBuilder;
 import com.ismaelrh.gameboy.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.JumpCommands;
+import com.ismaelrh.gameboy.cpu.instructions.implementation.JumpCommands;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +21,6 @@ public class JumpCommandsTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
-        jumpCommands = new JumpCommands(registers, memory);
     }
 
 
@@ -29,7 +28,7 @@ public class JumpCommandsTest {
     public void jpNN() {
         registers.setPC((char) 0xBEBA);
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).build();
-        short cycles = jumpCommands.jp_nn(inst);
+        short cycles = JumpCommands.jp_nn(inst,memory,registers);
         assertEquals(16, cycles);
         assertEquals16(0xCAFE, registers.getPC());
     }
@@ -40,7 +39,7 @@ public class JumpCommandsTest {
         registers.setHL((char) 0xCAFE);
         Instruction inst = new InstructionBuilder().build();
 
-        short cycles = jumpCommands.jp_HL(inst);
+        short cycles = JumpCommands.jp_HL(inst,memory,registers);
         assertEquals(4, cycles);
         assertEquals16(0xCAFE, registers.getPC());
     }
@@ -54,7 +53,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 0)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(12, cycles);
@@ -70,7 +69,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 0)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(16, cycles);
@@ -86,7 +85,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 1)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(12, cycles);
@@ -102,7 +101,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 1)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(16, cycles);
@@ -119,7 +118,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 2)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(12, cycles);
@@ -135,7 +134,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 2)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(16, cycles);
@@ -151,7 +150,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 3)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(12, cycles);
@@ -167,7 +166,7 @@ public class JumpCommandsTest {
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).
                 withFirstOperand((byte) 3)
                 .build();
-        short cycles = jumpCommands.jp_f_nn(inst);
+        short cycles = JumpCommands.jp_f_nn(inst,memory,registers);
 
 
         assertEquals(16, cycles);
@@ -178,7 +177,7 @@ public class JumpCommandsTest {
     public void pc_dd_subtract() {
         registers.setPC((char) 0xBEBA);
         Instruction inst = new InstructionBuilder().withImmediate8b((byte) -3).build();
-        short cycles = jumpCommands.jr_PC_dd(inst);
+        short cycles = JumpCommands.jr_PC_dd(inst,memory,registers);
         assertEquals(12, cycles);
         assertEquals16(0xBEB7, registers.getPC());
     }
@@ -187,7 +186,7 @@ public class JumpCommandsTest {
     public void pc_dd_add() {
         registers.setPC((char) 0xBEBA);
         Instruction inst = new InstructionBuilder().withImmediate8b((byte) +3).build();
-        short cycles = jumpCommands.jr_PC_dd(inst);
+        short cycles = JumpCommands.jr_PC_dd(inst,memory,registers);
         assertEquals(12, cycles);
         assertEquals16(0xBEBD, registers.getPC());
     }
@@ -197,7 +196,7 @@ public class JumpCommandsTest {
         registers.setPC((char) 0xBEBA);
         registers.setSP((char) 0xAAAA);
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).build();
-        short cycles = jumpCommands.call_nn(inst);
+        short cycles = JumpCommands.call_nn(inst,memory,registers);
         assertEquals(24, cycles);
         assertEquals16(0xCAFE, registers.getPC());
         assertEquals16(0xAAA8, registers.getSP());
@@ -212,7 +211,7 @@ public class JumpCommandsTest {
         memory.write((char) 0xAAA1, (byte) 0xBE);
         Instruction inst = new InstructionBuilder().build();
 
-        short cycles = jumpCommands.ret(inst);
+        short cycles = JumpCommands.ret(inst,memory,registers);
         assertEquals(16, cycles);
         assertEquals16(0xBEBA, registers.getPC());
         assertEquals16(0xAAA2, registers.getSP());
@@ -222,7 +221,7 @@ public class JumpCommandsTest {
     public void reti() {
         Instruction inst = new InstructionBuilder().build();
         assertFalse(registers.isIme());
-        short cycles = jumpCommands.reti(inst);
+        short cycles = JumpCommands.reti(inst,memory,registers);
         assertEquals(16, cycles);
         assertTrue(registers.isIme());
     }
@@ -233,9 +232,9 @@ public class JumpCommandsTest {
         registers.setPC((char) 0xBEBA);
         Instruction inst = new InstructionBuilder().withImmediate16b((char) 0xCAFE).build();
 
-        jumpCommands.call_nn(inst);
+        JumpCommands.call_nn(inst,memory,registers);
         assertEquals16(0xCAFE, registers.getPC());
-        jumpCommands.ret(inst);
+        JumpCommands.ret(inst,memory,registers);
 
         assertEquals16(0xAAAA, registers.getSP());
         assertEquals16(0xBEBA, registers.getPC());
@@ -245,7 +244,7 @@ public class JumpCommandsTest {
     public void rst_n_0() {
         //3 is 0x0018
         Instruction inst = new InstructionBuilder().withFirstOperand((byte) 0).build();
-        short cycles = jumpCommands.rst_n(inst);
+        short cycles = JumpCommands.rst_n(inst,memory,registers);
         assertEquals(16, cycles);
         assertEquals16(0x0000, registers.getPC());
     }
@@ -254,7 +253,7 @@ public class JumpCommandsTest {
     public void rst_n_3() {
         //3 is 0x0018
         Instruction inst = new InstructionBuilder().withFirstOperand((byte) 3).build();
-        short cycles = jumpCommands.rst_n(inst);
+        short cycles = JumpCommands.rst_n(inst,memory,registers);
         assertEquals(16, cycles);
         assertEquals16(0x0018, registers.getPC());
     }
@@ -263,7 +262,7 @@ public class JumpCommandsTest {
     public void rst_n_7() {
         //3 is 0x0018
         Instruction inst = new InstructionBuilder().withFirstOperand((byte) 7).build();
-        short cycles = jumpCommands.rst_n(inst);
+        short cycles = JumpCommands.rst_n(inst,memory,registers);
         assertEquals(16, cycles);
         assertEquals16(0x0038, registers.getPC());
     }

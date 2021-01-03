@@ -4,7 +4,7 @@ import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.InstructionBuilder;
 import com.ismaelrh.gameboy.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.ControlCommands;
+import com.ismaelrh.gameboy.cpu.instructions.implementation.ControlCommands;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +13,6 @@ import static org.junit.Assert.*;
 
 public class ControlCommandsTest {
 
-    private ControlCommands controlCommands;
     private Registers registers;
     private Memory memory;
 
@@ -21,7 +20,6 @@ public class ControlCommandsTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
-        controlCommands = new ControlCommands(registers, memory);
     }
 
     @Test
@@ -30,7 +28,7 @@ public class ControlCommandsTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = controlCommands.nop(inst);
+        short cycles = ControlCommands.nop(inst,memory,registers);
         assertEquals(4, cycles);
         assertFlags(registers, true, true, true, true);
     }
@@ -42,7 +40,7 @@ public class ControlCommandsTest {
 
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.ccf(inst);
+        short cycles = ControlCommands.ccf(inst,memory,registers);
         assertEquals(4, cycles);
         assertFlags(registers, true, false, false, true);
 
@@ -55,7 +53,7 @@ public class ControlCommandsTest {
 
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.ccf(inst);
+        short cycles = ControlCommands.ccf(inst,memory,registers);
         assertEquals(4, cycles);
         assertFlags(registers, true, false, false, false);
 
@@ -68,7 +66,7 @@ public class ControlCommandsTest {
 
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.ccf(inst);
+        short cycles = ControlCommands.ccf(inst,memory,registers);
         assertEquals(4, cycles);
         assertFlags(registers, false, false, false, true);
 
@@ -81,7 +79,7 @@ public class ControlCommandsTest {
 
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.ccf(inst);
+        short cycles = ControlCommands.ccf(inst,memory,registers);
         assertEquals(4, cycles);
         assertFlags(registers, false, false, false, false);
     }
@@ -91,8 +89,8 @@ public class ControlCommandsTest {
         registers.setF((byte) 0xFF);
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.scf(inst);
-        assertEquals(4, controlCommands.scf(inst));
+        short cycles = ControlCommands.scf(inst,memory,registers);
+        assertEquals(4, ControlCommands.scf(inst,memory,registers));
         assertEquals(4, cycles);
         assertFlags(registers, true, false, false, true);
     }
@@ -102,8 +100,8 @@ public class ControlCommandsTest {
         registers.setF((byte) 0x7F);
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.scf(inst);
-        assertEquals(4, controlCommands.scf(inst));
+        short cycles = ControlCommands.scf(inst,memory,registers);
+        assertEquals(4, ControlCommands.scf(inst,memory,registers));
         assertEquals(4, cycles);
         assertFlags(registers, false, false, false, true);
     }
@@ -113,7 +111,7 @@ public class ControlCommandsTest {
         registers.setIme(true);
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.di(inst);
+        short cycles = ControlCommands.di(inst,memory,registers);
         assertEquals(4, cycles);
         assertFalse(registers.isIme());
     }
@@ -123,7 +121,7 @@ public class ControlCommandsTest {
         registers.setIme(false);
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = controlCommands.ei(inst);
+        short cycles = ControlCommands.ei(inst,memory,registers);
         assertEquals(4, cycles);
         assertTrue(registers.isIme());
     }

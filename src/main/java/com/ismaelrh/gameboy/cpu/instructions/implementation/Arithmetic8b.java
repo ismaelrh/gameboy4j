@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
@@ -10,16 +10,8 @@ public class Arithmetic8b {
 
     private static final Logger log = LogManager.getLogger(Arithmetic8b.class);
 
-    private Registers registers;
-    private Memory memory;
-
-    public Arithmetic8b(Registers registers, Memory memory) {
-        this.registers = registers;
-        this.memory = memory;
-    }
-
     //add A,r [A = A + r]
-    public short addA_r(Instruction inst) {
+    public static short addA_r(Instruction inst, Memory memory, Registers registers) {
         byte valueToAdd = registers.getByCode(inst.getOpcodeSecondOperand());
         byte oldValue = registers.getA();
         addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstSingleRegister() == 0x1);
@@ -27,7 +19,7 @@ public class Arithmetic8b {
     }
 
     //add A,n [A = A + n]
-    public short addA_n(Instruction inst) {
+    public static short addA_n(Instruction inst, Memory memory, Registers registers) {
         byte valueToAdd = inst.getImmediate8b();
         byte oldValue = registers.getA();
         addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstSingleRegister() == 0x1);
@@ -35,54 +27,54 @@ public class Arithmetic8b {
     }
 
     //add A,(HL) [A = A + (HL)]
-    public short addA_HL(Instruction inst) {
+    public static short addA_HL(Instruction inst, Memory memory, Registers registers) {
         byte valueToAdd = memory.read(registers.getHL());
         byte oldValue = registers.getA();
         addToA(registers, oldValue, valueToAdd, inst.getOpcodeFirstSingleRegister() == 0x1);
         return 8;
     }
 
-    public short sub_r(Instruction inst) {
+    public static short sub_r(Instruction inst, Memory memory, Registers registers) {
         byte valueToSub = registers.getByCode(inst.getOpcodeSecondOperand());
         byte oldValue = registers.getA();
         subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstSingleRegister() == 0x3, inst.getOpcodeFirstSingleRegister() == 0x7);
         return 4;
     }
 
-    public short sub_n(Instruction inst) {
+    public static short sub_n(Instruction inst, Memory memory, Registers registers) {
         byte valueToSub = inst.getImmediate8b();
         byte oldValue = registers.getA();
         subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstSingleRegister() == 0x3, inst.getOpcodeFirstSingleRegister() == 0x7);
         return 8;
     }
 
-    public short sub_HL(Instruction inst) {
+    public static short sub_HL(Instruction inst, Memory memory, Registers registers) {
         byte valueToSub = memory.read(registers.getHL());
         byte oldValue = registers.getA();
         subToA(registers, oldValue, valueToSub, inst.getOpcodeFirstSingleRegister() == 0x3, inst.getOpcodeFirstSingleRegister() == 0x7);
         return 8;
     }
 
-    public short and_r(Instruction inst) {
+    public static short and_r(Instruction inst, Memory memory, Registers registers) {
         byte valueToAnd = registers.getByCode(inst.getOpcodeSecondOperand());
-        and(valueToAnd);
+        and(valueToAnd, registers);
         return 4;
     }
 
-    public short and_n(Instruction inst) {
+    public static short and_n(Instruction inst, Memory memory, Registers registers) {
         byte valueToAnd = inst.getImmediate8b();
-        and(valueToAnd);
+        and(valueToAnd, registers);
         return 8;
     }
 
-    public short and_HL(Instruction inst) {
+    public static short and_HL(Instruction inst, Memory memory, Registers registers) {
         char memAddress = registers.getHL();
         byte valueToAnd = memory.read(memAddress);
-        and(valueToAnd);
+        and(valueToAnd, registers);
         return 8;
     }
 
-    private void and(byte valueToAnd) {
+    private static void and(byte valueToAnd, Registers registers) {
         byte newValue = (byte) (registers.getA() & valueToAnd & 0xFF);
         registers.setA(newValue);
 
@@ -93,26 +85,26 @@ public class Arithmetic8b {
         }
     }
 
-    public short or_r(Instruction inst) {
+    public static short or_r(Instruction inst, Memory memory, Registers registers) {
         byte valueToAnd = registers.getByCode(inst.getOpcodeSecondOperand());
-        or(valueToAnd);
+        or(valueToAnd, registers);
         return 4;
     }
 
-    public short or_n(Instruction inst) {
+    public static short or_n(Instruction inst, Memory memory, Registers registers) {
         byte valueToAnd = inst.getImmediate8b();
-        or(valueToAnd);
+        or(valueToAnd, registers);
         return 8;
     }
 
-    public short or_HL(Instruction inst) {
+    public static short or_HL(Instruction inst, Memory memory, Registers registers) {
         char memAddress = registers.getHL();
         byte valueToAnd = memory.read(memAddress);
-        or(valueToAnd);
+        or(valueToAnd, registers);
         return 8;
     }
 
-    private void or(byte valueToOr) {
+    private static void or(byte valueToOr, Registers registers) {
         byte newValue = (byte) (registers.getA() | valueToOr & 0xFF);
         registers.setA(newValue);
 
@@ -123,26 +115,26 @@ public class Arithmetic8b {
         }
     }
 
-    public short xor_r(Instruction inst) {
+    public static short xor_r(Instruction inst, Memory memory, Registers registers) {
         byte valueToXor = registers.getByCode(inst.getOpcodeSecondOperand());
-        xor(valueToXor);
+        xor(valueToXor, registers);
         return 4;
     }
 
-    public short xor_n(Instruction inst) {
+    public static short xor_n(Instruction inst, Memory memory, Registers registers) {
         byte valueToXor = inst.getImmediate8b();
-        xor(valueToXor);
+        xor(valueToXor, registers);
         return 8;
     }
 
-    public short xor_HL(Instruction inst) {
+    public static short xor_HL(Instruction inst, Memory memory, Registers registers) {
         char memAddress = registers.getHL();
         byte valueToXor = memory.read(memAddress);
-        xor(valueToXor);
+        xor(valueToXor, registers);
         return 8;
     }
 
-    private void xor(byte valueToOr) {
+    private static void xor(byte valueToOr, Registers registers) {
         byte newValue = (byte) (registers.getA() ^ valueToOr & 0xFF);
         registers.setA(newValue);
 
@@ -153,58 +145,58 @@ public class Arithmetic8b {
         }
     }
 
-    public short cp_r(Instruction inst) {
-        return sub_r(inst);
+    public static short cp_r(Instruction inst, Memory memory, Registers registers) {
+        return sub_r(inst, memory, registers);
     }
 
-    public short cp_n(Instruction inst) {
-        return sub_n(inst);
+    public static short cp_n(Instruction inst, Memory memory, Registers registers) {
+        return sub_n(inst, memory, registers);
     }
 
-    public short cp_HL(Instruction inst) {
-        return sub_HL(inst);
+    public static short cp_HL(Instruction inst, Memory memory, Registers registers) {
+        return sub_HL(inst, memory, registers);
     }
 
-    public short inc_r(Instruction inst) {
+    public static short inc_r(Instruction inst, Memory memory, Registers registers) {
         byte originalValue = registers.getByCode(inst.getOpcodeFirstSingleRegister());
         byte newValue = (byte) (originalValue + (byte) 0x01);
-        byte newFlags = getIncrementFlags(originalValue);
+        byte newFlags = getIncrementFlags(originalValue, registers);
         registers.setF(newFlags);
         registers.setByCode(inst.getOpcodeFirstSingleRegister(), newValue);
         return 4;
     }
 
-    public short inc_HL(Instruction inst) {
+    public static short inc_HL(Instruction inst, Memory memory, Registers registers) {
         char memAddr = registers.getHL();
         byte originalValue = memory.read(memAddr);
 
         byte newValue = (byte) (originalValue + (byte) 0x01);
-        byte newFlags = getIncrementFlags(originalValue);
+        byte newFlags = getIncrementFlags(originalValue, registers);
         registers.setF(newFlags);
         memory.write(memAddr, newValue);
         return 12;
     }
 
-    public short dec_r(Instruction inst) {
+    public static short dec_r(Instruction inst, Memory memory, Registers registers) {
         byte originalValue = registers.getByCode(inst.getOpcodeFirstSingleRegister());
         byte newValue = (byte) (originalValue - (byte) 0x01);
-        byte newFlags = getDecrementFlags(originalValue);
+        byte newFlags = getDecrementFlags(originalValue, registers);
         registers.setF(newFlags);
         registers.setByCode(inst.getOpcodeFirstSingleRegister(), newValue);
         return 4;
     }
 
-    public short dec_HL(Instruction inst) {
+    public static short dec_HL(Instruction inst, Memory memory, Registers registers) {
         char memAddr = registers.getHL();
         byte originalValue = memory.read(memAddr);
         byte newValue = (byte) (originalValue - (byte) 0x01);
-        byte newFlags = getDecrementFlags(originalValue);
+        byte newFlags = getDecrementFlags(originalValue, registers);
         registers.setF(newFlags);
         memory.write(memAddr, newValue);
         return 12;
     }
 
-    public short cpl(Instruction inst) {
+    public static short cpl(Instruction inst, Memory memory, Registers registers) {
         //Set NH flags to 1, leave the rest untouched
         byte newFlags = (byte) ((registers.getF() | 0x60) & 0xFF);
         byte baseValue = registers.getA();
@@ -214,7 +206,7 @@ public class Arithmetic8b {
         return 4;
     }
 
-    public short daa(Instruction inst) {
+    public static short daa(Instruction inst, Memory memory, Registers registers) {
         /*
          * // note: assumes a is a uint8_t and wraps from 0xff to 0
          * if (!n_flag) {  // after an addition, adjust if (half-)carry occurred or if result is out of bounds
@@ -254,7 +246,7 @@ public class Arithmetic8b {
         return 4;
     }
 
-    private void addToA(Registers registers, byte oldValue, byte valueToAdd, boolean checkForCarry) {
+    private static void addToA(Registers registers, byte oldValue, byte valueToAdd, boolean checkForCarry) {
 
         byte addedCarry = 0;
         if (checkForCarry && registers.checkFlagC()) {
@@ -281,7 +273,7 @@ public class Arithmetic8b {
         registers.setF((byte) (registers.getF() | flags));
     }
 
-    private byte getOverflowFlagsForAddition(byte a, byte b) {
+    private static byte getOverflowFlagsForAddition(byte a, byte b) {
         byte newValue = (byte) ((a + b) & 0xFF);
         byte flags = 0x00;
 
@@ -305,7 +297,7 @@ public class Arithmetic8b {
      * 011 -> subc
      * 111 -> cp
      */
-    private void subToA(Registers registers, byte oldValue, byte valueToSub, boolean checkForCarry, boolean isCp) {
+    private static void subToA(Registers registers, byte oldValue, byte valueToSub, boolean checkForCarry, boolean isCp) {
 
         byte removedCarry = 0;
         if (checkForCarry && registers.checkFlagC()) {
@@ -332,7 +324,7 @@ public class Arithmetic8b {
         registers.setF((byte) (registers.getF() | flags));
     }
 
-    private byte getOverflowFlagsForSubtraction(byte a, byte b) {
+    private static byte getOverflowFlagsForSubtraction(byte a, byte b) {
 
         byte newValue = (byte) ((a - b) & 0xFF);
         byte flags = 0x40;  //N flag is always set at the beginning
@@ -350,7 +342,7 @@ public class Arithmetic8b {
         return (byte) (flags & 0xFF);
     }
 
-    private byte getIncrementFlags(byte value) {
+    private static byte getIncrementFlags(byte value, Registers registers) {
 
         //Clear flags, except last one
         byte newFlags = (byte) (registers.getF() & 0x10);
@@ -367,7 +359,7 @@ public class Arithmetic8b {
         return newFlags;
     }
 
-    private byte getDecrementFlags(byte value) {
+    private static byte getDecrementFlags(byte value, Registers registers) {
 
         //Clear flags, except last one
         byte newFlags = (byte) (registers.getF() & 0x10);
@@ -387,15 +379,15 @@ public class Arithmetic8b {
         return newFlags;
     }
 
-    private boolean halfCarryOnAdd(byte a, byte b) {
+    private static boolean halfCarryOnAdd(byte a, byte b) {
         return (((byte) (a & 0xF) + (byte) (b & 0xF)) & (byte) 0x10) == 0x10;
     }
 
-    private boolean halfCarryOnSub(byte a, byte b) {
+    private static boolean halfCarryOnSub(byte a, byte b) {
         return (byte) (a & 0x0F) < (byte) (b & 0x0F);
     }
 
-    private boolean carryOnAdd(byte newValue, byte a, byte b) {
+    private static boolean carryOnAdd(byte newValue, byte a, byte b) {
         int intResult = (newValue & 0xFF);
         int intA = (a & 0xFF);
         int intB = (b & 0xFF);
@@ -404,7 +396,7 @@ public class Arithmetic8b {
         return intResult < intA || intResult < intB;
     }
 
-    private boolean carryOnSub(byte newValue, byte a, byte b) {
+    private static boolean carryOnSub(byte newValue, byte a, byte b) {
         //Java treats all bytes as signed. With this, we have an unsigned int.
         //These three ints are used to check for overflow
         int intResult = (newValue & 0xFF);

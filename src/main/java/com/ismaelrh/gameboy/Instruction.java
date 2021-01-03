@@ -8,15 +8,13 @@ package com.ismaelrh.gameboy;
  */
 public class Instruction {
 
-    private byte prefix;
+    private Byte prefix;
 
     private byte opcode;
 
-    private short displacement;
+    private byte nn1;
 
-    private byte immediate8b;
-
-    private char immediate16b;
+    private byte nn2;
 
     public Instruction(byte opcode) {
         this.opcode = opcode;
@@ -24,19 +22,19 @@ public class Instruction {
 
     public Instruction(byte opcode, byte immediate8b) {
         this(opcode);
-        this.immediate8b = immediate8b;
+        setImmediate8b(immediate8b);
     }
 
     public Instruction(byte opcode, char immediate16b) {
         this(opcode);
-        this.immediate16b = immediate16b;
+        setImmediate16b(immediate16b);
     }
 
-    public byte getPrefix() {
+    public Byte getPrefix() {
         return prefix;
     }
 
-    public void setPrefix(byte prefix) {
+    public void setPrefix(Byte prefix) {
         this.prefix = prefix;
     }
 
@@ -48,33 +46,27 @@ public class Instruction {
         this.opcode = opcode;
     }
 
-    public short getDisplacement() {
-        return displacement;
-    }
-
-    public void setDisplacement(short displacement) {
-        this.displacement = displacement;
-    }
-
     public byte getImmediate8b() {
-        return immediate8b;
+        return nn1;
     }
 
     public void setImmediate8b(byte immediate8b) {
-        this.immediate8b = immediate8b;
+        this.nn1 = immediate8b;
     }
 
     public char getImmediate16b() {
-        return immediate16b;
+        char low = (char) ((char) (nn2) & 0x00FF);
+        char high = (char) ((nn1 << 8) & 0xFF00);
+        return (char) (high | low);
     }
 
     public void setImmediate16b(char immediate16b) {
-        this.immediate16b = immediate16b;
+        byte highByte = (byte) ((immediate16b >> 8) & 0xFF);
+        byte lowByte = (byte) ((immediate16b & 0xFF));
+        nn1 = highByte;
+        nn2 = lowByte;
     }
 
-    public byte getOpcodePrefix() {
-        return (byte) ((opcode & 0xC0) >> 6);
-    }
 
     public byte getOpcodeFirstSingleRegister() {
         return (byte) ((opcode & 0x38) >> 3);
@@ -88,5 +80,19 @@ public class Instruction {
         return (byte) (opcode & 0x7);
     }
 
+    public byte getNn1() {
+        return nn1;
+    }
 
+    public void setNn1(byte nn1) {
+        this.nn1 = nn1;
+    }
+
+    public byte getNn2() {
+        return nn2;
+    }
+
+    public void setNn2(byte nn2) {
+        this.nn2 = nn2;
+    }
 }

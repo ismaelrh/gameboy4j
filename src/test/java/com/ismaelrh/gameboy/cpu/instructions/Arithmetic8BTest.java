@@ -4,7 +4,7 @@ import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.InstructionBuilder;
 import com.ismaelrh.gameboy.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.Arithmetic8b;
+import com.ismaelrh.gameboy.cpu.instructions.implementation.Arithmetic8b;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +16,6 @@ import static org.junit.Assert.assertFalse;
 
 public class Arithmetic8BTest {
 
-    private Arithmetic8b arithmetic8B;
     private Registers registers;
     private Memory memory;
 
@@ -24,7 +23,6 @@ public class Arithmetic8BTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
-        arithmetic8B = new Arithmetic8b(registers, memory);
     }
 
     @Test
@@ -37,7 +35,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.cp_r(inst);
+        short cycles = Arithmetic8b.cp_r(inst, memory, registers);
 
         assertEquals8(0xBA, registers.getA());    //Result is not modified
         assertFlags(registers, false, true, false, false);
@@ -54,7 +52,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.cp_r(inst);
+        short cycles = Arithmetic8b.cp_r(inst, memory, registers);
 
         assertEquals8(0xBA, registers.getA());
         assertFlags(registers, true, true, false, false);
@@ -71,7 +69,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.cp_r(inst);
+        short cycles = Arithmetic8b.cp_r(inst, memory, registers);
 
         assertEquals8(0x3E, registers.getA());
         assertFlags(registers, false, true, false, true);
@@ -88,7 +86,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x3E, registers.getA());
         assertFlags(registers, false, true, true, false);
@@ -105,7 +103,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0xB9, registers.getA());    //Result is 8
         assertFlags(registers, false, true, false, false);
@@ -122,7 +120,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x0, registers.getA());
         assertFlags(registers, true, true, false, false);
@@ -138,7 +136,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0xFE, registers.getA());
         assertFlags(registers, false, true, false, true);
@@ -154,7 +152,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x02, registers.getA());
         assertFlags(registers, false, true, true, true);
@@ -170,7 +168,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, true, true, true);
@@ -186,7 +184,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x2F, registers.getA());
         assertFlags(registers, false, true, true, false);
@@ -202,7 +200,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x01)
                 .build();
 
-        short cycles = arithmetic8B.sub_n(inst);
+        short cycles = Arithmetic8b.sub_n(inst, memory, registers);
 
         assertEquals8(0xB9, registers.getA());    //Result is 8
         assertFlags(registers, false, true, false, false);
@@ -218,7 +216,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0xBA)
                 .build();
 
-        short cycles = arithmetic8B.sub_n(inst);
+        short cycles = Arithmetic8b.sub_n(inst, memory, registers);
 
         assertEquals8(0x0, registers.getA());    //Result is 8
         assertFlags(registers, true, true, false, false);
@@ -234,7 +232,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x40)
                 .build();
 
-        short cycles = arithmetic8B.sub_n(inst);
+        short cycles = Arithmetic8b.sub_n(inst, memory, registers);
 
         assertEquals8(0xFE, registers.getA());    //Result is 8
         assertFlags(registers, false, true, false, true);
@@ -249,7 +247,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x0F)
                 .build();
 
-        short cycles = arithmetic8B.sub_n(inst);
+        short cycles = Arithmetic8b.sub_n(inst, memory, registers);
 
         assertEquals8(0x2f, registers.getA());    //Result is 8
         assertFlags(registers, false, true, true, false);
@@ -265,7 +263,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.sub_HL(inst);
+        short cycles = Arithmetic8b.sub_HL(inst, memory, registers);
 
         assertEquals8(0xB9, registers.getA());    //Result is 8
         assertFlags(registers, false, true, false, false);
@@ -281,7 +279,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.sub_HL(inst);
+        short cycles = Arithmetic8b.sub_HL(inst, memory, registers);
 
         assertEquals8(0x00, registers.getA());    //Result is 8
         assertFlags(registers, true, true, false, false);
@@ -297,7 +295,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.sub_HL(inst);
+        short cycles = Arithmetic8b.sub_HL(inst, memory, registers);
 
         assertEquals8(0xFE, registers.getA());    //Result is 8
         assertFlags(registers, false, true, false, true);
@@ -313,7 +311,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.sub_HL(inst);
+        short cycles = Arithmetic8b.sub_HL(inst, memory, registers);
 
         assertEquals8(0x2F, registers.getA());    //Result is 8
         assertFlags(registers, false, true, true, false);
@@ -331,7 +329,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0xB8, registers.getA());    //Result is 8
         assertFlags(registers, false, true, false, false);
@@ -349,7 +347,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x0, registers.getA());
         assertFlags(registers, true, true, false, false);
@@ -367,7 +365,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0xFE, registers.getA());
         assertFlags(registers, false, true, false, true);
@@ -385,7 +383,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x02, registers.getA());
         assertFlags(registers, false, true, true, true);
@@ -403,7 +401,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, true, true, true);
@@ -421,7 +419,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.sub_r(inst);
+        short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0x2F, registers.getA());
         assertFlags(registers, false, true, true, false);
@@ -437,7 +435,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
 
         assertFalse(registers.checkFlagZ());
         assertFalse(registers.checkFlagN());
@@ -455,7 +453,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
         assertEquals8(0x1, registers.getA());    //1
         assertFlags(registers, false, false, true, true);  //C-flag activated
         assertEquals(4, cycles);
@@ -470,7 +468,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
         assertEquals8(0x0, registers.getA());    //1
         assertFlags(registers, true, false, true, true);  //C-flag activated
         assertEquals(4, cycles);
@@ -485,7 +483,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
         assertEquals8(0xFE, registers.getA());    //1
         assertFlags(registers, false, false, true, true);  //C-flag activated
         assertEquals(4, cycles);
@@ -500,7 +498,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
         assertEquals8(0x10, registers.getA());    //1
         assertFlags(registers, false, false, true, false);  //H-flag activated
         assertEquals(4, cycles);
@@ -515,7 +513,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
         assertEquals8(0x0, registers.getA());    //1
         assertFlags(registers, true, false, true, true);  //C-flag activated
         assertEquals(4, cycles);
@@ -530,7 +528,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x3)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
 
         assertFalse(registers.checkFlagZ());
         assertFalse(registers.checkFlagN());
@@ -548,7 +546,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x2)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
         assertEquals8(0x1, registers.getA());    //1
         assertFlags(registers, false, false, true, true);  //C-flag activated
         assertEquals(8, cycles);
@@ -563,7 +561,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x1)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
         assertEquals8(0x10, registers.getA());    //1
         assertFlags(registers, false, false, true, false);  //H-flag activated
         assertEquals(8, cycles);
@@ -578,7 +576,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x1)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
         assertEquals8(0x0, registers.getA());    //1
         assertFlags(registers, true, false, true, true);  //C-flag activated
         assertEquals(8, cycles);
@@ -593,7 +591,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.addA_HL(inst);
+        short cycles = Arithmetic8b.addA_HL(inst, memory, registers);
 
         assertEquals8(0x09, registers.getA());    //Result is 0xFF + 0x0A = 0x109 = 0x09 with overflow C and h
         assertFlags(registers, false, false, true, true);
@@ -612,7 +610,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
 
         assertEquals8(0x04, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -631,7 +629,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
 
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, false, true, true);
@@ -650,7 +648,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
 
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
@@ -669,7 +667,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.addA_r(inst);
+        short cycles = Arithmetic8b.addA_r(inst, memory, registers);
 
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
@@ -688,7 +686,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x02)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
 
         assertEquals8(0x04, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -706,7 +704,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x1)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
 
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, false, true, true);
@@ -724,7 +722,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x01)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
 
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
@@ -742,7 +740,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x1E)
                 .build();
 
-        short cycles = arithmetic8B.addA_n(inst);
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
 
         assertEquals((byte) 0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
@@ -762,7 +760,7 @@ public class Arithmetic8BTest {
                 .withFirstOperand((byte) 0x1)    //To indicate that operation is with carry
                 .build();
 
-        short cycles = arithmetic8B.addA_HL(inst);
+        short cycles = Arithmetic8b.addA_HL(inst, memory, registers);
 
         assertEquals((byte) 0x04, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -781,7 +779,7 @@ public class Arithmetic8BTest {
                 .withFirstOperand((byte) 0x1)    //To indicate that operation is with carry
                 .build();
 
-        short cycles = arithmetic8B.addA_HL(inst);
+        short cycles = Arithmetic8b.addA_HL(inst, memory, registers);
 
         assertEquals((byte) 0x01, registers.getA());
         assertFlags(registers, false, false, true, true);
@@ -800,7 +798,7 @@ public class Arithmetic8BTest {
                 .withFirstOperand((byte) 0x01)    //To indicate that operation is with carry
                 .build();
 
-        short cycles = arithmetic8B.addA_HL(inst);
+        short cycles = Arithmetic8b.addA_HL(inst, memory, registers);
 
         assertEquals((byte) 0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
@@ -819,7 +817,7 @@ public class Arithmetic8BTest {
                 .withFirstOperand((byte) 0x1)    //To indicate that operation is with carry
                 .build();
 
-        short cycles = arithmetic8B.addA_HL(inst);
+        short cycles = Arithmetic8b.addA_HL(inst, memory, registers);
 
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
@@ -834,7 +832,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.and_r(inst);
+        short cycles = Arithmetic8b.and_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x1A, registers.getA());
         assertFlags(registers, false, false, true, false);
@@ -848,7 +846,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.and_r(inst);
+        short cycles = Arithmetic8b.and_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, false);
@@ -861,7 +859,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x3F)
                 .build();
 
-        short cycles = arithmetic8B.and_n(inst);
+        short cycles = Arithmetic8b.and_n(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x1A, registers.getA());
         assertFlags(registers, false, false, true, false);
@@ -874,7 +872,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x0F)
                 .build();
 
-        short cycles = arithmetic8B.and_n(inst);
+        short cycles = Arithmetic8b.and_n(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, false);
@@ -889,7 +887,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.and_HL(inst);
+        short cycles = Arithmetic8b.and_HL(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x1A, registers.getA());
         assertFlags(registers, false, false, true, false);
@@ -904,7 +902,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.and_HL(inst);
+        short cycles = Arithmetic8b.and_HL(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, true, false);
@@ -919,7 +917,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.or_r(inst);
+        short cycles = Arithmetic8b.or_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0xFF, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -934,7 +932,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.or_r(inst);
+        short cycles = Arithmetic8b.or_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, false, false);
@@ -948,7 +946,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x0F)
                 .build();
 
-        short cycles = arithmetic8B.or_n(inst);
+        short cycles = Arithmetic8b.or_n(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xFF, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -962,7 +960,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x00)
                 .build();
 
-        short cycles = arithmetic8B.or_n(inst);
+        short cycles = Arithmetic8b.or_n(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, false, false);
@@ -977,7 +975,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.or_HL(inst);
+        short cycles = Arithmetic8b.or_HL(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xFF, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -993,7 +991,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.or_HL(inst);
+        short cycles = Arithmetic8b.or_HL(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, false, false);
@@ -1009,7 +1007,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.xor_r(inst);
+        short cycles = Arithmetic8b.xor_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -1024,7 +1022,7 @@ public class Arithmetic8BTest {
                 .withSecondOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.xor_r(inst);
+        short cycles = Arithmetic8b.xor_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, false, false);
@@ -1039,7 +1037,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x3E)
                 .build();
 
-        short cycles = arithmetic8B.xor_n(inst);
+        short cycles = Arithmetic8b.xor_n(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -1053,7 +1051,7 @@ public class Arithmetic8BTest {
                 .withImmediate8b((byte) 0x3F)
                 .build();
 
-        short cycles = arithmetic8B.xor_n(inst);
+        short cycles = Arithmetic8b.xor_n(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, false, false);
@@ -1069,7 +1067,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.xor_HL(inst);
+        short cycles = Arithmetic8b.xor_HL(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x01, registers.getA());
         assertFlags(registers, false, false, false, false);
@@ -1084,7 +1082,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.xor_HL(inst);
+        short cycles = Arithmetic8b.xor_HL(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0x00, registers.getA());
         assertFlags(registers, true, false, false, false);
@@ -1096,7 +1094,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.inc_r(inst);
+        short cycles = Arithmetic8b.inc_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x02, registers.getE());
         assertFlags(registers, false, false, false, false);
@@ -1109,7 +1107,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.inc_r(inst);
+        short cycles = Arithmetic8b.inc_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x00, registers.getE());
         assertFlags(registers, true, false, true, false);
@@ -1121,7 +1119,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.inc_r(inst);
+        short cycles = Arithmetic8b.inc_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x10, registers.getE());
         assertFlags(registers, false, false, true, false);
@@ -1134,7 +1132,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.inc_r(inst);
+        short cycles = Arithmetic8b.inc_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x10, registers.getE());
         assertFlags(registers, false, false, true, true);
@@ -1148,7 +1146,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.inc_HL(inst);
+        short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
         assertEquals8(0x02, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, false, false);
@@ -1162,7 +1160,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.inc_HL(inst);
+        short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
         assertEquals8(0x00, memory.read((char) 0xBEBA));
         assertFlags(registers, true, false, true, false);
@@ -1177,7 +1175,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.inc_HL(inst);
+        short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
         assertEquals8(0x10, memory.read((char) 0xBEBA));
         assertFlags(registers, false, false, true, false);
@@ -1192,7 +1190,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .build();
 
-        short cycles = arithmetic8B.inc_HL(inst);
+        short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
         assertEquals8(0x00, memory.read((char) 0xBEBA));
         assertFlags(registers, true, false, true, true);
@@ -1203,7 +1201,7 @@ public class Arithmetic8BTest {
         registers.setA((byte) 0xFF);
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = arithmetic8B.cpl(inst);
+        short cycles = Arithmetic8b.cpl(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x00, registers.getA());
     }
@@ -1213,7 +1211,7 @@ public class Arithmetic8BTest {
         registers.setA((byte) 0x0F);
         Instruction inst = new InstructionBuilder()
                 .build();
-        short cycles = arithmetic8B.cpl(inst);
+        short cycles = Arithmetic8b.cpl(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0xF0, registers.getA());
     }
@@ -1224,7 +1222,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.dec_r(inst);
+        short cycles = Arithmetic8b.dec_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0x00, registers.getE());
         assertFlags(registers, true, true, false, false);
@@ -1236,7 +1234,7 @@ public class Arithmetic8BTest {
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.dec_r(inst);
+        short cycles = Arithmetic8b.dec_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0xFF, registers.getE());
         assertFlags(registers, false, true, true, false);
@@ -1245,11 +1243,11 @@ public class Arithmetic8BTest {
     @Test
     public void dec_r_borrow_keeps_c() {
         registers.setE((byte) 0x00);
-        registers.setF((byte)0xFF);
+        registers.setF((byte) 0xFF);
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
                 .build();
-        short cycles = arithmetic8B.dec_r(inst);
+        short cycles = Arithmetic8b.dec_r(inst, memory, registers);
         assertEquals(4, cycles);
         assertEquals8(0xFF, registers.getE());
         assertFlags(registers, false, true, true, true);
@@ -1265,9 +1263,9 @@ public class Arithmetic8BTest {
                 .withFirstOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.dec_HL(inst);
+        short cycles = Arithmetic8b.dec_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0x00, memory.read((char)0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xBEBA));
         assertFlags(registers, true, true, false, false);
     }
 
@@ -1280,16 +1278,16 @@ public class Arithmetic8BTest {
                 .withFirstOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.dec_HL(inst);
+        short cycles = Arithmetic8b.dec_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0xFF, memory.read((char)0xBEBA));
+        assertEquals8(0xFF, memory.read((char) 0xBEBA));
         assertFlags(registers, false, true, true, false);
     }
 
     @Test
     public void dec_HL_borrow_keeps_c() {
         registers.setHL((char) 0xBEBA);
-        registers.setF((byte)0xFF);
+        registers.setF((byte) 0xFF);
 
         memory.write((char) 0xBEBA, (byte) 0x00);
 
@@ -1297,9 +1295,9 @@ public class Arithmetic8BTest {
                 .withFirstOperand(E)
                 .build();
 
-        short cycles = arithmetic8B.dec_HL(inst);
+        short cycles = Arithmetic8b.dec_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0xFF, memory.read((char)0xBEBA));
+        assertEquals8(0xFF, memory.read((char) 0xBEBA));
         assertFlags(registers, false, true, true, true);
     }
 

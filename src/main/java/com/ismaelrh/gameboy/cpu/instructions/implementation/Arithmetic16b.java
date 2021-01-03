@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
@@ -10,15 +10,7 @@ public class Arithmetic16b {
 
     private static final Logger log = LogManager.getLogger(Arithmetic16b.class);
 
-    private Registers registers;
-    private Memory memory;
-
-    public Arithmetic16b(Registers registers, Memory memory) {
-        this.registers = registers;
-        this.memory = memory;
-    }
-
-    public short addHL_rr(Instruction inst) {
+    public static short addHL_rr(Instruction inst, Memory memory, Registers registers) {
         char hl = registers.getHL();
         char regData = registers.getByDoubleCode(inst.getOpcodeFirstDoubleRegister(), true);
         char result = (char) (hl + regData);
@@ -33,7 +25,7 @@ public class Arithmetic16b {
         return 8;
     }
 
-    public short inc_rr(Instruction inst) {
+    public static short inc_rr(Instruction inst, Memory memory, Registers registers) {
         //Flags are not touched
         byte register = inst.getOpcodeFirstDoubleRegister();
         char regData = registers.getByDoubleCode(register, true);
@@ -42,7 +34,7 @@ public class Arithmetic16b {
         return 8;
     }
 
-    public short dec_rr(Instruction inst) {
+    public static short dec_rr(Instruction inst, Memory memory, Registers registers) {
         //Flags are not touched
         byte register = inst.getOpcodeFirstDoubleRegister();
         char regData = registers.getByDoubleCode(register, true);
@@ -51,7 +43,7 @@ public class Arithmetic16b {
         return 8;
     }
 
-    public short addSP_dd(Instruction inst) {
+    public static short addSP_dd(Instruction inst, Memory memory, Registers registers) {
         // The half carry & carry flags for this instruction are set by adding the value as an *unsigned* byte to the
         // lower byte of sp. The addition itself is done with the value as a signed byte.
 
@@ -77,7 +69,7 @@ public class Arithmetic16b {
         return 16;
     }
 
-    public short loadHL_SPdd(Instruction inst) {
+    public static short loadHL_SPdd(Instruction inst, Memory memory, Registers registers) {
         // The half carry & carry flags for this instruction are set by adding the value as an *unsigned* byte to the
         // lower byte of sp. The addition itself is done with the value as a signed byte.
 
@@ -103,12 +95,12 @@ public class Arithmetic16b {
         return 12;
     }
 
-    private boolean carryOnAdd(char newValue, char a, char b) {
+    private static boolean carryOnAdd(char newValue, char a, char b) {
         //Check FULL CARRY, if result is less than one of the parameters
         return newValue < a || newValue < b;
     }
 
-    private boolean carryOnAddSPee(char sp, byte ee) {
+    private static boolean carryOnAddSPee(char sp, byte ee) {
         /*
          *
          SetHalf(((regs.reg16[SP] & 0x000F) + (static_cast<u8>(val) & 0x0F)) & 0x0010);
@@ -116,14 +108,14 @@ public class Arithmetic16b {
         return (char) (((char) (sp & 0x00FF) + (char) (ee & 0x00FF)) & 0x0100) == (char) 0x0100;
     }
 
-    private boolean halfCarryOnAddSPee(char sp, byte ee) {
+    private static boolean halfCarryOnAddSPee(char sp, byte ee) {
         /*
          *     SetHalf(((regs.reg16[SP] & 0x000F) + (static_cast<u8>(val) & 0x0F)) & 0x0010);
          */
         return (char) (((char) (sp & 0x000F) + (char) (ee & 0x000F)) & 0x0010) == (char) 0x0010;
     }
 
-    private boolean halfCarryOnAdd(char a, char b) {
+    private static boolean halfCarryOnAdd(char a, char b) {
         //Bit 11
         return (((char) (a & 0xFFF) + (char) (b & 0xFFF)) & (char) 0x1000) == 0x1000;
     }

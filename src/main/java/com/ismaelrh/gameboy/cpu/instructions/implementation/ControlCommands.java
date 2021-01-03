@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
@@ -10,21 +10,13 @@ public class ControlCommands {
 
     private static final Logger log = LogManager.getLogger(ControlCommands.class);
 
-    private Registers registers;
-    private Memory memory;
-
-    public ControlCommands(Registers registers, Memory memory) {
-        this.registers = registers;
-        this.memory = memory;
-    }
-
-    public short nop(Instruction inst) {
+    public static short nop(Instruction inst, Memory memory, Registers registers) {
         //Does nothing
         //If CY is different to
         return 4;
     }
 
-    public short ccf(Instruction inst) {
+    public static short ccf(Instruction inst, Memory memory, Registers registers) {
 
         //Get actual value of CY
         boolean cySet = (registers.getF() & 0x10 & 0xFF) == 0x10;
@@ -41,28 +33,26 @@ public class ControlCommands {
         return 4;
     }
 
-    public short scf(Instruction inst) {
+    public static short scf(Instruction inst, Memory memory, Registers registers) {
         //Set flags to -001
         registers.setF((byte) ((registers.getF() & 0x80) | (0x10)));
         return 4;
     }
 
-    public short halt(Instruction inst) {
-        //TODO
-        return -1;
+    public static short halt(Instruction inst, Memory memory, Registers registers) throws Exception {
+        throw new Exception("Operation HALT not implemented");
     }
 
-    public short stop(Instruction inst) {
-        //TODO
-        return -1;
+    public static short stop(Instruction inst, Memory memory, Registers registers) throws Exception {
+        throw new Exception("Operation HALT not implemented");
     }
 
-    public short di(Instruction inst) {
+    public static short di(Instruction inst, Memory memory, Registers registers) {
         registers.setIme(false);
         return 4;
     }
 
-    public short ei(Instruction inst) {
+    public static short ei(Instruction inst, Memory memory, Registers registers) {
         registers.setIme(true);
         return 4;
     }

@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
@@ -15,17 +15,10 @@ public class Load8b {
 
     private static final Logger log = LogManager.getLogger(Load8b.class);
 
-    private Registers registers;
-    private Memory memory;
-
-    public Load8b(Registers registers, Memory memory) {
-        this.registers = registers;
-        this.memory = memory;
-    }
 
     //TODO: indicate that operators return CLOCK CYCLES (1 machine cycle = 4 clock cycles)
     //ld r,r' [r <- r']
-    public short loadRR(Instruction inst) {
+    public static short loadRR(Instruction inst, Memory memory, Registers registers) {
         byte secondOp = inst.getOpcodeSecondOperand();
         byte firstOp = inst.getOpcodeFirstSingleRegister();
         byte data = registers.getByCode(secondOp);
@@ -34,14 +27,14 @@ public class Load8b {
     }
 
     //ld r,n  [r <- n]
-    public short loadRImmediate(Instruction inst) {
+    public static short loadRImmediate(Instruction inst, Memory memory, Registers registers) {
         byte operand = inst.getOpcodeFirstSingleRegister();
         registers.setByCode(operand, inst.getImmediate8b());
         return 8;
     }
 
     //ld r, (HL)  [r<-(HL)]
-    public short loadRHL(Instruction inst) {
+    public static short loadRHL(Instruction inst, Memory memory, Registers registers) {
         byte operand = inst.getOpcodeFirstSingleRegister();
         char addressToRead = registers.getHL();
         byte memData = memory.read(addressToRead);
@@ -51,7 +44,7 @@ public class Load8b {
     }
 
     //ld (HL), r  [(HL) <- r]
-    public short loadHLR(Instruction inst) {
+    public static short loadHLR(Instruction inst, Memory memory, Registers registers) {
         byte operand = inst.getOpcodeSecondOperand();
         byte registerData = registers.getByCode(operand);
         char addressToWrite = registers.getHL();
@@ -61,7 +54,7 @@ public class Load8b {
     }
 
     //ld (HL),n  [(HL) <- n]
-    public short loadHLN(Instruction inst) {
+    public static short loadHLN(Instruction inst, Memory memory, Registers registers) {
         char addressToWrite = registers.getHL();
         memory.write(addressToWrite, inst.getImmediate8b());
 
@@ -69,7 +62,7 @@ public class Load8b {
     }
 
     //ld A,(BC) [A <- (BC)]
-    public short loadA_BC() {
+    public static short loadA_BC(Instruction inst, Memory memory, Registers registers) {
         char addressToRead = registers.getBC();
         byte memData = memory.read(addressToRead);
         registers.setA(memData);
@@ -78,7 +71,7 @@ public class Load8b {
     }
 
     //ld A,(DE) [A <- (DE)]
-    public short loadA_DE() {
+    public static short loadA_DE(Instruction inst, Memory memory, Registers registers) {
         char addressToRead = registers.getDE();
         byte memData = memory.read(addressToRead);
         registers.setA(memData);
@@ -87,7 +80,7 @@ public class Load8b {
     }
 
     //ld A, (nn) [A <- (nn)]
-    public short loadA_nn(Instruction inst) {
+    public static short loadA_nn(Instruction inst, Memory memory, Registers registers) {
         byte memData = memory.read(inst.getImmediate16b());
         registers.setA(memData);
 
@@ -95,7 +88,7 @@ public class Load8b {
     }
 
     //ld (BC), A [(BC) <- A]
-    public short loadBC_A() {
+    public static short loadBC_A(Instruction inst, Memory memory, Registers registers) {
         byte registerData = registers.getA();
         char addressToWrite = registers.getBC();
         memory.write(addressToWrite, registerData);
@@ -104,7 +97,7 @@ public class Load8b {
     }
 
     //ld (DE), A [(DE) <- A]
-    public short loadDE_A() {
+    public static short loadDE_A(Instruction inst, Memory memory, Registers registers) {
         byte registerData = registers.getA();
         char addressToWrite = registers.getDE();
         memory.write(addressToWrite, registerData);
@@ -113,7 +106,7 @@ public class Load8b {
     }
 
     //ld (nn), A [(nn) <- A]
-    public short loadNN_A(Instruction inst) {
+    public static short loadNN_A(Instruction inst, Memory memory, Registers registers) {
         byte registerData = registers.getA();
         memory.write(inst.getImmediate16b(), registerData);
 
@@ -121,7 +114,7 @@ public class Load8b {
     }
 
     //ld A, (FF00+C) [A <- (FF00+C)]
-    public short loadA_C() {
+    public static short loadA_C(Instruction inst, Memory memory, Registers registers) {
         byte c = registers.getC();
         char addressToRead = (char) (0xFF00 + c);
         byte memData = memory.read(addressToRead);
@@ -131,7 +124,7 @@ public class Load8b {
     }
 
     //ld A, (FF00+n) [A <- (FF00+n)]
-    public short loadA_n(Instruction inst) {
+    public static short loadA_n(Instruction inst, Memory memory, Registers registers) {
         char addressToRead = (char) (0xFF00 + inst.getImmediate8b());
         byte memData = memory.read(addressToRead);
         registers.setA(memData);
@@ -140,7 +133,7 @@ public class Load8b {
     }
 
     //ld (FF00+C), A [(FF00+C) <- A]
-    public short loadC_A() {
+    public static short loadC_A(Instruction inst, Memory memory, Registers registers) {
         byte regData = registers.getA();
         byte c = registers.getC();
         char addressToWrite = (char) (0xFF00 + c);
@@ -150,7 +143,7 @@ public class Load8b {
     }
 
     //ld (FF00+n), A  [(FF00+n) <- A]
-    public short loadN_A(Instruction inst) {
+    public static short loadN_A(Instruction inst, Memory memory, Registers registers) {
         byte regData = registers.getA();
         char addressToWrite = (char) (0xFF00 + inst.getImmediate8b());
         memory.write(addressToWrite, regData);
@@ -159,7 +152,7 @@ public class Load8b {
     }
 
     //ld (HLI), A [(HL) <- A; HL <- HL +1]
-    public short loadHLI_A() {
+    public static short loadHLI_A(Instruction inst, Memory memory, Registers registers) {
         char addressToWrite = registers.getHL();
         byte regData = registers.getA();
         memory.write(addressToWrite, regData);
@@ -169,7 +162,7 @@ public class Load8b {
     }
 
     //ld (HLD), A [(HL) <- A; HL <- HL - 1]
-    public short loadHLD_A() {
+    public static short loadHLD_A(Instruction inst, Memory memory, Registers registers) {
         char addressToWrite = registers.getHL();
         byte regData = registers.getA();
         memory.write(addressToWrite, regData);
@@ -179,7 +172,7 @@ public class Load8b {
     }
 
     //LD A, (HLI) [A <- (HL), HL <- HL + 1]
-    public short loadA_HLI() {
+    public static short loadA_HLI(Instruction inst, Memory memory, Registers registers) {
         char addressToRead = registers.getHL();
         byte memData = memory.read(addressToRead);
         registers.setA(memData);
@@ -189,7 +182,7 @@ public class Load8b {
     }
 
     //LD A, (HLI) [A <- (HL), HL <- HL - 1]
-    public short loadA_HLD() {
+    public static short loadA_HLD(Instruction inst, Memory memory, Registers registers) {
         char addressToRead = registers.getHL();
         byte memData = memory.read(addressToRead);
         registers.setA(memData);

@@ -4,7 +4,7 @@ import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.InstructionBuilder;
 import com.ismaelrh.gameboy.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.SingleBit;
+import com.ismaelrh.gameboy.cpu.instructions.implementation.SingleBit;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 
 public class SingleBitTest {
 
-    private SingleBit singleBit;
     private Registers registers;
     private Memory memory;
 
@@ -22,7 +21,6 @@ public class SingleBitTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
-        singleBit = new SingleBit(registers, memory);
     }
 
 
@@ -37,7 +35,7 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.bit_n_r(inst);
+        short cycles = SingleBit.bit_n_r(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xAA, registers.getE());
         assertFlags(registers, true, false, true, true);
@@ -54,7 +52,7 @@ public class SingleBitTest {
                 .withFirstOperand((byte) 2) //3rd lsb
                 .build();
 
-        short cycles = singleBit.bit_n_HL(inst);
+        short cycles = SingleBit.bit_n_HL(inst, memory, registers);
         assertEquals(12, cycles);
         assertEquals8(0xAA, memory.read((char) 0xBEBA));  //Register untouched
         assertFlags(registers, true, false, true, true);
@@ -71,7 +69,7 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.bit_n_r(inst);
+        short cycles = SingleBit.bit_n_r(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xAA, registers.getE());
         assertFlags(registers, false, false, true, true);
@@ -88,7 +86,7 @@ public class SingleBitTest {
                 .withFirstOperand((byte) 3) //4rd lsb
                 .build();
 
-        short cycles = singleBit.bit_n_HL(inst);
+        short cycles = SingleBit.bit_n_HL(inst, memory, registers);
         assertEquals(12, cycles);
         assertEquals8(0xAA, memory.read((char) 0xBEBA));  //Register untouched
         assertFlags(registers, false, false, true, true);
@@ -104,7 +102,7 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.set_n_r(inst);
+        short cycles = SingleBit.set_n_r(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xAE, registers.getE());
         assertFlags(registers, true, true, true, true); //Untouched
@@ -121,9 +119,9 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.set_n_HL(inst);
+        short cycles = SingleBit.set_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xAE, memory.read((char)0xBEBA));
+        assertEquals8(0xAE, memory.read((char) 0xBEBA));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 
@@ -137,7 +135,7 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.set_n_r(inst);
+        short cycles = SingleBit.set_n_r(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xAA, registers.getE());
         assertFlags(registers, true, true, true, true); //Untouched
@@ -155,9 +153,9 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.set_n_HL(inst);
+        short cycles = SingleBit.set_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xAA, memory.read((char)0xBEBA));
+        assertEquals8(0xAA, memory.read((char) 0xBEBA));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 
@@ -171,7 +169,7 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.res_n_r(inst);
+        short cycles = SingleBit.res_n_r(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xAA, registers.getE());
         assertFlags(registers, true, true, true, true); //Untouched
@@ -188,9 +186,9 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.res_n_HL(inst);
+        short cycles = SingleBit.res_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xAA, memory.read((char)0xBEBA));
+        assertEquals8(0xAA, memory.read((char) 0xBEBA));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 
@@ -204,7 +202,7 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.res_n_r(inst);
+        short cycles = SingleBit.res_n_r(inst, memory, registers);
         assertEquals(8, cycles);
         assertEquals8(0xA8, registers.getE());
         assertFlags(registers, true, true, true, true); //Untouched
@@ -222,9 +220,9 @@ public class SingleBitTest {
                 .withSecondOperand(Registers.E)
                 .build();
 
-        short cycles = singleBit.res_n_HL(inst);
+        short cycles = SingleBit.res_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xA8, memory.read((char)0xBEBA));
+        assertEquals8(0xA8, memory.read((char) 0xBEBA));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 

@@ -3,7 +3,7 @@ package com.ismaelrh.gameboy.cpu.instructions;
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.Load16b;
+import com.ismaelrh.gameboy.cpu.instructions.implementation.Load16b;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +13,6 @@ import static org.junit.Assert.assertEquals;
 
 public class Load16BTest {
 
-    private Load16b load16B;
     private Registers registers;
     private Memory memory;
 
@@ -21,7 +20,6 @@ public class Load16BTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
-        load16B = new Load16b(registers, memory);
         registers.setA((byte) 0xFF);
         registers.setB((byte) 0xFF);
         registers.setC((byte) 0xFF);
@@ -36,14 +34,14 @@ public class Load16BTest {
     public void loadRR_NN() {
         //nn <- 0xBEEF, BC <- 0xBEEF
         Instruction inst1 = new Instruction(getOpcodeDoubleRegister(0x00, BC, NONE), (char) 0xBEEF);
-        short cycles = load16B.loadRR_NN(inst1);
+        short cycles = Load16b.loadRR_NN(inst1, memory, registers);
         assertEquals16(0xBEEF, registers.getBC());
         assertEquals(12, cycles);
 
         //nn <- 0xDEAD, SP <- 0xDEAD
         Instruction inst2 = new Instruction(getOpcodeDoubleRegister(0x00, AF_SP, NONE), (char) 0xDEAD);
 
-        load16B.loadRR_NN(inst2);
+        Load16b.loadRR_NN(inst2, memory, registers);
         assertEquals16(0xDEAD, registers.getSP());
     }
 
@@ -51,7 +49,7 @@ public class Load16BTest {
     public void loadSP_HL() {
         //HL = 0xBEEF, SP <- 0xBEEF
         registers.setHL((char) 0xBEEF);
-        short cycles = load16B.loadSP_HL();
+        short cycles = Load16b.loadSP_HL(new Instruction((byte) 0x0), memory, registers);
         assertEquals16(0xBEEF, registers.getSP());
         assertEquals(8, cycles);
     }
@@ -62,7 +60,7 @@ public class Load16BTest {
         registers.setSP((char) 0x0001);
         registers.setAF((char) 0xBEEF);
         Instruction inst = new Instruction(getOpcodeDoubleRegister(0x3, AF_SP, NONE));
-        short cycles = load16B.push_QQ(inst);
+        short cycles = Load16b.push_QQ(inst, memory, registers);
 
         assertEquals8(0xBE, memory.read((char) 0x0000));
         assertEquals8(0xEF, memory.read((char) 0xFFFF));
@@ -77,7 +75,7 @@ public class Load16BTest {
         memory.write((char) 0xFFFF, (byte) 0xEF);
         memory.write((char) 0x0000, (byte) 0xBE);
         Instruction inst = new Instruction(getOpcodeDoubleRegister(0x3, AF_SP, NONE));
-        short cycles = load16B.pop_QQ(inst);
+        short cycles = Load16b.pop_QQ(inst, memory, registers);
 
         assertEquals16(0xBEEF, registers.getAF());
         assertEquals16(0x0001, registers.getSP());

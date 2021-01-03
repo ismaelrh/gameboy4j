@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.Memory;
@@ -10,67 +10,64 @@ public class RotateShift {
 
     private static final Logger log = LogManager.getLogger(RotateShift.class);
 
-    private Registers registers;
-    private Memory memory;
-
-    public RotateShift(Registers registers, Memory memory) {
-        this.registers = registers;
-        this.memory = memory;
-    }
-
     //Rotate register A left.
     //C <- [7 <- 0] <- [7]
-    public short rlca(Instruction inst) {
+    public static short rlca(Instruction inst, Memory memory, Registers registers) {
         registers.setA(
                 rotateLeft(
                         registers.getA(),
                         false,
-                        false)
+                        false,
+                        registers)
         );
         return 4;
     }
 
     //Rotate register A left through carry.
     //C <- [7 <- 0] <- C
-    public short rla(Instruction inst) {
+    public static short rla(Instruction inst, Memory memory, Registers registers) {
         registers.setA(
                 rotateLeft(
                         registers.getA(),
                         true,
-                        false)
+                        false,
+                        registers)
         );
         return 4;
     }
 
     //Rotate register A right.
     //[0] -> [7 -> 0] -> C
-    public short rrca(Instruction inst) {
+    public static short rrca(Instruction inst, Memory memory, Registers registers) {
         registers.setA(
                 rotateRight(
                         registers.getA(),
                         false,
-                        false));
+                        false,
+                        registers));
         return 4;
     }
 
     //Rotate register A right through carry.
     //C -> [7 -> 0] -> C
-    public short rra(Instruction inst) {
+    public static short rra(Instruction inst, Memory memory, Registers registers) {
         registers.setA(
                 rotateRight(
                         registers.getA(),
                         true,
-                        false));
+                        false,
+                        registers));
         return 4;
     }
 
     //Rotate register r8 left.
     //C <- [7 <- 0] <- [7]
-    public short rlc_r(Instruction inst) {
+    public static short rlc_r(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateLeft(
                 registers.getByCode(inst.getOpcodeSecondOperand()),
                 false,
-                true
+                true,
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
@@ -78,11 +75,12 @@ public class RotateShift {
 
     //Rotate byte pointed to by HL left.
     //C <- [7 <- 0] <- [7]
-    public short rlc_HL(Instruction inst) {
+    public static short rlc_HL(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateLeft(
                 memory.read(registers.getHL()),
                 false,
-                true
+                true,
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
@@ -90,11 +88,12 @@ public class RotateShift {
 
     //Rotate bits in register r8 left through carry.
     //C <- [7 <- 0] <- C
-    public short rl_r(Instruction inst) {
+    public static short rl_r(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateLeft(
                 registers.getByCode(inst.getOpcodeSecondOperand()),
                 true,
-                true
+                true,
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
@@ -102,11 +101,12 @@ public class RotateShift {
 
     //Rotate byte pointed to by HL left through carry.
     //C <- [7 <- 0] <- C
-    public short rl_hl(Instruction inst) {
+    public static short rl_hl(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateLeft(
                 memory.read(registers.getHL()),
                 true,
-                true
+                true,
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
@@ -115,11 +115,12 @@ public class RotateShift {
 
     //Rotate register r8 right.
     //[0] -> [7 -> 0] -> C
-    public short rrc_r(Instruction inst) {
+    public static short rrc_r(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateRight(
                 registers.getByCode(inst.getOpcodeSecondOperand()),
                 false,
-                true
+                true,
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
@@ -127,11 +128,12 @@ public class RotateShift {
 
     //Rotate byte pointed to by HL right.
     //C <- [7 <- 0] <- [7]
-    public short rrc_HL(Instruction inst) {
+    public static short rrc_HL(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateRight(
                 memory.read(registers.getHL()),
                 false,
-                true
+                true,
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
@@ -139,11 +141,12 @@ public class RotateShift {
 
     //Rotate register r8 right through carry.
     //C -> [7 -> 0] -> C
-    public short rr_r(Instruction inst) {
+    public static short rr_r(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateRight(
                 registers.getByCode(inst.getOpcodeSecondOperand()),
                 true,
-                true
+                true,
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
@@ -152,35 +155,38 @@ public class RotateShift {
 
     //Rotate byte pointed to by HL right through carry.
     //C <- [7 <- 0] <- C
-    public short rr_hl(Instruction inst) {
+    public static short rr_hl(Instruction inst, Memory memory, Registers registers) {
         byte res = rotateRight(
                 memory.read(registers.getHL()),
                 true,
-                true
+                true,
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
     }
 
     //swap r
-    public short swap_r(Instruction inst) {
+    public static short swap_r(Instruction inst, Memory memory, Registers registers) {
         byte res = swap(
-                registers.getByCode(inst.getOpcodeSecondOperand())
+                registers.getByCode(inst.getOpcodeSecondOperand()),
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
     }
 
     //swap HL
-    public short swap_hl(Instruction inst) {
+    public static short swap_hl(Instruction inst, Memory memory, Registers registers) {
         byte res = swap(
-                memory.read(registers.getHL())
+                memory.read(registers.getHL()),
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
     }
 
-    private byte swap(byte data) {
+    private static byte swap(byte data, Registers registers) {
         registers.clearFlags();
         byte res = (byte) (((data & 0x0F) << 4) | ((data & 0xF0) >> 4));
         if (res == 0x00) {
@@ -189,59 +195,65 @@ public class RotateShift {
         return res;
     }
 
-    public short sla_r(Instruction inst) {
+    public static short sla_r(Instruction inst, Memory memory, Registers registers) {
         byte res = sla(
-                registers.getByCode(inst.getOpcodeSecondOperand())
+                registers.getByCode(inst.getOpcodeSecondOperand()),
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
     }
 
-    public short sla_hl(Instruction inst) {
+    public static short sla_hl(Instruction inst, Memory memory, Registers registers) {
         byte res = sla(
-                memory.read(registers.getHL())
+                memory.read(registers.getHL()),
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
     }
 
-    public short sra_r(Instruction inst) {
+    public static short sra_r(Instruction inst, Memory memory, Registers registers) {
         byte res = sr(
                 registers.getByCode(inst.getOpcodeSecondOperand()),
-                true
+                true,
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
     }
 
-    public short sra_hl(Instruction inst) {
+    public static short sra_hl(Instruction inst, Memory memory, Registers registers) {
         byte res = sr(
                 memory.read(registers.getHL()),
-                true
+                true,
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
     }
 
-    public short srl_r(Instruction inst) {
+    public static short srl_r(Instruction inst, Memory memory, Registers registers) {
         byte res = sr(
                 registers.getByCode(inst.getOpcodeSecondOperand()),
-                false
+                false,
+                registers
         );
         registers.setByCode(inst.getOpcodeSecondOperand(), res);
         return 8;
     }
 
-    public short srl_hl(Instruction inst) {
+    public static short srl_hl(Instruction inst, Memory memory, Registers registers) {
         byte res = sr(
                 memory.read(registers.getHL()),
-                false
+                false,
+                registers
         );
         memory.write(registers.getHL(), res);
         return 16;
     }
 
-    private byte sla(byte data) {
+    private static byte sla(byte data, Registers registers) {
 
         //Higher bit is 1, set carry flag. This also clears other flags
         registers.setF((byte) ((data & 0x80) >> 3));
@@ -255,7 +267,7 @@ public class RotateShift {
         return res;
     }
 
-    private byte sr(byte data, boolean keepMsb) {
+    private static byte sr(byte data, boolean keepMsb, Registers registers) {
 
         //Lower bit is 1, set carry flag. Also clears other flags
         registers.setF((byte) ((data & 0x01) << 4));
@@ -274,7 +286,7 @@ public class RotateShift {
         return res;
     }
 
-    private byte rotateLeft(byte value, boolean throughCarry, boolean useZflag) {
+    private static byte rotateLeft(byte value, boolean throughCarry, boolean useZflag, Registers registers) {
         byte oldFlags = registers.getF();
         registers.clearFlags();
         byte res = 0;
@@ -290,7 +302,7 @@ public class RotateShift {
         return res;
     }
 
-    private byte rotateRight(byte value, boolean throughCarry, boolean useZflag) {
+    private static byte rotateRight(byte value, boolean throughCarry, boolean useZflag, Registers registers) {
         byte oldFlags = registers.getF();
         registers.clearFlags();
         byte res = 0;
