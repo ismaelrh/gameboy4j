@@ -1,7 +1,7 @@
 package com.ismaelrh.gameboy.cpu.instructions;
 
 import com.ismaelrh.gameboy.Instruction;
-import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
 
 @FunctionalInterface

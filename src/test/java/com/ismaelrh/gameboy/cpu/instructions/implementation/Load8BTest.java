@@ -1,9 +1,9 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
-import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.implementation.Load8b;
+import com.ismaelrh.gameboy.cpu.cartridge.FakeCartridge;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +20,7 @@ public class Load8BTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
+        memory.insertCartridge(new FakeCartridge());
         registers.setA((byte) 0xFF);
         registers.setB((byte) 0xFF);
         registers.setC((byte) 0xFF);

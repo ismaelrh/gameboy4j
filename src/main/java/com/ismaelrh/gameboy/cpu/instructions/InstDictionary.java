@@ -32,6 +32,7 @@ public class InstDictionary {
             new InstDescription("ld SP,HL", "11_111_001", 0, Load16b::loadSP_HL),
             new InstDescription("push rr", "11_xx0_101", 0, Load16b::push_QQ),
             new InstDescription("pop rr", "11_xx0_001", 0, Load16b::pop_QQ),
+            new InstDescription("ld (nn), SP", "00_001_000", 2, Load16b::loadnn_SP),
 
             //8-bit arithmetic
             new InstDescription("add A,r", "10_000_xxx", 0, Arithmetic8b::addA_r),

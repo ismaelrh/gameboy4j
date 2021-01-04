@@ -1,7 +1,7 @@
 package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
-import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +35,20 @@ public class Load16b {
         registers.setSP(hlContent);
 
         return 8;
+    }
+
+    public static short loadnn_SP(Instruction inst, Memory memory, Registers registers) {
+        char spContent = registers.getSP();
+        byte high = (byte) ((spContent >> 8) & 0xFF);
+        byte low = (byte) (spContent & 0xFF);
+        char nn = inst.getImmediate16b();
+
+        //(nn) <- SP-l
+        //(nn+1) <- SP-h
+        memory.write(nn, low);
+        memory.write((char) (nn + 1), high);
+
+        return 20;
     }
 
     //push qq ((SP -1) <- qqH; (SP -2) <- qqL; SP <- SP -2)

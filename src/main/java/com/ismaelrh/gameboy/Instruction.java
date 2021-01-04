@@ -55,16 +55,16 @@ public class Instruction {
     }
 
     public char getImmediate16b() {
-        char low = (char) ((char) (nn2) & 0x00FF);
-        char high = (char) ((nn1 << 8) & 0xFF00);
+        char low = (char) ((char) (nn1) & 0x00FF);
+        char high = (char) ((nn2 << 8) & 0xFF00);
         return (char) (high | low);
     }
 
     public void setImmediate16b(char immediate16b) {
         byte highByte = (byte) ((immediate16b >> 8) & 0xFF);
         byte lowByte = (byte) ((immediate16b & 0xFF));
-        nn1 = highByte;
-        nn2 = lowByte;
+        nn2 = highByte;
+        nn1 = lowByte;
     }
 
 

@@ -1,11 +1,19 @@
 package com.ismaelrh.gameboy.cpu;
 
 import com.ismaelrh.gameboy.Instruction;
-import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.instructions.InstDecoder;
 import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+/**
+ * This is responsible for executing a single instruction.
+ */
 public class ControlUnit {
+
+    private static final Logger log = LogManager.getLogger(ControlUnit.class);
+
 
     private Registers registers;
     private Memory memory;
@@ -17,15 +25,7 @@ public class ControlUnit {
         this.decoder = new InstDecoder();
     }
 
-    private void initialize() {
-
-    }
-
-    private void loadCartridge() {
-
-    }
-
-    private void loop() throws Exception {
+    public int runInstruction() throws Exception {
 
         boolean isCB = false;
 
@@ -53,10 +53,12 @@ public class ControlUnit {
             inst.setNn2(readAndIncPC());
         }
 
-        //Execute
-        int cycles = instDescription.getInst().apply(inst, memory, registers);
+        String prefix = isCB ? "CB "  : "";
+        System.out.println(String.format("Instruction %s0x%02X - %s - extra=[0x%02X,0x%02X]", prefix,opcode, instDescription.getMnemonic(), inst.getNn1(), inst.getNn2()));
 
-        //Wait appropriate time
+
+        //Execute and return the number of cycles that it took
+        return instDescription.getInst().apply(inst, memory, registers);
     }
 
     private byte readAndIncPC() {

@@ -43,7 +43,7 @@ public class InstDescription {
 
     public boolean matches(int opcode) {
         if (!cb) {
-            return true;
+            return opcodeMatches(opcode);
         } else {
             return false;
         }
@@ -51,7 +51,7 @@ public class InstDescription {
 
     public boolean matchesCB(int opcode) {
         if (cb) {
-            return false;
+            return opcodeMatches(opcode);
         } else {
             return false;
         }
@@ -85,11 +85,20 @@ public class InstDescription {
         return pattern;
     }
 
-
     private String getCanonicalExpr() {
         return getExpr()
                 .replaceAll(" ", "")
                 .replaceAll("_", "")
                 .replaceAll("X", "x");
+    }
+
+    private boolean opcodeMatches(int opcode) {
+        String stringValue = getBinaryRepresentation(opcode);
+        return pattern.matcher(stringValue).matches();
+    }
+
+    private String getBinaryRepresentation(int opcode) {
+        byte byteValue = (byte) (opcode & 0xFF);
+        return String.format("%8s", Integer.toBinaryString(byteValue & 0xFF)).replace(' ', '0');
     }
 }

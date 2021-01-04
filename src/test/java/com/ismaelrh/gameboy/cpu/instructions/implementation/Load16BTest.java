@@ -1,9 +1,10 @@
-package com.ismaelrh.gameboy.cpu.instructions;
+package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
 import com.ismaelrh.gameboy.Instruction;
-import com.ismaelrh.gameboy.Memory;
+import com.ismaelrh.gameboy.InstructionBuilder;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.implementation.Load16b;
+import com.ismaelrh.gameboy.cpu.cartridge.FakeCartridge;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +21,7 @@ public class Load16BTest {
     public void setUp() {
         registers = new Registers();
         memory = new Memory();
+        memory.insertCartridge(new FakeCartridge());
         registers.setA((byte) 0xFF);
         registers.setB((byte) 0xFF);
         registers.setC((byte) 0xFF);
@@ -29,6 +31,19 @@ public class Load16BTest {
         registers.setL((byte) 0xFF);
     }
 
+    @Test
+    public void loadnn_SP() {
+        registers.setSP((char) 0xBEBA);
+
+        //(nn) <- SP-l
+        //(nn+1) <- SP-h
+
+        Instruction inst = new InstructionBuilder().withImmediate16b((char)0xCAFE).build();
+        short cycles = Load16b.loadnn_SP(inst, memory, registers);
+        assertEquals(20,cycles);
+        assertEquals8(0xBA,memory.read((char)0xCAFE));
+        assertEquals8(0xBE,memory.read((char)0xCAFF));
+    }
 
     @Test
     public void loadRR_NN() {

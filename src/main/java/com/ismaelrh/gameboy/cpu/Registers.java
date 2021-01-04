@@ -47,12 +47,12 @@ public class Registers {
     }
 
     public void init() {
-        this.pc = 0x100; //PC is initialized at 0x100 (corresponds to ROM BANK)
-        this.sp = 0xFFFE; //SP initialized to 0xFFFE on power up, bu tprogrammer should not rely on this setting.
-        this.af = 0x0;
-        this.bc = 0x0;
-        this.de = 0x0;
-        this.hl = 0x0;
+        this.pc = 0x0100; //PC is initialized at 0x100 (corresponds to ROM BANK)
+        this.sp = 0xFFFE; //SP initialized to 0xFFFE on power up, but programmer should not rely on this setting.
+        this.af = 0x0001;
+        this.bc = 0x0013;
+        this.de = 0x00D8;
+        this.hl = 0x014D;
     }
 
     public char getPC() {
