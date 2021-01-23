@@ -18,6 +18,7 @@ public class ControlCommandsTest {
     @Before
     public void setUp() {
         registers = new Registers();
+        registers.initForTest();
         memory = new Memory();
     }
 

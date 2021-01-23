@@ -4,6 +4,8 @@ import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.instructions.InstDecoder;
 import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
+import com.ismaelrh.gameboy.debug.debugger.Debugger;
+import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,18 +16,25 @@ public class ControlUnit {
 
     private static final Logger log = LogManager.getLogger(ControlUnit.class);
 
-
     private Registers registers;
     private Memory memory;
     private InstDecoder decoder;
+    private Debugger debugger;
 
     public ControlUnit(Registers registers, Memory memory) {
         this.registers = registers;
         this.memory = memory;
         this.decoder = new InstDecoder();
+        this.debugger = new Debugger(memory, registers);
+    }
+
+    public void setDebuggerController(DebuggerController controller) {
+        this.debugger.setController(controller);
     }
 
     public int runInstruction() throws Exception {
+
+        debugger.debug();   //This can block the execution
 
         boolean isCB = false;
 
@@ -53,8 +62,10 @@ public class ControlUnit {
             inst.setNn2(readAndIncPC());
         }
 
-        String prefix = isCB ? "CB "  : "";
-        System.out.println(String.format("Instruction %s0x%02X - %s - extra=[0x%02X,0x%02X]", prefix,opcode, instDescription.getMnemonic(), inst.getNn1(), inst.getNn2()));
+        String prefix = isCB ? "CB " : "";
+        /*System.out.println(String.format("Instruction %s0x%02X - %s - rs=[0x%02X,0x%02X], extra=[0x%02X,0x%02X]", prefix,opcode, instDescription.getMnemonic(),
+                inst.getOpcodeFirstSingleRegister(), inst.getOpcodeSecondOperand(),
+                inst.getNn1(), inst.getNn2()));*/
 
 
         //Execute and return the number of cycles that it took

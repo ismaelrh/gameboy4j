@@ -4,9 +4,10 @@ import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.cartridge.BasicCartridge;
 import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
-import com.ismaelrh.gameboy.cpu.debug.console.BlarggTestInterceptor;
-import com.ismaelrh.gameboy.cpu.debug.console.RegisterStatus;
+import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
+import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
+import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
 
 public class GameBoyDebugger {
 
@@ -14,22 +15,24 @@ public class GameBoyDebugger {
 
         Memory memory = new Memory();
         Registers registers = new Registers();
+        registers.initForRealGB();
 
         ControlUnit controlUnit = new ControlUnit(registers, memory);
 
-        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/06-ld r,r.gb");
-        BlarggTestInterceptor blargg = new BlarggTestInterceptor();
-        memory.addInterceptor(blargg);
+        //Register console debugger
+        controlUnit.setDebuggerController(new ConsoleController());
+
+        //Register blargg interceptor to get output and put it on console
+        memory.addInterceptor(new BlarggTestInterceptor());
+
+        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/01-special.gb");
         memory.insertCartridge(cartridge);
 
-        RegisterStatus registerStatus = new RegisterStatus(registers);
 
-        for (int i = 0; i < 1000; i++) {
-            registerStatus.print();
-            System.out.println();
+        while (true) {
             controlUnit.runInstruction();
         }
-        blargg.flush();
+        //blargg.flush();
 
 
     }

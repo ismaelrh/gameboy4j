@@ -98,7 +98,7 @@ public class Memory {
             result = ioRAM[address - IO_RAM_START];
         } else if (address >= UNUSABLE_RAM_START) {
             log.warn("Read unusable RAM @" + String.format("%04x", (int) address));
-            result = 0x00; //In reality, returns garbage.
+            result = (byte)0xFF; //reads return $FF (which is the "default value" in the main Game Boy data bus).
         } else if (address >= SPRITE_RAM_START) {
             result = spriteRAM[address - SPRITE_RAM_START];
         } else if (address >= ECHO_RAM_START) {

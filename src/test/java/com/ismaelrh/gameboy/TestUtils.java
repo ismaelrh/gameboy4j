@@ -33,10 +33,10 @@ public class TestUtils {
     }
 
     public static void assertFlags(Registers registers, boolean z, boolean n, boolean h, boolean c) {
-        assertEquals("Flag z. Expected="+z + ",Got=" + registers.checkFlagZ(),registers.checkFlagZ(),z);
-        assertEquals("Flag n. Expected="+n + ",Got=" + registers.checkFlagN(),registers.checkFlagN(),n);
-        assertEquals("Flag h. Expected="+h + ",Got=" + registers.checkFlagH(),registers.checkFlagH(),h);
-        assertEquals("Flag c. Expected="+c + ",Got=" + registers.checkFlagC(),registers.checkFlagC(),c);
+        assertEquals("Flag z. Expected="+z + ",Got=" + registers.checkFlagZ(),z,registers.checkFlagZ());
+        assertEquals("Flag n. Expected="+n + ",Got=" + registers.checkFlagN(),n,registers.checkFlagN());
+        assertEquals("Flag h. Expected="+h + ",Got=" + registers.checkFlagH(),h,registers.checkFlagH());
+        assertEquals("Flag c. Expected="+c + ",Got=" + registers.checkFlagC(),c,registers.checkFlagC());
 
     }
 }

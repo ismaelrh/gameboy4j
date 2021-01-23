@@ -25,9 +25,9 @@ public class RegistersTest {
 	@Test
 	public void readsAndWritesAF() {
 		registers.setAF((char) 0xBEEF);
-		assertEquals16(0xBEEF, registers.getAF());
+		assertEquals16(0xBEE0, registers.getAF());
 		assertEquals8(0xBE, registers.getA());
-		assertEquals8(0xEF, registers.getF());
+		assertEquals8(0xE0, registers.getF());
 	}
 
 	@Test
@@ -36,17 +36,17 @@ public class RegistersTest {
 
 		registers.setA((byte) 0x12);
 		assertEquals8(0x12, registers.getA());
-		assertEquals16(0x12FF, registers.getAF());
+		assertEquals16(0x12F0, registers.getAF());
 
 		registers.setF((byte) 0x34);
-		assertEquals8(0x34, registers.getF());
-		assertEquals16(0x1234, registers.getAF());
+		assertEquals8(0x30, registers.getF());
+		assertEquals16(0x1230, registers.getAF());
 	}
 
 	@Test
 	public void readsAndWritesF() {
 		registers.setF((byte) 0x12);
-		assertEquals8(0x12, registers.getF());
+		assertEquals8(0x10, registers.getF());
 	}
 
 	@Test

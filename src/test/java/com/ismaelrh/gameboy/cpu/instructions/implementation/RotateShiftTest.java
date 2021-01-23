@@ -19,6 +19,7 @@ public class RotateShiftTest {
     @Before
     public void setUp() {
         registers = new Registers();
+        registers.initForTest();
         memory = new Memory();
     }
 

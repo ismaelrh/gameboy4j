@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy.cpu.debug.console;
+package com.ismaelrh.gameboy.debug.debugger.console;
 
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.jakewharton.fliptables.FlipTable;
@@ -25,6 +25,6 @@ public class RegisterStatus {
     }
 
     private String f(byte data) {
-        return String.format("%02X", (int) data);
+        return String.format("%02X", data);
     }
 }

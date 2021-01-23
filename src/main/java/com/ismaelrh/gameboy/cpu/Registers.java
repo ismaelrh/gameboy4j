@@ -43,16 +43,24 @@ public class Registers {
     private boolean ime = false;
 
     public Registers() {
-        init();
     }
 
-    public void init() {
+    public void initForRealGB() {
         this.pc = 0x0100; //PC is initialized at 0x100 (corresponds to ROM BANK)
         this.sp = 0xFFFE; //SP initialized to 0xFFFE on power up, but programmer should not rely on this setting.
-        this.af = 0x0001;
+        this.af = 0x01B0;
         this.bc = 0x0013;
         this.de = 0x00D8;
         this.hl = 0x014D;
+    }
+
+    public void initForTest() {
+        this.pc = 0x0100; //PC is initialized at 0x100 (corresponds to ROM BANK)
+        this.sp = 0x0000; //SP initialized to 0xFFFE on power up, but programmer should not rely on this setting.
+        this.af = 0x0000;
+        this.bc = 0x0000;
+        this.de = 0x0000;
+        this.hl = 0x0000;
     }
 
     public char getPC() {
@@ -120,7 +128,7 @@ public class Registers {
     }
 
     public void setAF(char af) {
-        this.af = af;
+        this.af = (char)(af & 0xFFF0);
     }
 
     public void setA(byte a) {
@@ -134,7 +142,7 @@ public class Registers {
      * it transform the byte to a char, and to keep with the negative, adds 1's at the left (Two-complement). When doing the OR, sets all positions at left to 1's.
      */
     public void setF(byte f) {
-        this.af = (char) ((this.af & 0xFF00) | ((f & 0xFF)));
+        this.af = (char) (((this.af & 0xFF00) | ((f & 0xF0))));
     }
 
     public void setBC(char bc) {

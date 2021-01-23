@@ -20,6 +20,7 @@ public class Load16BTest {
     @Before
     public void setUp() {
         registers = new Registers();
+        registers.initForTest();
         memory = new Memory();
         memory.insertCartridge(new FakeCartridge());
         registers.setA((byte) 0xFF);
@@ -78,7 +79,7 @@ public class Load16BTest {
         short cycles = Load16b.push_QQ(inst, memory, registers);
 
         assertEquals8(0xBE, memory.read((char) 0x0000));
-        assertEquals8(0xEF, memory.read((char) 0xFFFF));
+        assertEquals8(0xE0, memory.read((char) 0xFFFF));
         assertEquals16(0xFFFF, registers.getSP());
         assertEquals(16, cycles);
     }
@@ -92,7 +93,8 @@ public class Load16BTest {
         Instruction inst = new Instruction(getOpcodeDoubleRegister(0x3, AF_SP, NONE));
         short cycles = Load16b.pop_QQ(inst, memory, registers);
 
-        assertEquals16(0xBEEF, registers.getAF());
+        //Last nibble of F should never be modified
+        assertEquals16(0xBEE0, registers.getAF());
         assertEquals16(0x0001, registers.getSP());
         assertEquals(12, cycles);
     }

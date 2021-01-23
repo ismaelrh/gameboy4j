@@ -19,6 +19,7 @@ public class Load8BTest {
     @Before
     public void setUp() {
         registers = new Registers();
+        registers.initForTest();
         memory = new Memory();
         memory.insertCartridge(new FakeCartridge());
         registers.setA((byte) 0xFF);
