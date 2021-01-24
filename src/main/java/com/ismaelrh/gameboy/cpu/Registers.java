@@ -3,6 +3,8 @@ package com.ismaelrh.gameboy.cpu;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
+
 public class Registers {
 
     private static final Logger log = LogManager.getLogger(Registers.class);
@@ -342,5 +344,18 @@ public class Registers {
                 log.error("Incorrect store to double register by code: " + String.format("%02x", (int) regCode));
                 return 0x0;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Registers registers = (Registers) o;
+        return pc == registers.pc && sp == registers.sp && af == registers.af && bc == registers.bc && de == registers.de && hl == registers.hl && ime == registers.ime;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pc, sp, af, bc, de, hl, ime);
     }
 }

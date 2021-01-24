@@ -6,6 +6,7 @@ import com.ismaelrh.gameboy.cpu.instructions.InstDecoder;
 import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
 import com.ismaelrh.gameboy.debug.debugger.Debugger;
 import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
+import com.ismaelrh.gameboy.debug.logCheck.LogStatusProvider;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,16 +21,22 @@ public class ControlUnit {
     private Memory memory;
     private InstDecoder decoder;
     private Debugger debugger;
+    private ExecutionInfo executionInfo;
 
     public ControlUnit(Registers registers, Memory memory) {
         this.registers = registers;
         this.memory = memory;
         this.decoder = new InstDecoder();
-        this.debugger = new Debugger(memory, registers);
+        this.executionInfo = new ExecutionInfo();
+        this.debugger = new Debugger(memory, registers, executionInfo);
     }
 
     public void setDebuggerController(DebuggerController controller) {
         this.debugger.setController(controller);
+    }
+
+    public void setLogStatusProvider(LogStatusProvider logStatusProvider) {
+        this.debugger.setLogStatusProvider(logStatusProvider);
     }
 
     public int runInstruction() throws Exception {
@@ -69,7 +76,9 @@ public class ControlUnit {
 
 
         //Execute and return the number of cycles that it took
-        return instDescription.getInst().apply(inst, memory, registers);
+        int instCycles = instDescription.getInst().apply(inst, memory, registers);
+        executionInfo.addCycles(instCycles);
+        return instCycles;
     }
 
     private byte readAndIncPC() {

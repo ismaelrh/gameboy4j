@@ -8,6 +8,8 @@ import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
 import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
+import com.ismaelrh.gameboy.debug.logCheck.LogStatusProvider;
+import com.ismaelrh.gameboy.debug.logCheck.binjgb.BinJgbLogStatusProvider;
 
 public class GameBoyDebugger {
 
@@ -21,6 +23,9 @@ public class GameBoyDebugger {
 
         //Register console debugger
         controlUnit.setDebuggerController(new ConsoleController());
+
+        //Log status provider
+        //controlUnit.setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/binjgb/bin/03-opsp,hl.gb.txt"));
 
         //Register blargg interceptor to get output and put it on console
         memory.addInterceptor(new BlarggTestInterceptor());

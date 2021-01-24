@@ -220,33 +220,28 @@ public class Arithmetic8b {
          * z_flag = (a == 0); // the usual z flag
          * h_flag = 0; // h flag is always cleared
          */
-        byte result = registers.getA();
-        if (registers.checkFlagN()) {
-            if (registers.checkFlagH()) {
-                result = (byte) ((result - 6) & 0xFF);
+        if (!registers.checkFlagN()) {
+            if (registers.checkFlagC() || (registers.getA()&0xFF) > 0x99) {
+                registers.setA((byte) (registers.getA() + 0x60));
+                registers.setFlagC();
             }
-            if (registers.checkFlagC()) {
-                result = (byte) ((result - 0x60) & 0xFF);
+            if (registers.checkFlagH() || (registers.getA() & 0x0F) >  0x09) {
+                registers.setA((byte) (registers.getA() +  0x6));
             }
         } else {
-            if (registers.checkFlagH() || (result & 0xF) > 9) {
-                result += 0x06;
+            if (registers.checkFlagC()) {
+                registers.setA((byte) (registers.getA() - 0x60));
             }
-            if (registers.checkFlagC() || result > (byte) 0x9F) {
-                result += 0x60;
+            if (registers.checkFlagH()) {
+                registers.setA((byte) (registers.getA() - 0x6));
             }
         }
-        registers.setFlagH();
-        if (result > (byte) 0xFF) {
-            registers.setFlagC();
-        }
-        result &= 0xFF;
-        if (result == 0) {
+        if (registers.getA() == 0x00) {
             registers.setFlagZ();
         } else {
             registers.clearFlagZ();
         }
-        registers.setA(result);
+        registers.clearFlagH();
 
         return 4;
     }
