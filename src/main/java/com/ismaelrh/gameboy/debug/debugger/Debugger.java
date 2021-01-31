@@ -43,7 +43,6 @@ public class Debugger {
     public void setController(DebuggerController controller) {
         this.controller = controller;
         controller.init(memory, registers, this, executionInfo);
-        //addBreakpoint((char) (0x200));
     }
 
     public void setLogStatusProvider(LogStatusProvider logStatusProvider) {

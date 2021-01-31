@@ -1,6 +1,7 @@
 package com.ismaelrh.gameboy.cpu.periphericals.timer;
 
 import com.ismaelrh.gameboy.cpu.Const;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 
 public class CounterTimer {
 
@@ -13,7 +14,14 @@ public class CounterTimer {
     private boolean running = false;
     private int freq = 4096; //Initial is 4096Hz
 
-    private int cyclesSinceReset = getCycleRate(freq);
+    private int cyclesSinceReset = 0;
+
+    private Memory memory;
+
+    public CounterTimer(Memory memory) {
+        this.memory = memory;
+        this.cyclesSinceReset = getCycleRate(freq);
+    }
 
     public void tick(int cycles) {
         if (running) {
@@ -31,6 +39,10 @@ public class CounterTimer {
 
     private void inc() {
         value = (byte) ((value + 1) & 0xFF);
+        if (value == 0) {
+            value = modulo;
+            memory.fireTimerInterruption();
+        }
     }
 
     protected void setModulo(byte modulo) {
@@ -49,12 +61,12 @@ public class CounterTimer {
         this.control = control;
         //Now, update internal state
         byte newFreq = (byte) (control & 0x03);
+        setFreq(FREQS[newFreq]);
         byte newMode = (byte) (control & 0x04);
-        if(newMode!=0){
+        if (newMode != 0) {
             start();
-        }
-        else{
-            stop();;
+        } else {
+            stop();
         }
     }
 
@@ -78,5 +90,6 @@ public class CounterTimer {
     private int getCycleRate(int freq) {
         return Const.CPU_FREQ_CYCLES_PER_S / freq;
     }
+
 
 }

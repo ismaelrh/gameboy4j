@@ -40,7 +40,8 @@ public class ControlCommands {
     }
 
     public static short halt(Instruction inst, Memory memory, Registers registers) throws Exception {
-        throw new Exception("Operation HALT not implemented");
+        registers.setHalt(true);
+        return 4;
     }
 
     public static short stop(Instruction inst, Memory memory, Registers registers) throws Exception {

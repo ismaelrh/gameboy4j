@@ -42,6 +42,10 @@ public class ControlUnit {
 
     public int runInstruction() throws Exception {
 
+        if (registers.isHalt()) {
+            return 4;
+        }
+
         Instruction instruction = readInstruction();
         InstDescription description = instruction.getDescription();
 
@@ -58,6 +62,11 @@ public class ControlUnit {
     }
 
     public void checkInterruptions() {
+
+        //You can exit halt mode even if IME is disabled, just if there are interruptions that could be serviced
+        if (memory.interruptEnable != 0 && memory.interruptFlags != 0 && registers.isHalt()) {
+            registers.setHalt(false);
+        }
 
         //Global IME activated, some interrupt activated, and some interrupt fired
         if (registers.isIme() && memory.interruptEnable != 0 && memory.interruptFlags != 0) {

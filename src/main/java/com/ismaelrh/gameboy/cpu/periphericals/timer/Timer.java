@@ -1,22 +1,23 @@
 package com.ismaelrh.gameboy.cpu.periphericals.timer;
 
 import com.ismaelrh.gameboy.cpu.memory.MMIODevice;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 
 public class Timer extends MMIODevice {
 
-    private final byte DIV_ADDRESS = (byte) 0xFF04;
-    private final byte COUNTER_ADDRESS = (byte) 0xFF05;
-    private final byte MODULO_ADDRESS = (byte) 0xFF06;
-    private final byte CONTROL_ADDRESS = (byte) 0xFF07;
+    private final char DIV_ADDRESS = (char) 0xFF04;
+    private final char COUNTER_ADDRESS = (char) 0xFF05;
+    private final char MODULO_ADDRESS = (char) 0xFF06;
+    private final char CONTROL_ADDRESS = (char) 0xFF07;
 
 
     private final DivTimer divTimer;
     private final CounterTimer counterTimer;
 
-    public Timer() {
+    public Timer(Memory memory) {
         super((char) 0xFF04, (char) 0xFF07);
         this.divTimer = new DivTimer();
-        this.counterTimer = new CounterTimer();
+        this.counterTimer = new CounterTimer(memory);
     }
 
     public void tick(int cycles) {    //cycles = hertz

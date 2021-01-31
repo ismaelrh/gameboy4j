@@ -23,7 +23,7 @@ public class GameBoyDebugger {
         Registers registers = new Registers();
         registers.initForRealGB();
 
-        Timer timer = new Timer();
+        Timer timer = new Timer(memory);
 
         ControlUnit controlUnit = new ControlUnit(registers, memory);
 
@@ -55,6 +55,7 @@ public class GameBoyDebugger {
             int cycles = controlUnit.runInstruction();
             controlUnit.checkInterruptions();
             timer.tick(cycles);
+
             remainingCyclesPerFrame -= cycles;
             if(remainingCyclesPerFrame<=0){
                 remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
@@ -70,14 +71,14 @@ public class GameBoyDebugger {
                 System.out.println("Pace: " + totalC/totalTime + " cycles/s");
             }*/
 
-            /*if(remainingTimeNanos<=0){
+            if(remainingTimeNanos<=0){
                 //log.warn("Emulator cannot keep pace");
             }
             else{
                 long millisToSleep = remainingTimeNanos / 1000000;
                 int nanosToSleep = (int)(remainingTimeNanos - millisToSleep*1000000) ;
                 Thread.sleep(millisToSleep,nanosToSleep);
-            }*/
+            }
 
 
 

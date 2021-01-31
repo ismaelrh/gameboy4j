@@ -222,6 +222,10 @@ public class Memory {
         log.debug("Write [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", data));
     }
 
+    public void fireTimerInterruption(){
+        this.interruptFlags |= TIMER_MASK;
+    }
+
     public void insertCartridge(Cartridge cartridge) {
         this.cartridge = cartridge;
     }

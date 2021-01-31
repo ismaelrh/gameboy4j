@@ -44,7 +44,17 @@ public class Registers {
     //Interruption master enable flag
     private boolean ime = false;
 
+    private boolean halt = false;
+
     public Registers() {
+    }
+
+    public boolean isHalt() {
+        return halt;
+    }
+
+    public void setHalt(boolean halt) {
+        this.halt = halt;
     }
 
     public void initForRealGB() {
