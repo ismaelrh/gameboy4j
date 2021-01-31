@@ -599,6 +599,22 @@ public class Arithmetic8BTest {
     }
 
     @Test
+    public void addA_HL_blargg() {
+        registers.setA((byte) 0x00);
+        registers.setHL((char) 0xDEF6);
+        memory.write((char) 0xDEF6, (byte) 0x0F);
+
+        Instruction inst = new InstructionBuilder()
+                .build();
+
+        short cycles = Arithmetic8b.addA_HL(inst, memory, registers);
+
+        assertEquals8(0x0F, registers.getA());
+        assertFlags(registers, false, false, false, false);
+        assertEquals(8, cycles);
+    }
+
+    @Test
     public void addc_A_r_no_overflow() {
 
         registers.setA((byte) 0x01);

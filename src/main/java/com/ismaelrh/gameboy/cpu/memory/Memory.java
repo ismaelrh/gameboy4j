@@ -10,7 +10,36 @@ import java.util.List;
 
 public class Memory {
 
+    //For interruptions
+    private final static char VBLANK_MASK = (char) 0x01; //0000-0001
+    private final static char VBLANK_ISR = (char) 0x40;
+
+    private final static char LCD_MASK = (char) 0x02; //0000-0010
+    private final static char LCD_ISR = (char) 0x48;
+
+    private final static char TIMER_MASK = (char) 0x04; //0000-0100
+    private final static char TIMER_ISR = (char) 0x50;
+
+    private final static char SERIAL_MASK = (char) 0x08; //0000-1000
+    private final static char SERIAL_ISR = (char) 0x58;
+
+    private final static char JOYPAD_MASK = (char) 0x10; //0001-0000
+    private final static char JOYPAD_ISR = (char) 0x60;
+
+    public final static char[] INTERRUPTION_MASKS = new char[]{VBLANK_MASK, LCD_MASK, TIMER_MASK, SERIAL_MASK, JOYPAD_MASK};
+
+    public final static char[] ISR = new char[]{
+            0x00,   //0x00 -> Does not exist
+            VBLANK_ISR, //0x01 -> VBLANK
+            LCD_ISR, 0x00, //0x02 -> LCD
+            TIMER_ISR, 0x00, 0x00, 0x00,//0x04 -> TIMER
+            SERIAL_ISR, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, //0x08 -> SERIAL
+            JOYPAD_ISR //0x10 -> JOYPAD
+    };
+
     private List<MemoryInterceptor> interceptors = new ArrayList<>();
+    private List<MMIODevice> mmioDevices = new ArrayList<>();
+
 
     //TO-DO: redirect external memory and I/O where it corresponds
     private static final Logger log = LogManager.getLogger(Memory.class);
@@ -63,9 +92,12 @@ public class Memory {
     private byte[] highRAM;
 
     //Interrupt Enable Register: 0xFFFF (1 Byte)
-    private final static char INTERRUPT_ENABLE_START = 0xFFFF;
-    private final static int INTERRUPT_ENABLE_SIZE_BYTES = 1;
-    private byte interruptEnable;
+    private final static char INTERRUPT_ENABLE_ADDRESS = 0xFFFF;
+    public byte interruptEnable;
+
+    //Interrupt Flags Register: 0xFF0F (1 Byte)
+    private final static char INTERRUPT_FLAGS_ADDRESS = 0xFF0f;
+    public byte interruptFlags;
 
     public Memory() {
         clear();
@@ -78,7 +110,8 @@ public class Memory {
         spriteRAM = new byte[SPRITE_RAM_SIZE_BYTES];
         ioRAM = new byte[IO_RAM_SIZE_BYTES];
         highRAM = new byte[HIGH_RAM_SIZE_BYTES];
-        interruptEnable = 0x0;    //TODO: Is this really initialized as 0x0? Check manual
+        interruptEnable = 0x0;
+        interruptFlags = 0x0;
         log.debug("Memory cleared");
     }
 
@@ -87,18 +120,35 @@ public class Memory {
         interceptor.addMemory(this);
     }
 
+    public void addMMIODevice(MMIODevice interceptor) {
+        this.mmioDevices.add(interceptor);
+        interceptor.addMemory(this);
+    }
+
     public byte read(char address) {
 
-        byte result;
-        if (address == INTERRUPT_ENABLE_START) {
+        byte result = (byte) 0xFF; //Default bus value
+        if (address == INTERRUPT_ENABLE_ADDRESS) {
             result = interruptEnable;
+        } else if (address == INTERRUPT_FLAGS_ADDRESS) {
+            result = interruptFlags;
         } else if (address >= HIGH_RAM_START) {
             result = highRAM[address - HIGH_RAM_START];
         } else if (address >= IO_RAM_START) {
-            result = ioRAM[address - IO_RAM_START];
+            //Call IO if any
+            boolean mmioFound = false;
+            for (MMIODevice device : mmioDevices) {
+                if (address >= device.startAddress && address <= device.endAddress) {
+                    result = device.onRead(address);
+                    mmioFound = true;
+                }
+            }
+            if (!mmioFound) {
+                result = ioRAM[address - IO_RAM_START]; //Remove when all mapped
+            }
         } else if (address >= UNUSABLE_RAM_START) {
             log.warn("Read unusable RAM @" + String.format("%04x", (int) address));
-            result = (byte)0xFF; //reads return $FF (which is the "default value" in the main Game Boy data bus).
+            result = (byte) 0xFF; //reads return $FF (which is the "default value" in the main Game Boy data bus).
         } else if (address >= SPRITE_RAM_START) {
             result = spriteRAM[address - SPRITE_RAM_START];
         } else if (address >= ECHO_RAM_START) {
@@ -132,13 +182,23 @@ public class Memory {
         for (MemoryInterceptor i : interceptors) {
             data = i.onWrite(address, data);
         }
-
-        if (address == INTERRUPT_ENABLE_START) {
+        if (address == INTERRUPT_ENABLE_ADDRESS) {
             interruptEnable = data;
+        } else if (address == INTERRUPT_FLAGS_ADDRESS) {
+            interruptFlags = data;
         } else if (address >= HIGH_RAM_START) {
             highRAM[address - HIGH_RAM_START] = data;
         } else if (address >= IO_RAM_START) {
-            ioRAM[address - IO_RAM_START] = data;
+            boolean mmioFound = false;
+            for (MMIODevice device : mmioDevices) {
+                if (address >= device.startAddress && address <= device.endAddress) {
+                    device.onWrite(address, data);
+                    mmioFound = true;
+                }
+            }
+            if (!mmioFound) {
+                ioRAM[address - IO_RAM_START] = data;
+            }
         } else if (address >= UNUSABLE_RAM_START) {
             log.warn("Ignored writing into unusable RAM @" + String.format("%02x", (int) address));
             return;

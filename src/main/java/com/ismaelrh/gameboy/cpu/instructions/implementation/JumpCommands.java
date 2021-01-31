@@ -100,7 +100,7 @@ public class JumpCommands {
         return 16;
     }
 
-    private static void doCall(char nn, Memory memory, Registers registers) {
+    public static void doCall(char nn, Memory memory, Registers registers) {
         char pc = registers.getPC();
 
         //(SP -1) = PCh

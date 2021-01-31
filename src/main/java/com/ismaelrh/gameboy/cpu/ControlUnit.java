@@ -1,6 +1,7 @@
 package com.ismaelrh.gameboy.cpu;
 
 import com.ismaelrh.gameboy.Instruction;
+import com.ismaelrh.gameboy.cpu.instructions.implementation.JumpCommands;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.instructions.InstDecoder;
 import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
@@ -54,6 +55,27 @@ public class ControlUnit {
         int instCycles = description.getInst().apply(instruction, memory, registers);
         executionInfo.addCycles(instCycles);
         return instCycles;
+    }
+
+    public void checkInterruptions() {
+
+        //Global IME activated, some interrupt activated, and some interrupt fired
+        if (registers.isIme() && memory.interruptEnable != 0 && memory.interruptFlags != 0) {
+
+            //Filter the ones that have to be attended
+            byte interruptionsToFire = (byte) ((memory.interruptEnable & memory.interruptFlags) & 0xFF);
+
+            //Ordered by priority,from lowest bit (vblank) to highest bit (joypad)
+            for (char mask : Memory.INTERRUPTION_MASKS) {
+                if ((interruptionsToFire & mask) != 0) {  //This should be attended
+                    registers.setIme(false);
+                    JumpCommands.doCall(Memory.ISR[mask], memory, registers);
+                    memory.interruptFlags &= ~mask;
+                    return;
+                }
+            }
+
+        }
     }
 
     //Does NOT increment PC

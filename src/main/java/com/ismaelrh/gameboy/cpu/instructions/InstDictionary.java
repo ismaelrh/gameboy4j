@@ -37,7 +37,7 @@ public class InstDictionary {
             //8-bit arithmetic
             new InstDescription("add A,r", "10_000_xxx", 0, Arithmetic8b::addA_r),
             new InstDescription("add A,n", "11_000_110", 1, Arithmetic8b::addA_n),
-            new InstDescription("add A,(HL)", "10_000_110", 0, Arithmetic8b::addA_n),
+            new InstDescription("add A,(HL)", "10_000_110", 0, Arithmetic8b::addA_HL),
 
             new InstDescription("adc A,r", "10_001_xxx", 0, Arithmetic8b::addA_r),
             new InstDescription("adc A,n", "11_001_110", 1, Arithmetic8b::addA_n),
