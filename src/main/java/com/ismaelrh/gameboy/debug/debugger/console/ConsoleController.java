@@ -1,5 +1,6 @@
 package com.ismaelrh.gameboy.debug.debugger.console;
 
+import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.cpu.ExecutionInfo;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
@@ -16,6 +17,7 @@ public class ConsoleController implements DebuggerController {
     private Registers registers;
     private RegisterStatus registerStatus;
     private ExecutionInfo executionInfo;
+    private Instruction currentInstruction;
 
     @Override
     public void init(Memory memory, Registers registers, Debugger debugger, ExecutionInfo info) {

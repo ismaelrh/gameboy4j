@@ -168,10 +168,30 @@ public class Load8BTest {
     }
 
     @Test
+    public void loadA_C_2() {
+        //C = 0x83, (FF83) = 0x12, A <- 0x12
+        registers.setC((byte) 0x83);
+        memory.write((char) 0xFF83, (byte) 0x12);
+        short cycles = Load8b.loadA_C(new Instruction((byte) 0x0), memory, registers);
+        assertEquals8(0x12, registers.getA());
+        assertEquals(8, cycles);
+    }
+
+    @Test
     public void loadA_n() {
         //n = 0x32, (FF32) = 0x12, A <- 0x12
         memory.write((char) 0xFF32, (byte) 0x12);
         Instruction inst = new Instruction((byte) 0x0, (byte) 0x32); //Don't care about operands
+        short cycles = Load8b.loadA_n(inst, memory, registers);
+        assertEquals8(0x12, registers.getA());
+        assertEquals(12, cycles);
+    }
+
+    @Test
+    public void loadA_n_2() {
+        //n = 0x83, (FF83) = 0x12, A <- 0x12
+        memory.write((char) 0xFF83, (byte) 0x12);
+        Instruction inst = new Instruction((byte) 0x0, (byte) 0x83); //Don't care about operands
         short cycles = Load8b.loadA_n(inst, memory, registers);
         assertEquals8(0x12, registers.getA());
         assertEquals(12, cycles);
@@ -188,12 +208,32 @@ public class Load8BTest {
     }
 
     @Test
+    public void loadC_A_2() {
+        //C = 0x83, A = 0x12, (0xFF83) <- 0x12
+        registers.setC((byte) 0x83);
+        registers.setA((byte) 0x12);
+        short cycles = Load8b.loadC_A(new Instruction((byte) 0x0), memory, registers);
+        assertEquals8(0x12, memory.read((char) 0xFF83));
+        assertEquals(8, cycles);
+    }
+
+    @Test
     public void loadN_A() {
         //n = 0x32, A = 0x12, (0xFF32) <- 0x12
         registers.setA((byte) 0x12);
         Instruction inst = new Instruction((byte) 0x0, (byte) 0x32); //Don't care about operands
         short cycles = Load8b.loadN_A(inst, memory, registers);
         assertEquals8(0x12, memory.read((char) 0xFF32));
+        assertEquals(12, cycles);
+    }
+
+    @Test
+    public void loadN_A_2() {
+        //n = 0x32, A = 0xFF, (0xFF32) <- 0x12
+        registers.setA((byte) 0xFF);
+        Instruction inst = new Instruction((byte) 0x0, (byte) 0x83); //Don't care about operands
+        short cycles = Load8b.loadN_A(inst, memory, registers);
+        assertEquals8(0xFF, memory.read((char) 0xFF83));
         assertEquals(12, cycles);
     }
 

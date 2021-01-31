@@ -116,7 +116,7 @@ public class Load8b {
     //ld A, (FF00+C) [A <- (FF00+C)]
     public static short loadA_C(Instruction inst, Memory memory, Registers registers) {
         byte c = registers.getC();
-        char addressToRead = (char) (0xFF00 + c);
+        char addressToRead = (char) (0xFF00 + (c&0xFF));
         byte memData = memory.read(addressToRead);
         registers.setA(memData);
 
@@ -125,7 +125,7 @@ public class Load8b {
 
     //ld A, (FF00+n) [A <- (FF00+n)]
     public static short loadA_n(Instruction inst, Memory memory, Registers registers) {
-        char addressToRead = (char) (0xFF00 + inst.getImmediate8b());
+        char addressToRead = (char) (0xFF00 + (inst.getImmediate8b()&0xFF));
         byte memData = memory.read(addressToRead);
         registers.setA(memData);
 
@@ -136,7 +136,7 @@ public class Load8b {
     public static short loadC_A(Instruction inst, Memory memory, Registers registers) {
         byte regData = registers.getA();
         byte c = registers.getC();
-        char addressToWrite = (char) (0xFF00 + c);
+        char addressToWrite = (char) (0xFF00 + (c&0xFF));
         memory.write(addressToWrite, regData);
 
         return 8;
@@ -145,7 +145,7 @@ public class Load8b {
     //ld (FF00+n), A  [(FF00+n) <- A]
     public static short loadN_A(Instruction inst, Memory memory, Registers registers) {
         byte regData = registers.getA();
-        char addressToWrite = (char) (0xFF00 + inst.getImmediate8b());
+        char addressToWrite = (char) (0xFF00 + (inst.getImmediate8b()&0xFF));
         memory.write(addressToWrite, regData);
 
         return 12;

@@ -41,21 +41,43 @@ public class ControlUnit {
 
     public int runInstruction() throws Exception {
 
+        Instruction instruction = readInstruction();
+        InstDescription description = instruction.getDescription();
+
+        executionInfo.setCurrentInstruction(instruction);
         debugger.debug();   //This can block the execution
+
+        //Then, increment PC as needed
+        registers.setPC((char) (registers.getPC() + instruction.getInstBytes()));
+
+        //Execute and return the number of cycles that it took
+        int instCycles = description.getInst().apply(instruction, memory, registers);
+        executionInfo.addCycles(instCycles);
+        return instCycles;
+    }
+
+    //Does NOT increment PC
+    private Instruction readInstruction() {
+
+        char initialPC = registers.getPC();
+        char auxPC = initialPC;
 
         boolean isCB = false;
 
         //Fetch 1st op byte
-        byte opcode = readAndIncPC();
+        byte opcode = this.memory.read(auxPC);
+        auxPC += 1;
+
         if (opcode == (byte) 0xCB) { //Prefix operation
-            opcode = readAndIncPC();
+            opcode = this.memory.read(auxPC);
+            auxPC += 1;
             isCB = true;
         }
 
         //Decode
         InstDescription instDescription = decoder.getInst(isCB, opcode);
-
         Instruction inst = new Instruction(opcode);
+        inst.setDescription(instDescription);
 
         if (isCB) {
             inst.setPrefix((byte) 0xCB);
@@ -63,22 +85,15 @@ public class ControlUnit {
 
         //Fetch (2nd step, as it is already decoded)
         if (instDescription.getExtraBytes() == 1 || instDescription.getExtraBytes() == 2) {
-            inst.setNn1(readAndIncPC());
+            inst.setNn1(this.memory.read(auxPC));
+            auxPC += 1;
         }
         if (instDescription.getExtraBytes() == 2) {
-            inst.setNn2(readAndIncPC());
+            inst.setNn2(this.memory.read(auxPC));
+            auxPC += 1;
         }
-
-        String prefix = isCB ? "CB " : "";
-        /*System.out.println(String.format("Instruction %s0x%02X - %s - rs=[0x%02X,0x%02X], extra=[0x%02X,0x%02X]", prefix,opcode, instDescription.getMnemonic(),
-                inst.getOpcodeFirstSingleRegister(), inst.getOpcodeSecondOperand(),
-                inst.getNn1(), inst.getNn2()));*/
-
-
-        //Execute and return the number of cycles that it took
-        int instCycles = instDescription.getInst().apply(inst, memory, registers);
-        executionInfo.addCycles(instCycles);
-        return instCycles;
+        inst.setInstBytes(auxPC - initialPC);
+        return inst;
     }
 
     private byte readAndIncPC() {

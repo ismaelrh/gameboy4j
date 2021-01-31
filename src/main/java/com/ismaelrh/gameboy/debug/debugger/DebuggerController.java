@@ -1,5 +1,6 @@
 package com.ismaelrh.gameboy.debug.debugger;
 
+import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.cpu.ExecutionInfo;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.memory.Memory;

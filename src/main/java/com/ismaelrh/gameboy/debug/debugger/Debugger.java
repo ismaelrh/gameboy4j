@@ -1,8 +1,10 @@
 package com.ismaelrh.gameboy.debug.debugger;
 
+import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.ExecutionInfo;
 import com.ismaelrh.gameboy.cpu.Registers;
+import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.logCheck.LogStatus;
 import com.ismaelrh.gameboy.debug.logCheck.LogStatusProvider;
@@ -39,7 +41,7 @@ public class Debugger {
     public void setController(DebuggerController controller) {
         this.controller = controller;
         controller.init(memory, registers, this, executionInfo);
-        addBreakpoint((char) (0x200));
+        //addBreakpoint((char) (0x200));
     }
 
     public void setLogStatusProvider(LogStatusProvider logStatusProvider) {
@@ -47,8 +49,6 @@ public class Debugger {
     }
 
     public void debug() throws InterruptedException {
-
-
 
         if (controller != null) {
             controller.onChange();

@@ -6,7 +6,7 @@ import com.jakewharton.fliptables.FlipTable;
 
 public class RegisterStatus {
 
-    private final String[] headers = {"A", "F", "BC", "DE", "HL", "SP", "PC", "Cycles"};
+    private final String[] headers = {"A", "F", "BC", "DE", "HL", "SP", "PC", "Instr", "Cycles"};
 
     private final Registers r;
     private final ExecutionInfo executionInfo;
@@ -18,7 +18,9 @@ public class RegisterStatus {
 
     public void print() {
         String[][] data = {
-                {f(r.getA()), flags(r), f(r.getBC()), f(r.getDE()), f(r.getHL()), f(r.getSP()), f(r.getPC()), "" + executionInfo.getCycles()}
+                {f(r.getA()), flags(r), f(r.getBC()), f(r.getDE()), f(r.getHL()), f(r.getSP()), f(r.getPC()),
+                        executionInfo.getCurrentInstMnemonic(),
+                        "" + executionInfo.getCycles()}
         };
         System.out.println(FlipTable.of(headers, data));
     }

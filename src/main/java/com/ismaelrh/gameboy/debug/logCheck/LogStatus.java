@@ -32,7 +32,10 @@ public class LogStatus {
     }
 
     public boolean isOk(int cycle, Registers registers) {
-        return this.cycle == cycle && this.registers.equals(registers);
+        if(registers.getPC()!=(char)(0xDEF8)){
+            return true;
+        }
+        return this.registers.equals(registers);
     }
 
     public void printDiff(int otherCycles, Registers otherRegisters) {

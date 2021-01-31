@@ -25,7 +25,7 @@ public class GameBoyDebugger {
         controlUnit.setDebuggerController(new ConsoleController());
 
         //Log status provider
-        //controlUnit.setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/binjgb/bin/03-opsp,hl.gb.txt"));
+        //controlUnit.setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/binjgb/bin/test.txt"));
 
         //Register blargg interceptor to get output and put it on console
         memory.addInterceptor(new BlarggTestInterceptor());

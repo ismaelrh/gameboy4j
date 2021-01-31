@@ -1,5 +1,7 @@
 package com.ismaelrh.gameboy;
 
+import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
+
 /**
  * This totally depends on the instruction, some can have a prefix, some can not,
  * displacement, etc. This will be filled according to each instruction.
@@ -7,6 +9,11 @@ package com.ismaelrh.gameboy;
  * Opcode is always present
  */
 public class Instruction {
+
+    //To get information about the instruction
+    private InstDescription description;
+
+    private int instBytes;
 
     private Byte prefix;
 
@@ -28,6 +35,22 @@ public class Instruction {
     public Instruction(byte opcode, char immediate16b) {
         this(opcode);
         setImmediate16b(immediate16b);
+    }
+
+    public InstDescription getDescription() {
+        return description;
+    }
+
+    public void setDescription(InstDescription description) {
+        this.description = description;
+    }
+
+    public int getInstBytes() {
+        return instBytes;
+    }
+
+    public void setInstBytes(int instBytes) {
+        this.instBytes = instBytes;
     }
 
     public Byte getPrefix() {
