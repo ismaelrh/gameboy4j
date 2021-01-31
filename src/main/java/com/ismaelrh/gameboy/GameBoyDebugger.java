@@ -30,7 +30,7 @@ public class GameBoyDebugger {
         //Register blargg interceptor to get output and put it on console
         memory.addInterceptor(new BlarggTestInterceptor());
 
-        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/01-special.gb");
+        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/03-opsp,hl.gb");
         memory.insertCartridge(cartridge);
 
 

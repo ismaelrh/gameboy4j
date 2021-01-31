@@ -27,6 +27,8 @@ public class Debugger {
     //Debugger status
     private final Set<Character> breakpoints = new HashSet<>();
     private final Set<Integer> cycleBreakpoints = new HashSet<>();
+    private final Set<String> instructionBreakpoints = new HashSet<>();
+
 
     private boolean breakpointsEnabled = true;
     private Boolean isPaused = false;
@@ -41,7 +43,7 @@ public class Debugger {
     public void setController(DebuggerController controller) {
         this.controller = controller;
         controller.init(memory, registers, this, executionInfo);
-        //addBreakpoint((char) (0x200));
+        addBreakpoint((char) (0x200));
     }
 
     public void setLogStatusProvider(LogStatusProvider logStatusProvider) {
@@ -79,6 +81,26 @@ public class Debugger {
             pauseSystem();
         }
 
+        if (breakpointsEnabled && meetsInstructionCheckpoint(executionInfo.getCurrentInstruction())) {
+            log.info("Stop at instruction " + executionInfo.getCurrentInstruction().getInstrBytes());
+            pauseSystem();
+        }
+
+    }
+
+    private boolean meetsInstructionCheckpoint(Instruction inst) {
+
+        String pattern = "";
+        String[] pairs = inst.getInstrBytes().split(" ");
+
+        for (String pair : pairs) {
+            pattern = (pattern + " " + pair).trim();
+            if (instructionBreakpoints.contains(pattern)) {
+                return true;
+            }
+        }
+        return false;
+
     }
 
     public void addBreakpoint(char address) {
@@ -89,6 +111,16 @@ public class Debugger {
     public void addCyclesBreakpoint(int cycles) {
         this.cycleBreakpoints.add(cycles);
         log.info("Breakpoint added at " + cycles + " cycles");
+    }
+
+    public void addInstructionBreakpoint(String instruction) {
+        this.instructionBreakpoints.add(instruction);
+        log.info("Breakpoint added for instruction " + instruction);
+    }
+
+    public void removeInstructionBreakpoint(String instruction) {
+        this.instructionBreakpoints.remove(instruction);
+        log.info("Breakpoint removed for instruction " + instruction);
     }
 
     public void removeBreakpoint(char address) {

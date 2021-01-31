@@ -122,6 +122,7 @@ public class Arithmetic16BTest {
 
     @Test
     public void addHL_rr() {
+        registers.setAllFlags();
         registers.setHL((char) 0x8A23);
         registers.setBC((char) 0x0605);
 
@@ -133,6 +134,23 @@ public class Arithmetic16BTest {
         assertEquals(8, cycles);
         assertEquals16(0x9028, registers.getHL());
         assertFlags(registers, false, false, true, false);
+    }
+
+    @Test
+    //Derived from blargg debugging. Must also clear H and C.
+    public void addHL_rr_0000_0001() {
+        registers.setAllFlags();
+        registers.setHL((char) 0x0000);
+        registers.setSP((char) 0x0001);
+
+        Instruction instruction = new InstructionBuilder()
+                .withOpcode(getOpcodeDoubleRegister(0x0, AF_SP, NONE))
+                .build();
+
+        short cycles = Arithmetic16b.addHL_rr(instruction,memory,registers);
+        assertEquals(8, cycles);
+        assertEquals16(0x0001, registers.getHL());
+        assertFlags(registers, true, false, false, false);
     }
 
     @Test

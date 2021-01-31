@@ -15,12 +15,19 @@ public class Arithmetic16b {
         char regData = registers.getByDoubleCode(inst.getOpcodeFirstDoubleRegister(), true);
         char result = (char) (hl + regData);
         registers.setHL(result);
-        registers.clearFlagN();
+        registers.clearFlagN(); //Reset
+
         if (carryOnAdd(result, hl, regData)) {
             registers.setFlagC();
         }
+        else{
+            registers.clearFlagC();
+        }
         if (halfCarryOnAdd(hl, regData)) {
             registers.setFlagH();
+        }
+        else{
+            registers.clearFlagH();
         }
         return 8;
     }

@@ -6,6 +6,7 @@ public class ExecutionInfo {
 
     private int cycles = 0;
     private Instruction currentInstruction;
+    private Instruction prevInstruction;
 
     public ExecutionInfo() {
     }
@@ -27,10 +28,15 @@ public class ExecutionInfo {
     }
 
     public void setCurrentInstruction(Instruction currentInstruction) {
+        this.prevInstruction = this.currentInstruction;
         this.currentInstruction = currentInstruction;
     }
 
     public String getCurrentInstMnemonic() {
         return this.currentInstruction.getDescription().getMnemonic();
+    }
+
+    public Instruction getPrevInstruction() {
+        return prevInstruction;
     }
 }

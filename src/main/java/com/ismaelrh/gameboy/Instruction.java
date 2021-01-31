@@ -118,4 +118,19 @@ public class Instruction {
     public void setNn2(byte nn2) {
         this.nn2 = nn2;
     }
+
+    public String getInstrBytes() {
+        String res = "";
+        if (getDescription().isCb()) {
+            res += "CB ";
+        }
+        res += String.format("%02X", getOpcode()) + " ";
+        if (getDescription().getExtraBytes() == 1 || getDescription().getExtraBytes() == 2) {
+            res += String.format("%02X", getNn1()) + " ";
+        }
+        if (getDescription().getExtraBytes() == 2) {
+            res += String.format("%02X", getNn2()) + " ";
+        }
+        return res.trim();
+    }
 }

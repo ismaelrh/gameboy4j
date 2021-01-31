@@ -7,6 +7,8 @@ import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.debugger.Debugger;
 import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
 
+import java.util.Arrays;
+
 /**
  * Debugger interface in console.
  */
@@ -52,6 +54,9 @@ public class ConsoleController implements DebuggerController {
             case "bpc":
                 parseBreakCycleCommand(parts);
                 break;
+            case "bpi":
+                parseInstCycleCommand(parts);
+                break;
             case "step":
                 debugger.stepExecution();
                 break;
@@ -83,6 +88,19 @@ public class ConsoleController implements DebuggerController {
             debugger.addCyclesBreakpoint(Integer.parseInt(parts[2]));
         } else if (parts[1].equals("rm")) {
             debugger.removeCycleBreakpoint(Integer.parseInt(parts[2]));
+        }
+    }
+
+    private void parseInstCycleCommand(String[] parts) {
+        String instruction = "";
+        for (int i = 2; i < parts.length; i++) {
+            instruction += parts[i] + " ";
+        }
+        instruction = instruction.trim();
+        if (parts[1].equals("add")) {
+            debugger.addInstructionBreakpoint(instruction);
+        } else if (parts[1].equals("rm")) {
+            debugger.removeInstructionBreakpoint(instruction);
         }
     }
 
