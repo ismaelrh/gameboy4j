@@ -133,7 +133,7 @@ public class Arithmetic16BTest {
         short cycles = Arithmetic16b.addHL_rr(instruction,memory,registers);
         assertEquals(8, cycles);
         assertEquals16(0x9028, registers.getHL());
-        assertFlags(registers, false, false, true, false);
+        assertFlags(registers, true, false, true, false);
     }
 
     @Test

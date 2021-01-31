@@ -368,7 +368,7 @@ public class Arithmetic8BTest {
         short cycles = Arithmetic8b.sub_r(inst, memory, registers);
 
         assertEquals8(0xFE, registers.getA());
-        assertFlags(registers, false, true, false, true);
+        assertFlags(registers, false, true, true, true);
         assertEquals(4, cycles);
     }
 
@@ -744,6 +744,26 @@ public class Arithmetic8BTest {
 
         assertEquals((byte) 0x00, registers.getA());
         assertFlags(registers, true, false, true, true);
+        assertEquals(8, cycles);
+    }
+
+    @Test
+    public void addc_A_n_half_overflogw_blargg() {
+
+        registers.setFlagC();
+
+        registers.setA((byte) 0x0F);
+        registers.setFlagC(); //Set carry
+
+        Instruction inst = new InstructionBuilder()
+                .withFirstOperand((byte) 0x1)    //To indicate that operation is with carry
+                .withImmediate8b((byte) 0x0F)
+                .build();
+
+        short cycles = Arithmetic8b.addA_n(inst, memory, registers);
+
+        assertEquals((byte) 0x1f, registers.getA());
+        assertFlags(registers, false, false, true, false);
         assertEquals(8, cycles);
     }
 

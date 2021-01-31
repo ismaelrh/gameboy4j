@@ -221,12 +221,12 @@ public class Arithmetic8b {
          * h_flag = 0; // h flag is always cleared
          */
         if (!registers.checkFlagN()) {
-            if (registers.checkFlagC() || (registers.getA()&0xFF) > 0x99) {
+            if (registers.checkFlagC() || (registers.getA() & 0xFF) > 0x99) {
                 registers.setA((byte) (registers.getA() + 0x60));
                 registers.setFlagC();
             }
-            if (registers.checkFlagH() || (registers.getA() & 0x0F) >  0x09) {
-                registers.setA((byte) (registers.getA() +  0x6));
+            if (registers.checkFlagH() || (registers.getA() & 0x0F) > 0x09) {
+                registers.setA((byte) (registers.getA() + 0x6));
             }
         } else {
             if (registers.checkFlagC()) {
@@ -253,25 +253,32 @@ public class Arithmetic8b {
             addedCarry = 0x01;
         }
 
-        byte valueToAddWithCarry = (byte) ((valueToAdd + addedCarry) & 0xFF);
-
-        //Set flags
-        //TODO: improve so the addition and the flag calculation is done at same time? I doubt this causes any performance improvement.
         registers.clearFlags();
 
-        //1st flags and ops
-        byte flags = getOverflowFlagsForAddition(oldValue, valueToAddWithCarry);
-        byte newValue = (byte) (registers.getA() + valueToAddWithCarry);
+        //1st step: oldvalue + addedcarry -> stepOneValue
+        //2nd step: stepOneValue + valueToAdd
+
+        //TODO: improve so the addition and the flag calculation is done at same time? I doubt this causes any performance improvement.
+
+        byte stepOneFlags = getOverflowFlagsForAddition(oldValue, addedCarry);
+        byte stepOneValue = (byte) ((oldValue + addedCarry) & 0xFF);
+
+        byte stepTwoFlags = getOverflowFlagsForAddition(stepOneValue, valueToAdd);
+        byte newValue = (byte) ((stepOneValue + valueToAdd) & 0xFF);
 
         //Save
         registers.setA(newValue);
 
+        //If h or c are 1 in one of such operations, then it is in the result also
+        byte resFlags = (byte)(stepOneFlags | stepTwoFlags);
+
         //Check for 0 flag
         if (newValue == 0x00) {
-            flags = (byte) (flags | 0x80); //Set Z
+            resFlags = (byte) (resFlags | 0x80); //Set Z
         }
-        registers.setF((byte) (registers.getF() | flags));
+        registers.setF((byte) (registers.getF() | resFlags));
     }
+
 
     private static byte getOverflowFlagsForAddition(byte a, byte b) {
         byte newValue = (byte) ((a + b) & 0xFF);
@@ -307,10 +314,20 @@ public class Arithmetic8b {
         //Set flags
         registers.clearFlags();
 
-        //1st flags and ops
-        byte valueToSubWithCarry = (byte) ((valueToSub + removedCarry) & 0xFF);
-        byte flags = getOverflowFlagsForSubtraction(oldValue, valueToSubWithCarry);
-        byte newValue = (byte) ((registers.getA() - valueToSubWithCarry) & 0xFF);
+        //1st step: oldvalue - addedcarry -> stepOneValue
+        //2nd step: stepOneValue - valueToAdd
+
+        //TODO: improve so the addition and the flag calculation is done at same time? I doubt this causes any performance improvement.
+
+        byte stepOneFlags = getOverflowFlagsForSubtraction(oldValue, removedCarry);
+        byte stepOneValue = (byte) ((oldValue - removedCarry) & 0xFF);
+
+        byte stepTwoFlags = getOverflowFlagsForSubtraction(stepOneValue, valueToSub);
+        byte newValue = (byte) ((stepOneValue - valueToSub) & 0xFF);
+
+        //If h or c are 1 in one of such operations, then it is in the result also
+        byte flags = (byte)(stepOneFlags | stepTwoFlags);
+
 
         //Save
         if (!isCp) {

@@ -34,6 +34,13 @@ public class ConsoleController implements DebuggerController {
 
     @Override
     public void onChange() {
+        /*if(executionInfo.getCurrentInstruction().getOpcode()==(byte)(0xCE)){
+            System.out.println(registerStatus.getLog());
+        }
+        if(executionInfo.getPrevInstruction()!=null && executionInfo.getPrevInstruction().getOpcode()==(byte)0xCE){
+            System.out.println(registerStatus.getLog());
+            System.out.println("--      ");
+        }*/
     }
 
     @Override

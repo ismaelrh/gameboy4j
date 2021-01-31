@@ -19,7 +19,7 @@ public class RegisterStatus {
 
     public String getLog() {
         return String.format("A:%s F:%s BC:%s DE:%s HL:%s SP:%s PC:%s",
-                f(r.getA()), flags(r), f(r.getBC()), f(r.getDE()), f(r.getHL()), f(r.getSP()), f(r.getPC()));
+                f(r.getA()).toUpperCase(), flags(r), f(r.getBC()).toUpperCase(), f(r.getDE()), f(r.getHL()), f(r.getSP()), f(r.getPC()));
     }
 
     public void print() {
