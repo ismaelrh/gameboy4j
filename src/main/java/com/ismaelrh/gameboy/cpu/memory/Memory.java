@@ -147,10 +147,14 @@ public class Memory {
                 result = ioRAM[address - IO_RAM_START]; //Remove when all mapped
             }
         } else if (address >= UNUSABLE_RAM_START) {
-            log.warn("Read unusable RAM @" + String.format("%04x", (int) address));
+            if (log.isWarnEnabled()) {
+                log.warn("Read unusable RAM @" + String.format("%04x", (int) address));
+            }
             result = (byte) 0xFF; //reads return $FF (which is the "default value" in the main Game Boy data bus).
         } else if (address >= SPRITE_RAM_START) {
-            result = spriteRAM[address - SPRITE_RAM_START];
+            if (canUseOAM()) {
+                result = spriteRAM[address - SPRITE_RAM_START];
+            }
         } else if (address >= ECHO_RAM_START) {
             result = internalRAM[address - ECHO_RAM_START];
         } else if (address >= INTERNAL_RAM_START) {
@@ -158,7 +162,9 @@ public class Memory {
         } else if (address >= EXTERNAL_RAM_START) {
             result = externalRAM[address - EXTERNAL_RAM_START];
         } else if (address >= VIDEO_RAM_START) {
-            result = videoRAM[address - VIDEO_RAM_START];
+            if (canUseVRAM()) {
+                result = videoRAM[address - VIDEO_RAM_START];
+            }
         } else { //Cartridge mapped memory
             if (cartridge != null) {
                 result = cartridge.read(address);
@@ -167,7 +173,10 @@ public class Memory {
                 result = 0x00;
             }
         }
-        log.debug("Read [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", result));
+
+        if (log.isDebugEnabled()) {
+            log.debug("Read [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", result));
+        }
 
         //Apply read interceptors
         for (MemoryInterceptor i : interceptors) {
@@ -200,10 +209,14 @@ public class Memory {
                 ioRAM[address - IO_RAM_START] = data;
             }
         } else if (address >= UNUSABLE_RAM_START) {
-            log.warn("Ignored writing into unusable RAM @" + String.format("%02x", (int) address));
+            if (log.isWarnEnabled()) {
+                log.warn("Ignored writing into unusable RAM @" + String.format("%02x", (int) address));
+            }
             return;
         } else if (address >= SPRITE_RAM_START) {
-            spriteRAM[address - SPRITE_RAM_START] = data;
+            if (canUseOAM()) {
+                spriteRAM[address - SPRITE_RAM_START] = data;
+            }
         } else if (address >= ECHO_RAM_START) {
             internalRAM[address - ECHO_RAM_START] = data;
         } else if (address >= INTERNAL_RAM_START) {
@@ -211,7 +224,9 @@ public class Memory {
         } else if (address >= EXTERNAL_RAM_START) {
             externalRAM[address - EXTERNAL_RAM_START] = data;
         } else if (address >= VIDEO_RAM_START) {
-            videoRAM[address - VIDEO_RAM_START] = data;
+            if (canUseVRAM()) {
+                videoRAM[address - VIDEO_RAM_START] = data;
+            }
         } else { //Cartridge mapped memory
             if (cartridge != null) {
                 cartridge.write(address, data);
@@ -219,11 +234,21 @@ public class Memory {
                 log.error("Attempted to write to cartridge, but it is not inserted");
             }
         }
-        log.debug("Write [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", data));
+        if (log.isDebugEnabled()) {
+            log.debug("Write [@" + String.format("%04x", (int) address) + "]=" + String.format("%02x", data));
+        }
     }
 
-    public void fireTimerInterruption(){
+    public void fireTimerInterruption() {
         this.interruptFlags |= TIMER_MASK;
+    }
+
+    public void fireVBlankInterruption() {
+        this.interruptFlags |= VBLANK_MASK;
+    }
+
+    public void fireLcdInterruption() {
+        this.interruptFlags |= LCD_MASK;
     }
 
     public void insertCartridge(Cartridge cartridge) {
@@ -261,5 +286,23 @@ public class Memory {
 
     protected byte getInterruptEnable() {
         return interruptEnable;
+    }
+
+    private boolean canUseOAM() {
+        return !isGPUOamMode() && !isGPUVramMode();
+    }
+
+    private boolean canUseVRAM() {
+        return !isGPUVramMode();
+    }
+
+    private boolean isGPUOamMode() {
+        int mode = read((char)(0xFF41)) & 0x03;
+        return mode == 2;
+    }
+
+    private boolean isGPUVramMode() {
+        int mode = read((char)(0xFF41)) & 0x03;
+        return mode == 3;
     }
 }

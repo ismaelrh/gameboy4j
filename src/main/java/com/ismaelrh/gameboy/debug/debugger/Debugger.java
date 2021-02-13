@@ -1,10 +1,9 @@
 package com.ismaelrh.gameboy.debug.debugger;
 
-import com.ismaelrh.gameboy.Instruction;
+import com.ismaelrh.gameboy.cpu.instruction.Instruction;
 import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.ExecutionInfo;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.logCheck.LogStatus;
 import com.ismaelrh.gameboy.debug.logCheck.LogStatusProvider;
@@ -30,7 +29,7 @@ public class Debugger {
     private final Set<String> instructionBreakpoints = new HashSet<>();
 
 
-    private boolean breakpointsEnabled = true;
+    private boolean breakpointsEnabled = false;
     private Boolean isPaused = false;
     private boolean stepMode = false; //Whether step by step mode is activated
 

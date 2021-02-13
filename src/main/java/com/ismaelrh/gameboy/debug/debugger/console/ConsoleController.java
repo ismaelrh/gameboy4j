@@ -1,13 +1,11 @@
 package com.ismaelrh.gameboy.debug.debugger.console;
 
-import com.ismaelrh.gameboy.Instruction;
+import com.ismaelrh.gameboy.cpu.instruction.Instruction;
 import com.ismaelrh.gameboy.cpu.ExecutionInfo;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.debugger.Debugger;
 import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
-
-import java.util.Arrays;
 
 /**
  * Debugger interface in console.

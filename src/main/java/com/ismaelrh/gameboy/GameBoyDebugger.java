@@ -5,12 +5,17 @@ import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.cartridge.BasicCartridge;
 import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
+import com.ismaelrh.gameboy.cpu.gpu.Gpu;
+import com.ismaelrh.gameboy.cpu.gpu.lcd.CanvasLcd;
+import com.ismaelrh.gameboy.cpu.gpu.lcd.Lcd;
 import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer;
 import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.awt.*;
 
 public class GameBoyDebugger {
 
@@ -24,6 +29,8 @@ public class GameBoyDebugger {
         registers.initForRealGB();
 
         Timer timer = new Timer(memory);
+        Lcd lcd = new CanvasLcd();
+        Gpu gpu = new Gpu(memory, lcd);
 
         ControlUnit controlUnit = new ControlUnit(registers, memory);
 
@@ -37,15 +44,13 @@ public class GameBoyDebugger {
         memory.addInterceptor(new BlarggTestInterceptor());
         memory.addMMIODevice(timer);
 
-        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/02-interrupts.gb");
+        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/01-special.gb");
         memory.insertCartridge(cartridge);
-
 
         double remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
         long nanosStartFrame = System.nanoTime();
 
         //I end on the end of every frame to check
-
         long totalC = 0;
         long startTime = System.currentTimeMillis();
         while (true) {
@@ -55,9 +60,10 @@ public class GameBoyDebugger {
             int cycles = controlUnit.runInstruction();
             controlUnit.checkInterruptions();
             timer.tick(cycles);
+            gpu.tick(cycles);
 
             remainingCyclesPerFrame -= cycles;
-            if(remainingCyclesPerFrame<=0){
+            if (remainingCyclesPerFrame <= 0) {
                 remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
             }
 
@@ -68,19 +74,16 @@ public class GameBoyDebugger {
             /*totalC += cycles;
             if(totalC%1000000==0){
                 double totalTime = (System.currentTimeMillis() - startTime)/1000.0;
-                System.out.println("Pace: " + totalC/totalTime + " cycles/s");
+                System.out.println("Pace: " + totalC/(totalTime*Const.CYCLES_PER_FRAME) + " frames/s");
             }*/
 
-            if(remainingTimeNanos<=0){
+            if (remainingTimeNanos <= 0) {
                 //log.warn("Emulator cannot keep pace");
-            }
-            else{
+            } else {
                 long millisToSleep = remainingTimeNanos / 1000000;
-                int nanosToSleep = (int)(remainingTimeNanos - millisToSleep*1000000) ;
-                Thread.sleep(millisToSleep,nanosToSleep);
+                int nanosToSleep = (int) (remainingTimeNanos - millisToSleep * 1000000);
+                Thread.sleep(millisToSleep, nanosToSleep);
             }
-
-
 
         }
         //blargg.flush();

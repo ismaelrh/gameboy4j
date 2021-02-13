@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy;
+package com.ismaelrh.gameboy.cpu.instruction;
 
 public class InstructionBuilder {
 

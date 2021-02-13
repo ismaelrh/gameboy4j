@@ -1,6 +1,7 @@
 package com.ismaelrh.gameboy.cpu;
 
-import com.ismaelrh.gameboy.Instruction;
+import com.ismaelrh.gameboy.cpu.instruction.Instruction;
+import com.ismaelrh.gameboy.cpu.instruction.InstructionFactory;
 import com.ismaelrh.gameboy.cpu.instructions.implementation.JumpCommands;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.instructions.InstDecoder;
@@ -58,6 +59,9 @@ public class ControlUnit {
         //Execute and return the number of cycles that it took
         int instCycles = description.getInst().apply(instruction, memory, registers);
         executionInfo.addCycles(instCycles);
+
+        //Release instruction object
+        InstructionFactory.releaseInstruction(instruction);
         return instCycles;
     }
 
@@ -107,7 +111,7 @@ public class ControlUnit {
 
         //Decode
         InstDescription instDescription = decoder.getInst(isCB, opcode);
-        Instruction inst = new Instruction(opcode);
+        Instruction inst = InstructionFactory.getInstruction(opcode);
         inst.setDescription(instDescription);
 
         if (isCB) {

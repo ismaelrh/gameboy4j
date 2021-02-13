@@ -1,7 +1,7 @@
 package com.ismaelrh.gameboy.cpu.instructions.implementation;
 
-import com.ismaelrh.gameboy.Instruction;
-import com.ismaelrh.gameboy.InstructionBuilder;
+import com.ismaelrh.gameboy.cpu.instruction.Instruction;
+import com.ismaelrh.gameboy.cpu.instruction.InstructionBuilder;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.Registers;
 import org.junit.Before;

@@ -1,6 +1,6 @@
 package com.ismaelrh.gameboy.cpu;
 
-import com.ismaelrh.gameboy.Instruction;
+import com.ismaelrh.gameboy.cpu.instruction.Instruction;
 
 public class ExecutionInfo {
 

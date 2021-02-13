@@ -1,6 +1,5 @@
 package com.ismaelrh.gameboy.debug.debugger.console;
 
-import com.ismaelrh.gameboy.Instruction;
 import com.ismaelrh.gameboy.cpu.ExecutionInfo;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.jakewharton.fliptables.FlipTable;

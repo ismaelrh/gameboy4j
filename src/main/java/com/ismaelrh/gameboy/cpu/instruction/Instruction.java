@@ -1,4 +1,4 @@
-package com.ismaelrh.gameboy;
+package com.ismaelrh.gameboy.cpu.instruction;
 
 import com.ismaelrh.gameboy.cpu.instructions.InstDescription;
 
@@ -22,6 +22,15 @@ public class Instruction {
     private byte nn1;
 
     private byte nn2;
+
+    protected void clear() {
+        this.description = null;
+        this.instBytes = 0;
+        this.prefix = null;
+        this.opcode = 0;
+        this.nn1 = 0;
+        this.nn2 = 0;
+    }
 
     public Instruction(byte opcode) {
         this.opcode = opcode;
