@@ -1,6 +1,6 @@
-package com.ismaelrh.gameboy.cpu.gpu;
+package com.ismaelrh.gameboy.gpu;
 
-import com.ismaelrh.gameboy.cpu.gpu.lcd.Lcd;
+import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 import com.ismaelrh.gameboy.cpu.memory.MMIODevice;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 
@@ -107,9 +107,11 @@ public class Gpu extends MMIODevice {
         if (currentClock >= VRAM_CYCLES) {
             setPpuMode(HBLANK_MODE);
             currentClock -= VRAM_CYCLES;
+            doScanline();
             //End of scanline, write it to framebuffer
         }
     }
+
 
     private void hblankMode() {
         if (currentClock <= HBLANK_CYCLES) {
@@ -187,6 +189,10 @@ public class Gpu extends MMIODevice {
                 (mode == VBLANK_MODE && (byte) (lcd_stat & 0x10) != 0) ||
                 (mode == OAM_MODE && (byte) (lcd_stat & 0x20) != 0) ||
                 (lcd_ly == lcd_lyc && (byte) (lcd_stat & 0x40) != 0);
+    }
+
+    private void doScanline(){
+
     }
 
 

@@ -5,9 +5,9 @@ import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.cartridge.BasicCartridge;
 import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
-import com.ismaelrh.gameboy.cpu.gpu.Gpu;
-import com.ismaelrh.gameboy.cpu.gpu.lcd.CanvasLcd;
-import com.ismaelrh.gameboy.cpu.gpu.lcd.Lcd;
+import com.ismaelrh.gameboy.gpu.Gpu;
+import com.ismaelrh.gameboy.gpu.lcd.swing.SwingLcd;
+import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer;
 import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
@@ -15,6 +15,7 @@ import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class GameBoyDebugger {
@@ -27,10 +28,11 @@ public class GameBoyDebugger {
         Memory memory = new Memory();
         Registers registers = new Registers();
         registers.initForRealGB();
-
         Timer timer = new Timer(memory);
-        Lcd lcd = new CanvasLcd();
+
+        SwingLcd lcd = new SwingLcd(2);
         Gpu gpu = new Gpu(memory, lcd);
+        startGUI(lcd.getDisplayPanel());
 
         ControlUnit controlUnit = new ControlUnit(registers, memory);
 
@@ -55,7 +57,6 @@ public class GameBoyDebugger {
         long startTime = System.currentTimeMillis();
         while (true) {
 
-            nanosStartFrame = System.nanoTime();
 
             int cycles = controlUnit.runInstruction();
             controlUnit.checkInterruptions();
@@ -63,31 +64,43 @@ public class GameBoyDebugger {
             gpu.tick(cycles);
 
             remainingCyclesPerFrame -= cycles;
+
             if (remainingCyclesPerFrame <= 0) {
+                lcd.flush();    //Flush the LCD
+                long nanosEndFrame = System.nanoTime();
+                long elapsedTimeNanos = (nanosEndFrame - nanosStartFrame);
+                long remainingTimeNanos = Const.NANOS_PER_FRAME - elapsedTimeNanos;
+
+                if (remainingTimeNanos > 0) {
+                    long millisToSleep = remainingTimeNanos / 1000000;
+                    int nanosToSleep = (int) (remainingTimeNanos - millisToSleep * 1000000);
+                    Thread.sleep(millisToSleep, nanosToSleep);
+                }
+                nanosStartFrame = System.nanoTime();
                 remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
+
             }
 
-            long nanosEndFrame = System.nanoTime();
-            long elapsedTimeNanos = (nanosEndFrame - nanosStartFrame);
-            long remainingTimeNanos = Const.NANOS_PER_FRAME - elapsedTimeNanos;
 
-            /*totalC += cycles;
-            if(totalC%1000000==0){
-                double totalTime = (System.currentTimeMillis() - startTime)/1000.0;
-                System.out.println("Pace: " + totalC/(totalTime*Const.CYCLES_PER_FRAME) + " frames/s");
-            }*/
-
-            if (remainingTimeNanos <= 0) {
-                //log.warn("Emulator cannot keep pace");
-            } else {
-                long millisToSleep = remainingTimeNanos / 1000000;
-                int nanosToSleep = (int) (remainingTimeNanos - millisToSleep * 1000000);
-                Thread.sleep(millisToSleep, nanosToSleep);
+            totalC += cycles;
+            if (totalC % 1000000 == 0) {
+                double totalTime = (System.currentTimeMillis() - startTime) / 1000.0;
+                System.out.println("Pace: " + totalC / (totalTime * Const.CYCLES_PER_FRAME) + " frames/s");
             }
+
 
         }
         //blargg.flush();
+    }
 
-
+    private static JFrame startGUI(JPanel display) {
+        JFrame window = new JFrame("gameboy4j");
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setLocationRelativeTo(null);
+        window.setContentPane(display);
+        window.setResizable(false);
+        window.setVisible(true);
+        window.pack();
+        return window;
     }
 }
