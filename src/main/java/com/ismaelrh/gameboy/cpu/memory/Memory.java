@@ -5,6 +5,8 @@ import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +42,7 @@ public class Memory {
     private List<MemoryInterceptor> interceptors = new ArrayList<>();
     private List<MMIODevice> mmioDevices = new ArrayList<>();
 
+    private boolean bootromEnabled = false;
 
     //TO-DO: redirect external memory and I/O where it corresponds
     private static final Logger log = LogManager.getLogger(Memory.class);
@@ -52,6 +55,11 @@ public class Memory {
     //Cartridge: 0x0000 to 0x7FFF (32KB)
     private final static char CARTRIDGE_START = 0x0000;
     private Cartridge cartridge;
+
+    private final static char BOOTROM_START = 0x0000;
+    private final static int BOOTROM_SIZE_BYTES = 256;
+
+    private byte[] bootrom;
 
     //Video/tile RAM: 0x8000 to 0x9FFF (8KB)
     private final static char VIDEO_RAM_START = 0x8000;
@@ -95,15 +103,20 @@ public class Memory {
     private final static char INTERRUPT_ENABLE_ADDRESS = 0xFFFF;
     public byte interruptEnable;
 
+
+    private final static char DISABLE_BOOTROM_ADDRESS = 0xFF50;
+
     //Interrupt Flags Register: 0xFF0F (1 Byte)
     private final static char INTERRUPT_FLAGS_ADDRESS = 0xFF0f;
     public byte interruptFlags;
+
 
     public Memory() {
         clear();
     }
 
     public void clear() {
+        bootrom = new byte[BOOTROM_SIZE_BYTES];
         videoRAM = new byte[VIDEO_RAM_SIZE_BYTES];
         externalRAM = new byte[EXTERNAL_RAM_SIZE_BYTES];
         internalRAM = new byte[INTERNAL_RAM_SIZE_BYTES];
@@ -125,10 +138,17 @@ public class Memory {
         interceptor.addMemory(this);
     }
 
+
     public byte read(char address) {
+        return read(address, false);
+    }
+
+    public byte read(char address, boolean privileged) {
 
         byte result = (byte) 0xFF; //Default bus value
-        if (address == INTERRUPT_ENABLE_ADDRESS) {
+        if (address == (char) 0xFF00) {
+            result = (byte) 0xFF;
+        } else if (address == INTERRUPT_ENABLE_ADDRESS) {
             result = interruptEnable;
         } else if (address == INTERRUPT_FLAGS_ADDRESS) {
             result = interruptFlags;
@@ -152,7 +172,7 @@ public class Memory {
             }
             result = (byte) 0xFF; //reads return $FF (which is the "default value" in the main Game Boy data bus).
         } else if (address >= SPRITE_RAM_START) {
-            if (canUseOAM()) {
+            if (canUseOAM() || privileged) {
                 result = spriteRAM[address - SPRITE_RAM_START];
             }
         } else if (address >= ECHO_RAM_START) {
@@ -162,10 +182,12 @@ public class Memory {
         } else if (address >= EXTERNAL_RAM_START) {
             result = externalRAM[address - EXTERNAL_RAM_START];
         } else if (address >= VIDEO_RAM_START) {
-            if (canUseVRAM()) {
+            if (canUseVRAM() || privileged) {
                 result = videoRAM[address - VIDEO_RAM_START];
             }
-        } else { //Cartridge mapped memory
+        } else if (bootromEnabled && address <= BOOTROM_SIZE_BYTES) {   //Read bootrom
+            result = bootrom[address];
+        } else {  //Cartridge mapped memory
             if (cartridge != null) {
                 result = cartridge.read(address);
             } else {
@@ -191,7 +213,11 @@ public class Memory {
         for (MemoryInterceptor i : interceptors) {
             data = i.onWrite(address, data);
         }
-        if (address == INTERRUPT_ENABLE_ADDRESS) {
+
+        //Disable bootrom, and 0x00->0xFF starts mapping to cartridge again
+        if (address == DISABLE_BOOTROM_ADDRESS && data == 1 && bootromEnabled) {
+            bootromEnabled = false;
+        } else if (address == INTERRUPT_ENABLE_ADDRESS) {
             interruptEnable = data;
         } else if (address == INTERRUPT_FLAGS_ADDRESS) {
             interruptFlags = data;
@@ -251,6 +277,7 @@ public class Memory {
         this.interruptFlags |= LCD_MASK;
     }
 
+
     public void insertCartridge(Cartridge cartridge) {
         this.cartridge = cartridge;
     }
@@ -289,20 +316,40 @@ public class Memory {
     }
 
     private boolean canUseOAM() {
-        return !isGPUOamMode() && !isGPUVramMode();
+        return !isLcdEnabled() || (!isGPUOamMode() && !isGPUVramMode());
     }
 
     private boolean canUseVRAM() {
-        return !isGPUVramMode();
+        return !isLcdEnabled() || !isGPUVramMode();
     }
 
     private boolean isGPUOamMode() {
-        int mode = read((char)(0xFF41)) & 0x03;
+        int mode = read((char) (0xFF41)) & 0x03;
         return mode == 2;
     }
 
     private boolean isGPUVramMode() {
-        int mode = read((char)(0xFF41)) & 0x03;
+        int mode = read((char) (0xFF41)) & 0x03;
         return mode == 3;
+    }
+
+    private boolean isLcdEnabled() {
+        int mode = read((char) (0xFF40)) & 0x80;
+        return mode != 0;
+    }
+
+    public void setBootrom(String filePath) throws Exception {
+        File file = new File(filePath);
+        if (!file.isFile() || !file.canRead()) {
+            throw new Exception("Cannot read file " + filePath);
+        }
+        byte[] content = Files.readAllBytes(file.toPath());
+        if (content.length > 256) {
+            throw new Exception("Bootrom file cannot fit! Max is 256B, file is " + content.length + "B");
+        }
+        for (int i = 0; i < content.length; i++) {
+            bootrom[i] = content[i];
+        }
+        bootromEnabled = true;
     }
 }

@@ -3,12 +3,15 @@ package com.ismaelrh.gameboy.gpu.lcd;
 
 public abstract class Lcd {
 
-    public final static int COLOR_0 = rgbToInt(255, 255, 255); //Color.BLACK.getRGB();
-    public final static int COLOR_1 = rgbToInt(192, 192, 192);
-    public final static int COLOR_2 = rgbToInt(96, 96, 96);
-    public final static int COLOR_3 = rgbToInt(0, 0, 0);
+    public final static int[] RGB_COLORS = new int[]{
+            rgbToInt(255, 255, 255),
+            rgbToInt(192, 192, 192),
+            rgbToInt(96, 96, 96),
+            rgbToInt(0, 0, 0)
+    };
 
     public abstract void putPixel(int color); //0,1,2,3
+
 
     //Flush to actual screen
     public abstract void flush();

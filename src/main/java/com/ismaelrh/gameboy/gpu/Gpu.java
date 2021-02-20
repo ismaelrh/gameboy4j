@@ -19,26 +19,47 @@ public class Gpu extends MMIODevice {
     private int currentClock = 0;
     private int line = 0;
 
+    private boolean lcdEnabled = true;
+    private int tileMap = 0;    //0 or 1
+    private int tileSet = 0;    //0 or 1
+
+    private final int[] pallete = new int[4];
+
     private int gpuIRQ = 0;
 
     private final int OAM_MODE = 2;
     private final int VRAM_MODE = 3;
     private final int HBLANK_MODE = 0;
     private final int VBLANK_MODE = 1;
+    private final char[] TILEMAP_START_ADDRESSES = new char[]{0x9800, 0x9C00};
+    private final char[] TILESET_START_ADDRESSES = new char[]{ 0x8800,0x8000};
+
 
     private final int OAM_CYCLES = 80;
     private final int VRAM_CYCLES = 172;
     private final int HBLANK_CYCLES = 204;
     private final int VBLANK_CYCLES = 456;
 
+    private final char LCD_CONTROL_ADDRRESS = (char) 0xFF40;
+    private byte lcd_control = (byte) 0x00;
+
     private final char LCD_STAT_ADDRESS = (char) 0xFF41;
     private byte lcd_stat = (byte) 0x80; //8th bit is always set
+
+    private final char LCD_SCROLL_Y_ADDRESS = (char) 0xFF42;
+    private byte scrollY = (byte) 0x00;
+
+    private final char LCD_SCROLL_X_ADDRESS = (char) 0xFF43;
+    private byte scrollX = (byte) 0x00;
 
     private final char LCD_LY_ADDRESS = (char) 0xFF44;
     private byte lcd_ly = (byte) 0x00;
 
     private final char LCD_LYC_ADDRESS = (char) 0xFF45;
     private byte lcd_lyc = (byte) 0x00;
+
+    private final char LCD_BG_PALLETE_ADDRESS = (char) 0xFF47;
+    private byte pallete_reg = (byte) 0x00;
 
     @Override
     public void onWrite(char address, byte data) {
@@ -53,10 +74,34 @@ public class Gpu extends MMIODevice {
                 this.lcd_lyc = data;
                 checkForStatIRQ();
                 break;
+            case LCD_CONTROL_ADDRRESS:
+                this.lcd_control = data;
+                checkLcdEnabled();
+                updateTileMap();
+                updateTileSet();
+                break;
+            case LCD_BG_PALLETE_ADDRESS:
+                pallete_reg = data;
+                updatePallete();
+                break;
+            case LCD_SCROLL_Y_ADDRESS:
+                scrollY = data;
+                break;
+            case LCD_SCROLL_X_ADDRESS:
+                scrollX = data;
+                break;
             default:
                 //Any other is not written
         }
     }
+
+    private void updatePallete() {
+        for (int i = 0; i < 4; i++) {
+            int value = ((pallete_reg & (3 << 2 * i)) >> 2 * i) & 0xFF;
+            pallete[i] = Lcd.RGB_COLORS[value];
+        }
+    }
+
 
     @Override
     public byte onRead(char address) {
@@ -67,6 +112,14 @@ public class Gpu extends MMIODevice {
                 return lcd_ly;
             case LCD_LYC_ADDRESS:
                 return lcd_lyc;
+            case LCD_CONTROL_ADDRRESS:
+                return lcd_control;
+            case LCD_BG_PALLETE_ADDRESS:
+                return pallete_reg;
+            case LCD_SCROLL_Y_ADDRESS:
+                return scrollY;
+            case LCD_SCROLL_X_ADDRESS:
+                return scrollX;
             default:
                 return (byte) 0xFF;
         }
@@ -79,6 +132,9 @@ public class Gpu extends MMIODevice {
      * Mode 1: Vblank mode,  When 143 lines, enter into vblank mode for 10 lines
      */
     public void tick(int cycles) {
+        if (!lcdEnabled) {  //On LCD enabled, this does nothing
+            return;
+        }
         currentClock += cycles;
         switch (mode) {
             case OAM_MODE:
@@ -114,12 +170,13 @@ public class Gpu extends MMIODevice {
 
 
     private void hblankMode() {
-        if (currentClock <= HBLANK_CYCLES) {
+
+        if (currentClock >= HBLANK_CYCLES) {
             currentClock -= HBLANK_CYCLES;
 
             setLine(line + 1);
 
-            if (line == 143) {  //enter vblank if 143 lines
+            if (line == 144) {  //enter vblank if 143 lines
                 setPpuMode(VBLANK_MODE);
                 //TODO: Display when entering this mode
             } else { //If not 143 lines, return to OAM mode
@@ -131,7 +188,7 @@ public class Gpu extends MMIODevice {
 
     private void vblankMode() {
         //Fire Blank interruption, a new frame was drawn
-        memory.fireVBlankInterruption();
+
         if (currentClock >= VBLANK_CYCLES) { //One vblank line
             currentClock -= VBLANK_CYCLES;
             setLine(line + 1);
@@ -165,6 +222,11 @@ public class Gpu extends MMIODevice {
         lcd_stat = (byte) ((lcd_stat & 0xFC) | byteMode);
 
         checkForStatIRQ();
+
+        if(mode==VBLANK_MODE){
+            lcd.flush();
+            memory.fireVBlankInterruption();
+        }
     }
 
     /**
@@ -174,12 +236,14 @@ public class Gpu extends MMIODevice {
      * changing line
      */
     private void checkForStatIRQ() {
-        if (gpuIRQ == 0 && isTriggerConditionMeet()) {
-            gpuIRQ = 1;
-            memory.fireLcdInterruption();
-        }
-        if (!isTriggerConditionMeet()) {
-            gpuIRQ = 0;
+        if (lcdEnabled) {
+            if (gpuIRQ == 0 && isTriggerConditionMeet()) {
+                gpuIRQ = 1;
+                memory.fireLcdInterruption();
+            }
+            if (!isTriggerConditionMeet()) {
+                gpuIRQ = 0;
+            }
         }
     }
 
@@ -191,9 +255,124 @@ public class Gpu extends MMIODevice {
                 (lcd_ly == lcd_lyc && (byte) (lcd_stat & 0x40) != 0);
     }
 
-    private void doScanline(){
+
+    private void checkLcdEnabled() {
+        if ((lcd_control & 0x80) != 0) {
+            enableLcd();
+        } else {
+            disableLcd();
+        }
+    }
+
+    //bit 3
+    private void updateTileMap() {
+        if ((lcd_control & 0x08) != 0) {
+            tileMap = 1;
+        } else {
+            tileMap = 0;
+        }
+    }
+
+    //bit 4
+    private void updateTileSet() {
+        if ((lcd_control & 0x10) != 0) {
+            tileSet = 1;
+        } else {
+            tileSet = 0;
+        }
+    }
+
+    private void disableLcd() {
+        if (lcdEnabled) {
+            lcd.disableLcd();
+            lcdEnabled = false;
+            setPpuMode(0);
+            currentClock = 0;
+            line = 0;
+        }
 
     }
 
+    private void enableLcd() {
+        if (!lcdEnabled) {
+            lcd.enableLcd();
+            lcdEnabled = true;
+        }
 
+    }
+
+    private void doScanline() {
+        //Get the line I'm drawing
+        int drawingLine = line;
+
+        //Need to get the tile row and the pixel row we are going to draw,
+        //according to scrollY and drawingLine
+        int fullMapY = drawingLine + (scrollY & 0xFF);
+        int verticalTilePos = fullMapY / 8;
+        int tileRow = fullMapY - verticalTilePos * 8;
+
+        if (verticalTilePos >= 32) {
+            verticalTilePos -= 32; //Wrap
+        }
+
+        //Need to read the line
+        int[] lineIndexes = readLine(verticalTilePos, tileRow, scrollX);
+
+        //Transform indexes to emulator colors
+        int[] lineColors = TileUtils.applyPalleteToIndexes(lineIndexes, pallete);
+
+        //Push data to screen!
+        for (int lineColor : lineColors) {
+            lcd.putPixel(lineColor);
+        }
+
+    }
+
+    private int[] readLine(int verticalTilePos, int tileRow, int scrollX) {
+        //Need to read 160 pixels (5 tiles, but can be in the middle)
+        int[] line = new int[160];
+
+        int horizontalTilePos = (scrollX&0xFF) / 8;
+        int pixelsOffset = (scrollX&0xFF) - horizontalTilePos * 8;
+        int readPixels = 0;
+
+        while (readPixels < 160) {
+            char tileAddress = getTileAddress(verticalTilePos, horizontalTilePos);
+            int[] data = TileUtils.getRowOfTileIndexes(memory, tileAddress, tileRow);
+            int startIdx = readPixels == 0 ? pixelsOffset : 0;  //At the beginning, include the offset
+            int length = readPixels + 8 > 160 ? 160 - readPixels : 8;   //For the end, limit
+            System.arraycopy(data, startIdx, line, readPixels, length);
+            readPixels += length;
+            horizontalTilePos += 1;
+        }
+        return line;
+    }
+
+    private char getTileAddress(int verticalTilePos, int horizontalTilePos) {
+        //Normalized, from 0 to 255
+        int tileIndex = getRelativeTileIndex(verticalTilePos, horizontalTilePos);
+
+        //Each tile is 16bytes long, so retrieve the corresponding tile
+        return (char) (TILESET_START_ADDRESSES[tileSet] + tileIndex * 16);
+    }
+
+    //Normalized, from 0 to 255
+    private int getRelativeTileIndex(int verticalTilePos, int horizontalTilePos) {
+        char mapAddress = TILEMAP_START_ADDRESSES[tileMap];
+        int tileIndexAddress = 32 * verticalTilePos + horizontalTilePos;
+        byte relativeIndex = memory.read((char) (mapAddress + tileIndexAddress));
+        if (tileSet == 1) {
+            return relativeIndex & 0xFF;
+        } else {
+            return (relativeIndex + 128) & 0xFF;
+        }
+    }
+
+    public int[] getPallete() {
+        return pallete;
+    }
+
+    public byte getScrollY() {
+        return scrollY;
+    }
 }

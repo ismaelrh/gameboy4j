@@ -7,7 +7,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
-class DisplayPanel extends JPanel implements Runnable {
+public class DisplayPanel extends JPanel implements Runnable {
 
     private final int LCD_WIDTH;
     private final int LCD_HEIGHT;
@@ -15,6 +15,7 @@ class DisplayPanel extends JPanel implements Runnable {
 
     private final BufferedImage img;
     private final int[] rgb;
+    private int[] frozenRgb;
     private int pixel = 0;
     private boolean enabled = true;
     private boolean doRefresh = false;
@@ -25,16 +26,20 @@ class DisplayPanel extends JPanel implements Runnable {
         this.LCD_HEIGHT = height;
         this.SCALE = scale;
         rgb = new int[LCD_WIDTH * LCD_HEIGHT];
+        frozenRgb = new int[LCD_WIDTH * LCD_HEIGHT];
         img = new BufferedImage(LCD_WIDTH, LCD_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
         //Initialize to white
-        Arrays.fill(rgb, Lcd.COLOR_0);
+        Arrays.fill(rgb, Lcd.RGB_COLORS[0]);
     }
 
-    void pushPixel(int color) {
-        rgb[pixel] = color;
-        pixel++;
-        pixel = pixel % rgb.length;
+    public void pushPixel(int color) {
+        synchronized(this){
+            rgb[pixel] = color;
+            pixel++;
+            pixel = pixel % rgb.length;
+        }
+
     }
 
     protected void enableLcd() {
@@ -45,9 +50,11 @@ class DisplayPanel extends JPanel implements Runnable {
         enabled = false;
     }
 
-    protected void requestRefresh() {
-        doRefresh = true;
+    public void requestRefresh() {
         synchronized (this) {
+            doRefresh = true;
+            pixel = 0;
+            frozenRgb = Arrays.copyOf(rgb, rgb.length);
             notifyAll();
         }
 
@@ -61,14 +68,14 @@ class DisplayPanel extends JPanel implements Runnable {
         if (enabled) {
             g2d.drawImage(img, 0, 0, LCD_WIDTH * SCALE, LCD_HEIGHT * SCALE, null);
         } else {
-            g2d.setColor(new Color(Lcd.COLOR_0));   //Put to white
+            g2d.setColor(new Color(Lcd.RGB_COLORS[0]));   //Put to white
             g2d.fillRect(0, 0, LCD_WIDTH * SCALE, LCD_HEIGHT * SCALE);
         }
         g2d.dispose();
     }
 
     private void flushFrame() {
-        img.setRGB(0, 0, LCD_WIDTH, LCD_HEIGHT, rgb, 0, LCD_WIDTH);
+        img.setRGB(0, 0, LCD_WIDTH, LCD_HEIGHT, frozenRgb, 0, LCD_WIDTH);
         validate();
         repaint();
     }
@@ -89,7 +96,6 @@ class DisplayPanel extends JPanel implements Runnable {
             if (doRefresh) {
                 flushFrame();
                 synchronized (this) {
-                    pixel = 0;
                     doRefresh = false;
                 }
             }
