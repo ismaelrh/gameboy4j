@@ -146,9 +146,7 @@ public class Memory {
     public byte read(char address, boolean privileged) {
 
         byte result = (byte) 0xFF; //Default bus value
-        if (address == (char) 0xFF00) {
-            result = (byte) 0xFF;
-        } else if (address == INTERRUPT_ENABLE_ADDRESS) {
+        if (address == INTERRUPT_ENABLE_ADDRESS) {
             result = interruptEnable;
         } else if (address == INTERRUPT_FLAGS_ADDRESS) {
             result = interruptFlags;
