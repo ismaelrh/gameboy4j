@@ -5,6 +5,7 @@ import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.Registers;
 import com.ismaelrh.gameboy.cpu.cartridge.BasicCartridge;
 import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
+import com.ismaelrh.gameboy.cpu.cartridge.MBC1Cartridge;
 import com.ismaelrh.gameboy.debug.tileset.TileSetDisplay;
 import com.ismaelrh.gameboy.gpu.Gpu;
 import com.ismaelrh.gameboy.gpu.lcd.swing.SwingLcd;
@@ -21,7 +22,6 @@ public class GameBoyDebugger {
 
     private static final Logger log = LogManager.getLogger(GameBoyDebugger.class);
 
-
     public static void main(String[] args) throws Exception {
 
         Memory memory = new Memory();
@@ -30,7 +30,6 @@ public class GameBoyDebugger {
         Timer timer = new Timer(memory);
 
         SwingLcd lcd = new SwingLcd(2);
-
 
         Gpu gpu = new Gpu(memory, lcd);
         TileSetDisplay displayTileset0 = new TileSetDisplay(memory, gpu, (char) 0x8000);
@@ -50,9 +49,11 @@ public class GameBoyDebugger {
         memory.addMMIODevice(timer);
         memory.addMMIODevice(gpu);
 
-        Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
+        //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
+        Cartridge cartridge = new MBC1Cartridge("Super Mario Land", "/Users/ismaelrh/gb/mbc1/zelda.gb");
+
         memory.insertCartridge(cartridge);
-        setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
+        //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
 
         double remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
@@ -75,7 +76,7 @@ public class GameBoyDebugger {
                 displayTileset1.display();
                 long nanosEndFrame = System.nanoTime();
                 long elapsedTimeNanos = (nanosEndFrame - nanosStartFrame);
-                long remainingTimeNanos = Const.NANOS_PER_FRAME/2 - elapsedTimeNanos;
+                long remainingTimeNanos = Const.NANOS_PER_FRAME - elapsedTimeNanos;
 
                 if (remainingTimeNanos > 0) {
                     long millisToSleep = remainingTimeNanos / 1000000;

@@ -69,7 +69,6 @@ public class Memory {
     //External Cartridge RAM: 0xA000 - 0xBFFF (8KB)
     private final static char EXTERNAL_RAM_START = 0xA000;
     private final static int EXTERNAL_RAM_SIZE_BYTES = 8192;
-    private byte[] externalRAM;
 
     //Internal RAM: 0xC000 - 0xDFFF (8KB)
     private final static char INTERNAL_RAM_START = 0xC000;
@@ -118,7 +117,6 @@ public class Memory {
     public void clear() {
         bootrom = new byte[BOOTROM_SIZE_BYTES];
         videoRAM = new byte[VIDEO_RAM_SIZE_BYTES];
-        externalRAM = new byte[EXTERNAL_RAM_SIZE_BYTES];
         internalRAM = new byte[INTERNAL_RAM_SIZE_BYTES];
         spriteRAM = new byte[SPRITE_RAM_SIZE_BYTES];
         ioRAM = new byte[IO_RAM_SIZE_BYTES];
@@ -178,7 +176,7 @@ public class Memory {
         } else if (address >= INTERNAL_RAM_START) {
             result = internalRAM[address - INTERNAL_RAM_START];
         } else if (address >= EXTERNAL_RAM_START) {
-            result = externalRAM[address - EXTERNAL_RAM_START];
+            result = cartridge.read(address);
         } else if (address >= VIDEO_RAM_START) {
             if (canUseVRAM() || privileged) {
                 result = videoRAM[address - VIDEO_RAM_START];
@@ -246,7 +244,7 @@ public class Memory {
         } else if (address >= INTERNAL_RAM_START) {
             internalRAM[address - INTERNAL_RAM_START] = data;
         } else if (address >= EXTERNAL_RAM_START) {
-            externalRAM[address - EXTERNAL_RAM_START] = data;
+            cartridge.write(address,data);
         } else if (address >= VIDEO_RAM_START) {
             if (canUseVRAM()) {
                 videoRAM[address - VIDEO_RAM_START] = data;
@@ -287,10 +285,6 @@ public class Memory {
 
     protected byte[] getVideoRAM() {
         return videoRAM;
-    }
-
-    protected byte[] getExternalRAM() {
-        return externalRAM;
     }
 
     protected byte[] getInternalRAM() {

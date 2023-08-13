@@ -6,11 +6,6 @@ public class FakeCartridge implements Cartridge {
     private final static int CARTRIDGE_SIZE_BYTES = 32768;
     private byte[] cartridge = new byte[CARTRIDGE_SIZE_BYTES];
 
-    @Override
-    public String getName() {
-        return "fake";
-    }
-
 
     @Override
     public byte read(char address) {

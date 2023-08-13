@@ -41,13 +41,6 @@ public class BasicCartridge implements Cartridge {
             cartridge[i] = content[i];
         }
     }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-
     @Override
     public byte read(char address) {
         return cartridge[address];

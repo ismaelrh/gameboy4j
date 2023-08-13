@@ -32,7 +32,7 @@ public class Gpu extends MMIODevice {
     private final int HBLANK_MODE = 0;
     private final int VBLANK_MODE = 1;
     private final char[] TILEMAP_START_ADDRESSES = new char[]{0x9800, 0x9C00};
-    private final char[] TILESET_START_ADDRESSES = new char[]{ 0x8800,0x8000};
+    private final char[] TILESET_START_ADDRESSES = new char[]{0x8800, 0x8000};
 
 
     private final int OAM_CYCLES = 80;
@@ -210,7 +210,6 @@ public class Gpu extends MMIODevice {
             lcd_stat = (byte) ((lcd_stat | 0x04) & 0xFF);
             checkForStatIRQ();
         }
-
     }
 
     private void setPpuMode(int newMode) {
@@ -223,7 +222,7 @@ public class Gpu extends MMIODevice {
 
         checkForStatIRQ();
 
-        if(mode==VBLANK_MODE){
+        if (mode == VBLANK_MODE) {
             lcd.flush();
             memory.fireVBlankInterruption();
         }
@@ -323,7 +322,7 @@ public class Gpu extends MMIODevice {
 
         //Push data to screen!
         for (int lineColor : lineColors) {
-            lcd.putPixel(lineColor);
+            lcd.pushPixel(lineColor);
         }
 
     }
@@ -332,16 +331,29 @@ public class Gpu extends MMIODevice {
         //Need to read 160 pixels (5 tiles, but can be in the middle)
         int[] line = new int[160];
 
-        int horizontalTilePos = (scrollX&0xFF) / 8;
-        int pixelsOffset = (scrollX&0xFF) - horizontalTilePos * 8;
+        int horizontalTilePos = (scrollX & 0xFF) / 8;
+        int pixelsOffset = (scrollX & 0xFF) - horizontalTilePos * 8;
         int readPixels = 0;
 
         while (readPixels < 160) {
             char tileAddress = getTileAddress(verticalTilePos, horizontalTilePos);
             int[] data = TileUtils.getRowOfTileIndexes(memory, tileAddress, tileRow);
-            int startIdx = readPixels == 0 ? pixelsOffset : 0;  //At the beginning, include the offset
-            int length = readPixels + 8 > 160 ? 160 - readPixels : 8;   //For the end, limit
-            System.arraycopy(data, startIdx, line, readPixels, length);
+            int startIdx = 0;
+            int length = 8;
+            if (readPixels == 0) {
+                startIdx = pixelsOffset;
+                length = 8 - pixelsOffset;
+            }
+            if (readPixels + 8 > 160) {
+                length = 160 - readPixels;
+            }
+
+            try {
+                System.arraycopy(data, startIdx, line, readPixels, length);
+
+            } catch (Exception e) {
+                int a = 2;
+            }
             readPixels += length;
             horizontalTilePos += 1;
         }

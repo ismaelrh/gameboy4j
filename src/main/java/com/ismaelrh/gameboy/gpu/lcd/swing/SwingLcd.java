@@ -21,7 +21,7 @@ public class SwingLcd extends Lcd {
     }
 
     @Override
-    public void putPixel(int rgbColor) {
+    public void pushPixel(int rgbColor) {
         this.panel.pushPixel(rgbColor);
     }
 

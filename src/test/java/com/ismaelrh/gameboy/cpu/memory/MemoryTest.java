@@ -39,13 +39,6 @@ public class MemoryTest {
     }
 
     @Test
-    public void accessExternalRAM() {
-        assertDataIsStoredAndReadCorrectly((char) 0xA000, memory.getExternalRAM(), (byte) 0x18, 0);
-        assertDataIsStoredAndReadCorrectly((char) 0xA003, memory.getExternalRAM(), (byte) 0x19, 3);
-        assertDataIsStoredAndReadCorrectly((char) 0xBFFF, memory.getExternalRAM(), (byte) 0x20, 8191);
-    }
-
-    @Test
     public void accessInternalRAM() {
         assertDataIsStoredAndReadCorrectly((char) 0xC000, memory.getInternalRAM(), (byte) 0x18, 0);
         assertDataIsStoredAndReadCorrectly((char) 0xC003, memory.getInternalRAM(), (byte) 0x19, 3);

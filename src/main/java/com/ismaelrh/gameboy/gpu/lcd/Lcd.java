@@ -10,8 +10,7 @@ public abstract class Lcd {
             rgbToInt(0, 0, 0)
     };
 
-    public abstract void putPixel(int color); //0,1,2,3
-
+    public abstract void pushPixel(int color); //0,1,2,3
 
     //Flush to actual screen
     public abstract void flush();
