@@ -179,8 +179,8 @@ public class RotateShiftTest {
 
     @Test
     public void swap_hl() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAF);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAF);
 
 
         //Set flags to check they are set accordingly
@@ -191,7 +191,7 @@ public class RotateShiftTest {
 
         short cycles = RotateShift.swap_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xFA, memory.read((char) 0xBEBA));
+        assertEquals8(0xFA, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -214,8 +214,8 @@ public class RotateShiftTest {
 
     @Test
     public void swap_hl_2() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xFF);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xFF);
 
 
         //Set flags to check they are set accordingly
@@ -226,7 +226,7 @@ public class RotateShiftTest {
 
         short cycles = RotateShift.swap_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xFF, memory.read((char) 0xBEBA));
+        assertEquals8(0xFF, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -248,8 +248,8 @@ public class RotateShiftTest {
 
     @Test
     public void swap_hl_zero() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x00);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x00);
 
 
         //Set flags to check they are set accordingly
@@ -260,7 +260,7 @@ public class RotateShiftTest {
 
         short cycles = RotateShift.swap_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, false, false, false);
     }
 
@@ -280,15 +280,15 @@ public class RotateShiftTest {
 
     @Test
     public void sla_hl_carry() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x9F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x9F);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = RotateShift.sla_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x3E, memory.read((char) 0xBEBA));
+        assertEquals8(0x3E, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -308,15 +308,15 @@ public class RotateShiftTest {
 
     @Test
     public void sla_hl_no_carry() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x1F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x1F);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = RotateShift.sla_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x3E, memory.read((char) 0xBEBA));
+        assertEquals8(0x3E, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -336,15 +336,15 @@ public class RotateShiftTest {
 
     @Test
     public void sla_hl_zero_flag() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x80);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x80);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = RotateShift.sla_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, false, false, true);
     }
 
@@ -363,15 +363,15 @@ public class RotateShiftTest {
 
     @Test
     public void sra_hl_msb_0_carry_0() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x00);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x00);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.sra_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, false, false, false);
     }
 
@@ -390,15 +390,15 @@ public class RotateShiftTest {
 
     @Test
     public void sra_hl_msb_0_carry_1() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x0F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x0F);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.sra_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x07, memory.read((char) 0xBEBA));
+        assertEquals8(0x07, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -417,15 +417,15 @@ public class RotateShiftTest {
 
     @Test
     public void sra_hl_msb_1_carry_0() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x80);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x80);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.sra_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xC0, memory.read((char) 0xBEBA));
+        assertEquals8(0xC0, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -444,15 +444,15 @@ public class RotateShiftTest {
 
     @Test
     public void sra_hl_msb_1_carry_1() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x8F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x8F);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.sra_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xC7, memory.read((char) 0xBEBA));
+        assertEquals8(0xC7, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -471,15 +471,15 @@ public class RotateShiftTest {
 
     @Test
     public void srl_hl_msb_0_carry_0() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x00);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x00);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.srl_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, false, false, false);
     }
 
@@ -498,15 +498,15 @@ public class RotateShiftTest {
 
     @Test
     public void srl_hl_msb_0_carry_1() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x0F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x0F);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.srl_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x07, memory.read((char) 0xBEBA));
+        assertEquals8(0x07, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, true);
     }
 
@@ -525,15 +525,15 @@ public class RotateShiftTest {
 
     @Test
     public void srl_hl_msb_1_carry_0() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x80);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x80);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.srl_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x40, memory.read((char) 0xBEBA));
+        assertEquals8(0x40, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, false);
     }
 
@@ -552,15 +552,15 @@ public class RotateShiftTest {
 
     @Test
     public void srl_hl_msb_1_carry_1() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x8F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x8F);
         registers.setAllFlags();
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(Registers.E)
                 .build();
         short cycles = RotateShift.srl_hl(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0x47, memory.read((char) 0xBEBA));
+        assertEquals8(0x47, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, true);
     }
 

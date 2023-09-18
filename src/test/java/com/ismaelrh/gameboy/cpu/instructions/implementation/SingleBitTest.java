@@ -44,8 +44,8 @@ public class SingleBitTest {
     @Test
     public void bit_n_hl_0() {
         //3rd bit is 0, so will be set
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAA);     //1010 1010
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAA);     //1010 1010
         registers.setAllFlags();
 
         Instruction inst = new InstructionBuilder()
@@ -54,7 +54,7 @@ public class SingleBitTest {
 
         short cycles = SingleBit.bit_n_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0xAA, memory.read((char) 0xBEBA));  //Register untouched
+        assertEquals8(0xAA, memory.read((char) 0xC001));  //Register untouched
         assertFlags(registers, true, false, true, true);
     }
 
@@ -78,8 +78,8 @@ public class SingleBitTest {
     @Test
     public void bit_n_hl_1() {
         //3rd bit is 0, so will be set
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAA);     //1010 1010
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAA);     //1010 1010
         registers.setAllFlags();
 
         Instruction inst = new InstructionBuilder()
@@ -88,7 +88,7 @@ public class SingleBitTest {
 
         short cycles = SingleBit.bit_n_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0xAA, memory.read((char) 0xBEBA));  //Register untouched
+        assertEquals8(0xAA, memory.read((char) 0xC001));  //Register untouched
         assertFlags(registers, false, false, true, true);
     }
 
@@ -110,8 +110,8 @@ public class SingleBitTest {
 
     @Test
     public void set_n_HL_0() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAA);     //1010 1010
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAA);     //1010 1010
         registers.setAllFlags();
 
         Instruction inst = new InstructionBuilder()
@@ -121,7 +121,7 @@ public class SingleBitTest {
 
         short cycles = SingleBit.set_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xAE, memory.read((char) 0xBEBA));
+        assertEquals8(0xAE, memory.read((char) 0xC001));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 
@@ -144,8 +144,8 @@ public class SingleBitTest {
 
     @Test
     public void set_n_HL_1() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAA);     //1010 1010
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAA);     //1010 1010
         registers.setAllFlags();
 
         Instruction inst = new InstructionBuilder()
@@ -155,7 +155,7 @@ public class SingleBitTest {
 
         short cycles = SingleBit.set_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xAA, memory.read((char) 0xBEBA));
+        assertEquals8(0xAA, memory.read((char) 0xC001));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 
@@ -177,8 +177,8 @@ public class SingleBitTest {
 
     @Test
     public void res_n_HL_0() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAA);     //1010 1010
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAA);     //1010 1010
         registers.setAllFlags();
 
         Instruction inst = new InstructionBuilder()
@@ -188,7 +188,7 @@ public class SingleBitTest {
 
         short cycles = SingleBit.res_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xAA, memory.read((char) 0xBEBA));
+        assertEquals8(0xAA, memory.read((char) 0xC001));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 
@@ -211,8 +211,8 @@ public class SingleBitTest {
 
     @Test
     public void res_n_HL_1() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xAA);     //1010 1010
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xAA);     //1010 1010
         registers.setAllFlags();
 
         Instruction inst = new InstructionBuilder()
@@ -222,7 +222,7 @@ public class SingleBitTest {
 
         short cycles = SingleBit.res_n_HL(inst, memory, registers);
         assertEquals(16, cycles);
-        assertEquals8(0xA8, memory.read((char) 0xBEBA));
+        assertEquals8(0xA8, memory.read((char) 0xC001));
         assertFlags(registers, true, true, true, true); //Untouched
     }
 

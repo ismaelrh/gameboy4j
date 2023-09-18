@@ -17,7 +17,7 @@ public class Load8BTest {
     private Memory memory;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception{
         registers = new Registers();
         registers.initForTest();
         memory = new Memory();

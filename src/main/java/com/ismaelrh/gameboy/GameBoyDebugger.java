@@ -3,16 +3,15 @@ package com.ismaelrh.gameboy;
 import com.ismaelrh.gameboy.cpu.Const;
 import com.ismaelrh.gameboy.cpu.ControlUnit;
 import com.ismaelrh.gameboy.cpu.Registers;
-import com.ismaelrh.gameboy.cpu.cartridge.BasicCartridge;
 import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
-import com.ismaelrh.gameboy.cpu.cartridge.MBC1Cartridge;
+import com.ismaelrh.gameboy.cpu.cartridge.CartridgeFactory;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
+import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer;
+import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
+import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
 import com.ismaelrh.gameboy.debug.tileset.TileSetDisplay;
 import com.ismaelrh.gameboy.gpu.Gpu;
 import com.ismaelrh.gameboy.gpu.lcd.swing.SwingLcd;
-import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer;
-import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
-import com.ismaelrh.gameboy.cpu.memory.Memory;
-import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,7 +33,6 @@ public class GameBoyDebugger {
         Gpu gpu = new Gpu(memory, lcd);
         TileSetDisplay displayTileset0 = new TileSetDisplay(memory, gpu, (char) 0x8000);
         TileSetDisplay displayTileset1 = new TileSetDisplay(memory, gpu, (char) 0x8800);
-        startGUI(lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
 
         ControlUnit controlUnit = new ControlUnit(registers, memory);
 
@@ -50,11 +48,12 @@ public class GameBoyDebugger {
         memory.addMMIODevice(gpu);
 
         //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
-        Cartridge cartridge = new MBC1Cartridge("Super Mario Land", "/Users/ismaelrh/gb/mbc1/zelda.gb");
-
+        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/mbc1/bomberman.gb");
         memory.insertCartridge(cartridge);
         //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
+
+        startGUI(cartridge,lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
 
         double remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
         long nanosStartFrame = System.nanoTime();
@@ -104,8 +103,8 @@ public class GameBoyDebugger {
         registers.setPC((char) 0x0000);
     }
 
-    private static JFrame startGUI(JPanel display, JPanel tileset0, JPanel tileset1) {
-        JFrame window = new JFrame("gameboy4j");
+    private static JFrame startGUI(Cartridge cartridge,JPanel display, JPanel tileset0, JPanel tileset1) {
+        JFrame window = new JFrame("gameboy4j v0.1");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
 
@@ -113,7 +112,8 @@ public class GameBoyDebugger {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
         //window.setContentPane(display);
-        mainPanel.add(new JLabel("Game"));
+        mainPanel.add(new JLabel(generateTitle(cartridge)));
+        mainPanel.add(new JLabel(generateDetails(cartridge)));
         mainPanel.add(display);
 
         JPanel tilesetPanel = new JPanel();
@@ -137,5 +137,12 @@ public class GameBoyDebugger {
         window.setVisible(true);
         window.pack();
         return window;
+    }
+
+    private static String generateTitle(Cartridge cartridge){
+        return cartridge.getTitle() + " - " + cartridge.getCartridgeType();
+    }
+    private static String generateDetails(Cartridge cartridge){
+        return "ROM: " + cartridge.getRomSizeBytes()/1024 + "KB, RAM: " + cartridge.getRamSizeBytes()/1024 + "KB";
     }
 }

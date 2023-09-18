@@ -21,7 +21,7 @@ public class MemoryTest {
     }
 
     @Test
-    public void accessCartridge() {
+    public void accessCartridge() throws Exception{
         Cartridge c = new FakeCartridge();
         c.write((char) 0x0000, (byte) 0xBE);
         c.write((char) 0x0003, (byte) 0xBA);
@@ -84,8 +84,8 @@ public class MemoryTest {
     @Test
     public void fullRAMWriteAndRead() {
 
-        //Write from 8000 until E000 (echo RAM)
-        for (char address = 0x8000; address < 0xE000; address++) {
+        //Write from C000 until E000 (internal RAM, until ECHO ram)
+        for (char address = 0xC000; address < 0xE000; address++) {
             //Store less-significant byte
             byte toWrite = (byte) (address & 0xFF);
             memory.write(address, toWrite);
@@ -106,7 +106,7 @@ public class MemoryTest {
         }
 
         //Read from 8000 until E000
-        for (char address = 0x8000; address < 0xE000; address++) {
+        for (char address = 0xC000; address < 0xE000; address++) {
             //Store less-significant byte
             byte toRead = (byte) (address & 0xFF);
             assertEquals(toRead, memory.read(address));

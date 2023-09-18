@@ -52,11 +52,8 @@ public class Memory {
      * Allows to read/write 8-bit (1 Byte) at a time (byte)
      */
 
-    //Cartridge: 0x0000 to 0x7FFF (32KB)
-    private final static char CARTRIDGE_START = 0x0000;
     private Cartridge cartridge;
 
-    private final static char BOOTROM_START = 0x0000;
     private final static int BOOTROM_SIZE_BYTES = 256;
 
     private byte[] bootrom;
@@ -68,7 +65,6 @@ public class Memory {
 
     //External Cartridge RAM: 0xA000 - 0xBFFF (8KB)
     private final static char EXTERNAL_RAM_START = 0xA000;
-    private final static int EXTERNAL_RAM_SIZE_BYTES = 8192;
 
     //Internal RAM: 0xC000 - 0xDFFF (8KB)
     private final static char INTERNAL_RAM_START = 0xC000;
@@ -77,7 +73,6 @@ public class Memory {
 
     //Echo internal RAM: 0xE000 - 0xFDFF (7680 Bytes)
     private final static char ECHO_RAM_START = 0xE000;
-    private final static int ECHO_RAM_SIZE_BYTES = 7680;
 
     //Sprite Attribute Memory (OAM): 0xFE00 - 0xFE9F (160 Bytes)
     private final static char SPRITE_RAM_START = 0xFE00;
@@ -86,7 +81,6 @@ public class Memory {
 
     //Unusable zone: 0xFEA0-FEFF
     private final static char UNUSABLE_RAM_START = 0xFEA0;
-    private final static int UNUSABLE_RAM_SIZE_BYTES = 96;
 
     //I/O ports mapped RAM: 0xFF00 - 0xFF7F (128 Bytes)
     private final static char IO_RAM_START = 0xFF00;

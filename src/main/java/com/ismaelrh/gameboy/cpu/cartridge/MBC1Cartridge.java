@@ -3,14 +3,11 @@ package com.ismaelrh.gameboy.cpu.cartridge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.nio.file.Files;
-
-public class MBC1Cartridge implements Cartridge {
+class MBC1Cartridge extends Cartridge {
 
     private static final Logger log = LogManager.getLogger(MBC1Cartridge.class);
 
+    private final static String CARTRIDGE_TYPE = "MBC1";
     private final static int MAX_CARTRIDGE_SIZE_BYTES = 2 * 1024 * 1024;
     private final static int ROM_BANK_SIZE_BYTES = 16384;
     private final static int RAM_BANK_SIZE_BYTES = 8 * 1024;
@@ -28,25 +25,16 @@ public class MBC1Cartridge implements Cartridge {
 
     private char bankMode = BANK_MODE_ROM;
 
-
-    //Contains full data of cartridge, including banks
-    private final byte[] fullCartridge;
-
     private byte[] externalRam;
 
-    public MBC1Cartridge(String name, byte[] content) throws Exception {
-        fullCartridge = new byte[MAX_CARTRIDGE_SIZE_BYTES];
-        externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
-        int realSize = loadContent(content);
-        log.info("Loaded cartridge MBC1'" + name + "' with size " + realSize + " bytes");
+    public MBC1Cartridge(byte[] content) throws Exception {
+       super(CARTRIDGE_TYPE,MAX_CARTRIDGE_SIZE_BYTES,content);
+       this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
     }
 
-    public MBC1Cartridge(String name, String filePath) throws Exception {
-        fullCartridge = new byte[MAX_CARTRIDGE_SIZE_BYTES];
-        externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
-        byte[] content = readFile(filePath);
-        int realSize = loadContent(content);
-        log.info("Loaded cartridge MBC1'" + name + "' with size " + realSize + " bytes");
+    public MBC1Cartridge(String path) throws Exception {
+        super(CARTRIDGE_TYPE,MAX_CARTRIDGE_SIZE_BYTES,path);
+        this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
     }
 
     protected void setRam(byte[] ram) throws Exception {
@@ -55,27 +43,6 @@ public class MBC1Cartridge implements Cartridge {
         }
         externalRam = ram;
     }
-    private byte[] readFile(String filePath) throws Exception {
-        File file = new File(filePath);
-        if (!file.isFile() || !file.canRead()) {
-            throw new Exception("Cannot read file " + filePath);
-        }
-        byte[] content = Files.readAllBytes(file.toPath());
-        if (content.length > MAX_CARTRIDGE_SIZE_BYTES) {
-            throw new Exception("Read file cannot fit into cartridge! Max is 2MB, file is " + content.length + "B");
-        }
-        return content;
-    }
-
-    private int loadContent(byte[] content) throws Exception {
-        if (content.length > MAX_CARTRIDGE_SIZE_BYTES) {
-            throw new Exception("Read file cannot fit into cartridge! Max is 2MB, file is " + content.length + "B");
-        }
-        for (int i = 0; i < content.length; i++) {
-            fullCartridge[i] = content[i];
-        }
-        return content.length;
-    }
 
 
     @Override
@@ -83,14 +50,14 @@ public class MBC1Cartridge implements Cartridge {
 
         //0000-3FFF: Rom Bank 00 (First 16KBytes of ROM)
         if (inRange(address, 0x0000, 0x3FFF)) {
-            return fullCartridge[address];
+            return rawData[address];
         }
 
         //4000-7FFF: Rom Bank 01-7F (Switchable 16KBytes of ROM)
         if (inRange(address, 0x4000, 0x7FFF)) {
             int relativeAddress = (address - 0x4000) & 0xFFFF;
             int bankStartAddress = ROM_BANK_SIZE_BYTES * getRomBank();
-            return fullCartridge[bankStartAddress + relativeAddress];
+            return rawData[bankStartAddress + relativeAddress];
         }
 
         //A000-BFFF: RAM Bank 00-03, if any (Switchable 8KBytes of RAM)

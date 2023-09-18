@@ -257,8 +257,8 @@ public class Arithmetic8BTest {
     @Test
     public void subA_HL_no_borrow() {
         registers.setA((byte) 0xBA);
-        memory.write((char) 0xBEBA, (byte) 0x01);
-        registers.setHL((char) 0xBEBA);
+        memory.write((char) 0xC001, (byte) 0x01);
+        registers.setHL((char) 0xC001);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -273,8 +273,8 @@ public class Arithmetic8BTest {
     @Test
     public void subA_HL_zero() {
         registers.setA((byte) 0xBA);
-        memory.write((char) 0xBEBA, (byte) 0xBA);
-        registers.setHL((char) 0xBEBA);
+        memory.write((char) 0xC001, (byte) 0xBA);
+        registers.setHL((char) 0xC001);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -289,8 +289,8 @@ public class Arithmetic8BTest {
     @Test
     public void subA_HL_borrow() {
         registers.setA((byte) 0x3E);
-        memory.write((char) 0xBEBA, (byte) 0x40);
-        registers.setHL((char) 0xBEBA);
+        memory.write((char) 0xC001, (byte) 0x40);
+        registers.setHL((char) 0xC001);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -305,8 +305,8 @@ public class Arithmetic8BTest {
     @Test
     public void subA_HL_half_borrow() {
         registers.setA((byte) 0x3E);
-        memory.write((char) 0xBEBA, (byte) 0x0F);
-        registers.setHL((char) 0xBEBA);
+        memory.write((char) 0xC001, (byte) 0x0F);
+        registers.setHL((char) 0xC001);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -585,8 +585,8 @@ public class Arithmetic8BTest {
     @Test
     public void addA_HL() {
         registers.setA((byte) 0xFF);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x0A);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x0A);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -787,8 +787,8 @@ public class Arithmetic8BTest {
     public void addc_A_HL_no_overflow() {
 
         registers.setA((byte) 0x01);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x02);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x02);
 
         registers.setFlagC(); //Set carry
 
@@ -807,8 +807,8 @@ public class Arithmetic8BTest {
     public void addc_A_HL_overflow() {
 
         registers.setA((byte) 0xFF);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x01);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x01);
         registers.setFlagC(); //Set carry
 
         Instruction inst = new InstructionBuilder()
@@ -826,8 +826,8 @@ public class Arithmetic8BTest {
     public void addc_HL_n_overflow_zero() {
 
         registers.setA((byte) 0xFE);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x01);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x01);
         registers.setFlagC(); //Set carry
 
         Instruction inst = new InstructionBuilder()
@@ -845,8 +845,8 @@ public class Arithmetic8BTest {
     public void addc_A_HL_half_overflow() {
 
         registers.setA((byte) 0xE1);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x1E);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x1E);
         registers.setFlagC(); //Set carry
 
         Instruction inst = new InstructionBuilder()
@@ -917,8 +917,8 @@ public class Arithmetic8BTest {
     @Test
     public void and_HL_not_zero() {
         registers.setA((byte) 0x5A);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x3F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x3F);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -932,8 +932,8 @@ public class Arithmetic8BTest {
     @Test
     public void and_HL_zero() {
         registers.setA((byte) 0xF0);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x0F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x0F);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -1005,8 +1005,8 @@ public class Arithmetic8BTest {
     @Test
     public void or_HL_not_zero() {
         registers.setA((byte) 0xF0);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x0F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x0F);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -1020,8 +1020,8 @@ public class Arithmetic8BTest {
     @Test
     public void or_HL_zero() {
         registers.setA((byte) 0x00);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x00);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x00);
 
         Instruction inst = new InstructionBuilder()
                 .withSecondOperand(E)
@@ -1097,8 +1097,8 @@ public class Arithmetic8BTest {
     @Test
     public void xor_HL_not_zero() {
         registers.setA((byte) 0x3F);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x3E);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x3E);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -1112,8 +1112,8 @@ public class Arithmetic8BTest {
     @Test
     public void xor_HL_zero() {
         registers.setA((byte) 0x3F);
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x3F);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x3F);
 
         Instruction inst = new InstructionBuilder()
                 .build();
@@ -1176,59 +1176,59 @@ public class Arithmetic8BTest {
 
     @Test
     public void inc_HL() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x01);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x01);
 
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0x02, memory.read((char) 0xBEBA));
+        assertEquals8(0x02, memory.read((char) 0xC001));
         assertFlags(registers, false, false, false, false);
     }
 
     @Test
     public void inc_HL_overflow() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0xFF);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0xFF);
 
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, false, true, false);
     }
 
 
     @Test
     public void inc_HL_half_carry() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x0f);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x0f);
 
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0x10, memory.read((char) 0xBEBA));
+        assertEquals8(0x10, memory.read((char) 0xC001));
         assertFlags(registers, false, false, true, false);
     }
 
     @Test
     public void inc_HL_keeps_flag_c() {
-        registers.setHL((char) 0xBEBA);
+        registers.setHL((char) 0xC001);
         registers.setF((byte) 0xFF);
-        memory.write((char) 0xBEBA, (byte) 0xFF);
+        memory.write((char) 0xC001, (byte) 0xFF);
 
         Instruction inst = new InstructionBuilder()
                 .build();
 
         short cycles = Arithmetic8b.inc_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, false, true, true);
     }
 
@@ -1292,8 +1292,8 @@ public class Arithmetic8BTest {
 
     @Test
     public void dec_HL() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x01);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x01);
 
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
@@ -1301,14 +1301,14 @@ public class Arithmetic8BTest {
 
         short cycles = Arithmetic8b.dec_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0x00, memory.read((char) 0xBEBA));
+        assertEquals8(0x00, memory.read((char) 0xC001));
         assertFlags(registers, true, true, false, false);
     }
 
     @Test
     public void dec_HL_borrow() {
-        registers.setHL((char) 0xBEBA);
-        memory.write((char) 0xBEBA, (byte) 0x00);
+        registers.setHL((char) 0xC001);
+        memory.write((char) 0xC001, (byte) 0x00);
 
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
@@ -1316,16 +1316,16 @@ public class Arithmetic8BTest {
 
         short cycles = Arithmetic8b.dec_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0xFF, memory.read((char) 0xBEBA));
+        assertEquals8(0xFF, memory.read((char) 0xC001));
         assertFlags(registers, false, true, true, false);
     }
 
     @Test
     public void dec_HL_borrow_keeps_c() {
-        registers.setHL((char) 0xBEBA);
+        registers.setHL((char) 0xC001);
         registers.setF((byte) 0xFF);
 
-        memory.write((char) 0xBEBA, (byte) 0x00);
+        memory.write((char) 0xC001, (byte) 0x00);
 
         Instruction inst = new InstructionBuilder()
                 .withFirstOperand(E)
@@ -1333,7 +1333,7 @@ public class Arithmetic8BTest {
 
         short cycles = Arithmetic8b.dec_HL(inst, memory, registers);
         assertEquals(12, cycles);
-        assertEquals8(0xFF, memory.read((char) 0xBEBA));
+        assertEquals8(0xFF, memory.read((char) 0xC001));
         assertFlags(registers, false, true, true, true);
     }
 
