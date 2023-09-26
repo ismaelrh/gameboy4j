@@ -58,6 +58,13 @@ public class Sprite {
         return xFlip;
     }
 
+    public boolean hFlip() {
+        return xFlip == 0x01;
+    }
+
+    public boolean vFlip() {
+        return yFlip == 0x01;
+    }
     public byte getyFlip() {
         return yFlip;
     }

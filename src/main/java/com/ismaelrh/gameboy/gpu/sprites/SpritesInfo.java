@@ -18,8 +18,11 @@ public class SpritesInfo extends MemoryInterceptor {
         if (address >= 0xFE00 && address <= 0xFE9F) {
             //Must now which sprite number I'm writing to (4 bytes per sprite)
             int spriteNumber = (address - 0xFE00) / 4;
+            int bytePosition = (address - 0xFE00) - spriteNumber*4;
             char spriteStartAddress = (char) ((0xFE00 + 4 * spriteNumber) & 0xFFFF);
+
             byte[] spriteData = memory.readRange(spriteStartAddress, 4);
+            spriteData[bytePosition] = data;
             refreshSprite(spriteNumber, spriteData);
         }
         return super.onWrite(address, data);
@@ -31,7 +34,7 @@ public class SpritesInfo extends MemoryInterceptor {
         Sprite[] result = new Sprite[10];
         int added = 0;
         for (int i = 0; i < sprites.length; i++) {
-            if (shouldDrawSprite(screenLY, i, spriteSizeMode)) {
+            if (spriteIsConsideredForLine(screenLY, i, spriteSizeMode)) {
                 result[added] = sprites[i];
                 added++;
             }
@@ -39,12 +42,17 @@ public class SpritesInfo extends MemoryInterceptor {
                 return result;
             }
         }
+
         return result;
     }
 
-    private boolean shouldDrawSprite(int screenLY, int spritePos, int spriteSizeMode) {
+    private boolean spriteIsConsideredForLine(int screenLY, int spritePos, int spriteSizeMode) {
         int spriteHeightPixels = spriteSizeMode == 0 ? 8 : 16;
-        return sprites[spritePos].getPosY() + spriteHeightPixels > screenLY;
+        Sprite sprite = sprites[spritePos];
+        return
+                screenLY >= sprite.getPosY() &&
+                screenLY < sprite.getPosY() + spriteHeightPixels;
+
     }
 
     //Refresh internal structure of data, and also the line.

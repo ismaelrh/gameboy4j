@@ -30,7 +30,7 @@ public class DisplayPanel extends JPanel implements Runnable {
         img = new BufferedImage(LCD_WIDTH, LCD_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
         //Initialize to white
-        Arrays.fill(rgb, Lcd.RGB_COLORS[0]);
+        Arrays.fill(rgb, Lcd.BG_COLORS[0]);
     }
 
     public void pushPixel(int color) {
@@ -68,7 +68,7 @@ public class DisplayPanel extends JPanel implements Runnable {
         if (enabled) {
             g2d.drawImage(img, 0, 0, LCD_WIDTH * SCALE, LCD_HEIGHT * SCALE, null);
         } else {
-            g2d.setColor(new Color(Lcd.RGB_COLORS[0]));   //Put to white
+            g2d.setColor(new Color(Lcd.BG_COLORS[0]));   //Put to white
             g2d.fillRect(0, 0, LCD_WIDTH * SCALE, LCD_HEIGHT * SCALE);
         }
         g2d.dispose();

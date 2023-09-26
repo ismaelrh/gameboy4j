@@ -3,10 +3,16 @@ package com.ismaelrh.gameboy.gpu;
 import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 import com.ismaelrh.gameboy.cpu.memory.MMIODevice;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
+import com.ismaelrh.gameboy.gpu.sprites.Sprite;
 import com.ismaelrh.gameboy.gpu.sprites.SpritesInfo;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 public class Gpu extends MMIODevice {
 
+    private final static int NO_PIXEL_INDEX = -1;
     private final Memory memory;
 
     private final SpritesInfo spritesInfo;
@@ -38,7 +44,10 @@ public class Gpu extends MMIODevice {
 
     private final int[] bgPalette = new int[4];
 
-    private final int[] spritePalette = new int[4];
+    private final int[] spritePalette0 = new int[4];
+    private final int[] spritePalette1 = new int[4];
+    private final int[][] spritePalletes = new int[][]{spritePalette0, spritePalette1};
+
     private int gpuIRQ = 0;
 
     private final int OAM_MODE = 2;
@@ -74,12 +83,14 @@ public class Gpu extends MMIODevice {
 
     private final char LCD_BG_PALLETE_ADDRESS = (char) 0xFF47;
 
-    private final char LCD_SPRITE_PALLETE_ADDRESS = (char) 0xFF48;
+    private final char LCD_SPRITE_PALLETE_0_ADDRESS = (char) 0xFF48;
+    private final char LCD_SPRITE_PALLETE_1_ADDRESS = (char) 0xFF49;
 
 
     private byte bg_pallete_reg = (byte) 0x00;
 
-    private byte sprite_pallete_reg = (byte) 0x00;
+    private byte sprite_pallete_0_reg = (byte) 0x00;
+    private byte sprite_pallete_1_reg = (byte) 0x00;
 
     @Override
     public void onWrite(char address, byte data) {
@@ -105,11 +116,15 @@ public class Gpu extends MMIODevice {
                 break;
             case LCD_BG_PALLETE_ADDRESS:
                 bg_pallete_reg = data;
-                updateBgPallete();
+                updateBgPalettes();
                 break;
-            case LCD_SPRITE_PALLETE_ADDRESS:
-                sprite_pallete_reg = data;
-                updateSpritesPallete();
+            case LCD_SPRITE_PALLETE_0_ADDRESS:
+                sprite_pallete_0_reg = data;
+                updateSpritesPalettes();
+                break;
+            case LCD_SPRITE_PALLETE_1_ADDRESS:
+                sprite_pallete_1_reg = data;
+                updateSpritesPalettes();
                 break;
             case LCD_SCROLL_Y_ADDRESS:
                 scrollY = data;
@@ -122,17 +137,26 @@ public class Gpu extends MMIODevice {
         }
     }
 
-    private void updateBgPallete() {
+    private void updateBgPalettes() {
         for (int i = 0; i < 4; i++) {
             int value = ((bg_pallete_reg & (3 << 2 * i)) >> 2 * i) & 0xFF;
-            bgPalette[i] = Lcd.RGB_COLORS[value];
+            bgPalette[i] = Lcd.BG_COLORS[value];
         }
     }
 
-    private void updateSpritesPallete() {
-        for (int i = 0; i < 4; i++) {
-            int value = ((bg_pallete_reg & (3 << 2 * i)) >> 2 * i) & 0xFF;
-            spritePalette[i] = Lcd.RGB_COLORS[value];
+    private void updateSpritesPalettes() {
+
+        //0 is always transparent
+        spritePalette0[0] = Lcd.COLOR_TRANSPARENT;
+        spritePalette1[0] = Lcd.COLOR_TRANSPARENT;
+
+        for (int i = 1; i < 4; i++) {
+            int value = ((sprite_pallete_0_reg & (3 << 2 * i)) >> 2 * i) & 0xFF;
+            spritePalette0[i] = Lcd.SPRITE_COLORS[value];
+        }
+        for (int i = 1; i < 4; i++) {
+            int value = ((sprite_pallete_1_reg & (3 << 2 * i)) >> 2 * i) & 0xFF;
+            spritePalette1[i] = Lcd.SPRITE_COLORS[value];
         }
     }
 
@@ -150,8 +174,10 @@ public class Gpu extends MMIODevice {
                 return lcd_control;
             case LCD_BG_PALLETE_ADDRESS:
                 return bg_pallete_reg;
-            case LCD_SPRITE_PALLETE_ADDRESS:
-                return sprite_pallete_reg;
+            case LCD_SPRITE_PALLETE_0_ADDRESS:
+                return sprite_pallete_0_reg;
+            case LCD_SPRITE_PALLETE_1_ADDRESS:
+                return sprite_pallete_1_reg;
             case LCD_SCROLL_Y_ADDRESS:
                 return scrollY;
             case LCD_SCROLL_X_ADDRESS:
@@ -308,7 +334,7 @@ public class Gpu extends MMIODevice {
     }
 
     private void checkSpritesSizeMode() {
-        spritesSizeMode = (lcd_control & 0x04);
+        spritesSizeMode = (lcd_control & 0x04) >> 2;
     }
 
     //bit 3
@@ -325,7 +351,7 @@ public class Gpu extends MMIODevice {
         if ((lcd_control & 0x10) != 0) {
             tileAddressingMode = 1;
         } else {
-            tileAddressingMode =0;    //tileSet = 0, tileMap = 1
+            tileAddressingMode = 0;    //tileSet = 0, tileMap = 1
         }
     }
 
@@ -353,10 +379,6 @@ public class Gpu extends MMIODevice {
         //Get the line I'm drawing
         int drawingLine = line;
 
-        if(line==132){
-            int i = 3;
-        }
-
         //Need to get the tile row and the pixel row we are going to draw,
         //according to scrollY and drawingLine
         int fullMapY = drawingLine + (scrollY & 0xFF);  //Line of the whole view to paint
@@ -369,29 +391,49 @@ public class Gpu extends MMIODevice {
 
         //Need to read the line (# of tile, row of the tile, x scroll)
         int[] lineIndexes = readBackgroundLine(verticalTilePos, tileRow, scrollX);
+
         //Transform indexes to emulator colors
         int[] backgroundLine = TileUtils.applyPalleteToIndexes(lineIndexes, bgPalette);
 
         int[] spritesIndexes = new int[160];
+        int[] spritesLines = new int[160];
+        byte[] bgPriority = new byte[160];
 
-        /*Sprite[] spritesToDraw = spritesInfo.getSpritesToDrawOnLine(drawingLine, spritesSizeMode);
+        Sprite[] spritesToDraw = spritesInfo.getSpritesToDrawOnLine(drawingLine, spritesSizeMode);
+        Arrays.sort(spritesToDraw, (o1, o2) -> {
+            if(o1==null && o2==null) return 0;
+            if(o1==null) return o2.getPriority();
+            if(o2==null) return o1.getPriority();
+            return o2.getPriority() - o1.getPriority();
+        });
         //Naive implementation: just draw all, no priorities!
-        for (Sprite sprite : spritesToDraw) {
+        for (Sprite sprite: spritesToDraw) {
             if (sprite != null) {
                 int spriteRow = line - sprite.getPosY();
-                int[] spriteLine = readSpriteLine(sprite.getTileNumber(),spriteRow);
+                byte tileNumber = sprite.getTileNumber();
+
+                if (spritesSizeMode != 0x00) {    //In 8x16 mode, always specifies the top one (lower bit is ignored)
+                    tileNumber = (byte) (tileNumber & 0xFE);
+                }
+
+                int[] spriteIndexes = readSpriteLine(tileNumber, spriteRow, sprite.hFlip(), sprite.vFlip());
+                int[] spriteLine = TileUtils.applyPalleteToIndexes(spriteIndexes, spritePalletes[sprite.getPalette()]);
                 int spriteStartX = sprite.getPosX() >= 0 ? 0 : -sprite.getPosX();
-                int spriteLength = (sprite.getPosX() + 7) <= 159 ? 8 : 8 - ((sprite.getPosX() + 7) - 159) ;
+                int spriteLength = (sprite.getPosX() + 7) <= 159 ? 8 : 8 - ((sprite.getPosX() + 7) - 159);
+                byte[] spritePriority = new byte[spriteLength];
+                Arrays.fill(spritePriority, sprite.getPriority());
+
                 int drawStartX = Math.max(sprite.getPosX(), 0);
                 if (spriteStartX + spriteLength > 0) {
-                    System.arraycopy(spriteLine, spriteStartX, spritesIndexes, drawStartX, spriteLength);
+                    System.arraycopy(spriteIndexes, spriteStartX, spritesIndexes, drawStartX, spriteLength);
+                    System.arraycopy(spriteLine, spriteStartX, spritesLines, drawStartX, spriteLength);
+                    System.arraycopy(spritePriority, spriteStartX, bgPriority, drawStartX, spriteLength);
                 }
             }
-        }*/
+        }
 
-        int[] spritesLine = TileUtils.applyPalleteToIndexes(spritesIndexes, bgPalette);
 
-        int[] lineToDraw = mergeLines(backgroundLine, spritesLine);
+        int[] lineToDraw = mergeLines(backgroundLine, spritesLines, bgPriority);
 
         //Push data to screen!
         for (int lineColor : lineToDraw) {
@@ -400,13 +442,39 @@ public class Gpu extends MMIODevice {
 
     }
 
-    private int[] mergeLines(int[] background, int[] objects) {
 
-            return background;
+    /**
+     * If, during the shifting process, both the Background and the Sprite FIFO contain at least one pixel, they are both shifted out and compared as follows:
+     * 1) If the color number of the Sprite Pixel is 0, the Background Pixel is pushed to the LCD.
+     * 2) If the BG-to-OBJ-Priority bit is 1 and the color number of the Background Pixel is anything other than 0, the Background Pixel is pushed to the LCD.
+     * 3) If none of the above conditions apply, the Sprite Pixel is pushed to the LCD.
+     */
+    private int[] mergeLines(int[] background, int[] objects, byte[] bgPriority) {
 
-
-        /*//TODO: implement with correct priorities
         int[] mergedLine = new int[background.length];
+
+        for (int x = 0; x < mergedLine.length; x++) {
+
+
+            if (bgEnabled) {
+                mergedLine[x] = background[x];
+            }
+
+            if (spritesEnabled) {
+                if (objects[x] != Lcd.COLOR_TRANSPARENT && (bgPriority[x] == 0 || background[x] == Lcd.COLOR_WHITE)) {
+                    mergedLine[x] = objects[x];
+                }
+            }
+
+            if (!bgEnabled && !spritesEnabled) {
+                mergedLine[x] = Lcd.COLOR_BLACK;
+            }
+
+        }
+
+        return mergedLine;
+        //TODO: implement with correct priorities
+        /*int[] mergedLine = new int[background.length];
         for(int x = 0; x < mergedLine.length; x++){
             if(objects[x]==-1){ //TODO: what?
                 mergedLine[x] = background[x];
@@ -414,43 +482,46 @@ public class Gpu extends MMIODevice {
             else{
                 mergedLine[x] = objects[x];
             }
-        }
+             return mergedLine;
+        */
 
-        return mergedLine;*/
 
     }
 
-    private int[] readSpriteLine(int tileNumber, int spriteRow) {
+    private int[] readSpriteLine(int tileNumber, int spriteRow, boolean hFlip, boolean vFlip) {
         //Need to read 8 pixels
-        char tileAddress = (char)(0x8000 + 16*tileNumber);
-        return TileUtils.getRowOfTileIndexes(memory,tileAddress,spriteRow);
+        char tileAddress = (char) (0x8000 + 16 * tileNumber);
+        int spritesHeight = spritesSizeMode == 0x00 ? 8 : 16;
+        return TileUtils.getRowOfTileIndexes(memory, tileAddress, spriteRow, hFlip, vFlip, spritesHeight);
     }
 
     private int[] readBackgroundLine(int verticalTilePos, int tileRow, int scrollX) {
+
         //Need to read 160 pixels (5 tiles, but can be in the middle)
         int[] line = new int[160];
-        if(!bgEnabled){
-            return new int[160];
+        //Arrays.fill(line, NO_PIXEL_INDEX);
+
+        if (!bgEnabled) {
+            return line;
         }
 
         int horizontalTilePos = (scrollX & 0xFF) / 8;   //Number of tile (in row, horizontally)
-        int x = scrollX & 7;
-        int pixelsOffset = (scrollX & 0xFF) - horizontalTilePos * 8;    //X offset inside tile
+        int xOffsetInsideFirstTile = (scrollX & 0xFF) - horizontalTilePos * 8;    //X offset inside tile
         int readPixels = 0;
 
 
         while (readPixels < 160) {
 
             char tileAddress = getTileAddress(verticalTilePos, horizontalTilePos);
-            int[] data = TileUtils.getRowOfTileIndexes(memory, tileAddress, tileRow);
+            int[] data = TileUtils.getRowOfTileIndexes(memory, tileAddress, tileRow, false, false);
 
             int startIdx = 0;
             int length = 8;
 
             //Cut the beginning of the screen
             if (readPixels == 0) {
-                startIdx = pixelsOffset;
-                length = 8 - pixelsOffset;
+                startIdx = xOffsetInsideFirstTile;
+                length = 8 - xOffsetInsideFirstTile;
             }
 
             //Cut the end of the screen
@@ -470,7 +541,6 @@ public class Gpu extends MMIODevice {
         //Normalized, from 0 to 255
         int tileIndex = getRelativeTileIndex(verticalTilePos, horizontalTilePos);
 
-        char a = (char)(TILE_ADDRESSING_MODES_START[tileAddressingMode] + tileIndex * 16);
         //Each tile is 16bytes long, so retrieve the corresponding tile
         return (char) (TILE_ADDRESSING_MODES_START[tileAddressingMode] + tileIndex * 16);
     }
@@ -489,7 +559,7 @@ public class Gpu extends MMIODevice {
         if (tileAddressingMode == 1) {  //Unsigned method
             return relativeIndex & 0xFF;    //Remove all signed.
         } else {
-            if(relativeIndex==37){
+            if (relativeIndex == 37) {
                 int a = 3;
             }
             return (relativeIndex + 128) & 0xFF;
