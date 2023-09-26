@@ -57,9 +57,9 @@ public class Debugger {
         //Check with logs
         if (this.logStatusProvider != null) {
             LogStatus status = logStatusProvider.next();
-            if (!status.isOk(executionInfo.getCycles(), registers)) {
+            if (status!=null && !status.isOk(executionInfo.getCycles(), registers)) {
                 log.error("Logs are not the same as current execution status!");
-                status.printDiff(executionInfo.getCycles(), registers);
+                status.printDiff(executionInfo.getCycles(), registers,memory);
                 pauseSystem();
             }
         }

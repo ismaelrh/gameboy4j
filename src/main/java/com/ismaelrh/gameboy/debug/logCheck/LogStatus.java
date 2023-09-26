@@ -1,11 +1,12 @@
 package com.ismaelrh.gameboy.debug.logCheck;
 
 import com.ismaelrh.gameboy.cpu.Registers;
+import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.jakewharton.fliptables.FlipTable;
 
 public class LogStatus {
 
-    private final String[] headers = {" ", "A", "F", "BC", "DE", "HL", "SP", "PC", "Cycles"};
+    private final String[] headers = {" ", "A", "F", "BC", "DE", "HL", "SP", "PC", "Cycles", "@HL"};
 
     private int cycle;
     private Registers registers;
@@ -32,18 +33,15 @@ public class LogStatus {
     }
 
     public boolean isOk(int cycle, Registers registers) {
-        if(registers.getPC()!=(char)(0xDEF8)){
-            return true;
-        }
         return this.registers.equals(registers);
     }
 
-    public void printDiff(int otherCycles, Registers otherRegisters) {
+    public void printDiff(int otherCycles, Registers otherRegisters, Memory memory) {
         //1st, expected
         //2nd, got
         String[][] data = {
-                {"Expected", f(registers.getA()), flags(registers), f(registers.getBC()), f(registers.getDE()), f(registers.getHL()), f(registers.getSP()), f(registers.getPC()), "" + cycle},
-                {"Got", f(otherRegisters.getA()), flags(otherRegisters), f(otherRegisters.getBC()), f(otherRegisters.getDE()), f(otherRegisters.getHL()), f(otherRegisters.getSP()), f(otherRegisters.getPC()), "" + otherCycles}
+                {"Correct", f(registers.getA()), flags(registers), f(registers.getBC()), f(registers.getDE()), f(registers.getHL()), f(registers.getSP()), f(registers.getPC()), "" + cycle,""},
+                {"Ours", f(otherRegisters.getA()), flags(otherRegisters), f(otherRegisters.getBC()), f(otherRegisters.getDE()), f(otherRegisters.getHL()), f(otherRegisters.getSP()), f(otherRegisters.getPC()), "" + otherCycles, f(memory.read((char)0xFF44))}
         };
         System.out.println(FlipTable.of(headers, data));
     }

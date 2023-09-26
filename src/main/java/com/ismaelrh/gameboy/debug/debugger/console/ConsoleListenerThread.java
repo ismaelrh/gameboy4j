@@ -17,7 +17,15 @@ class ConsoleListenerThread implements Runnable {
 
     @Override
     public void run() {
+        try{
+            controller.parseCommand("bp 150");
+        }
+        catch (Exception e){
+
+        }
+
         while (true) {
+
             nextCommand();
         }
     }

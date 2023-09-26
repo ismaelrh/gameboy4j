@@ -9,6 +9,7 @@ import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer;
 import com.ismaelrh.gameboy.debug.blargg.BlarggTestInterceptor;
 import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
+import com.ismaelrh.gameboy.debug.logCheck.binjgb.BinJgbLogStatusProvider;
 import com.ismaelrh.gameboy.debug.tileset.TileSetDisplay;
 import com.ismaelrh.gameboy.gpu.Gpu;
 import com.ismaelrh.gameboy.gpu.lcd.swing.SwingLcd;
@@ -16,6 +17,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class GameBoyDebugger {
 
@@ -24,6 +27,8 @@ public class GameBoyDebugger {
     public static void main(String[] args) throws Exception {
 
         Memory memory = new Memory();
+        memory.write((char)0xFF40,(byte)0x91);
+        byte a = memory.read((char)0xFF40);
         Registers registers = new Registers();
         registers.initForRealGB();
         Timer timer = new Timer(memory);
@@ -40,7 +45,7 @@ public class GameBoyDebugger {
         controlUnit.setDebuggerController(new ConsoleController());
 
         //Log status provider
-        //controlUnit.setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/binjgb/bin/test.txt"));
+        //controlUnit.setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/log.txt"));
 
         //Register blargg interceptor to get output and put it on console
         memory.addInterceptor(new BlarggTestInterceptor());
@@ -48,7 +53,7 @@ public class GameBoyDebugger {
         memory.addMMIODevice(gpu);
 
         //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
-        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/mbc1/bomberman.gb");
+        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/dmg-acid2.gb");
         memory.insertCartridge(cartridge);
         //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
@@ -57,6 +62,7 @@ public class GameBoyDebugger {
 
         double remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
         long nanosStartFrame = System.nanoTime();
+
 
         //I end on the end of every frame to check
         long totalC = 0;
@@ -108,6 +114,14 @@ public class GameBoyDebugger {
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
 
+        JLabel coordinates = new JLabel("Coords");
+
+        display.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+               coordinates.setText("coords=[" + e.getX()/2 + "," +e.getY()/2 +"], tile=[" + 1 + "]");
+            }
+        });
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -115,6 +129,8 @@ public class GameBoyDebugger {
         mainPanel.add(new JLabel(generateTitle(cartridge)));
         mainPanel.add(new JLabel(generateDetails(cartridge)));
         mainPanel.add(display);
+        mainPanel.add(coordinates);
+
 
         JPanel tilesetPanel = new JPanel();
         tilesetPanel.setLayout(new BoxLayout(tilesetPanel, BoxLayout.X_AXIS));

@@ -7,6 +7,10 @@ import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.debug.debugger.Debugger;
 import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
 
+import javax.swing.*;
+import java.io.File;
+import java.nio.file.Files;
+
 /**
  * Debugger interface in console.
  */
@@ -50,7 +54,7 @@ public class ConsoleController implements DebuggerController {
         new Thread(new ConsoleListenerThread(this)).start();
     }
 
-    protected void parseCommand(String command) throws InterruptedException {
+    protected void parseCommand(String command) throws Exception {
         String[] parts = command.toLowerCase().trim().split(" ");
         switch (parts[0]) {
             case "bp":
@@ -77,16 +81,42 @@ public class ConsoleController implements DebuggerController {
             case "mem":
                 parseMemCommand(parts[1]);
                 break;
+            case "memw":
+                parseMemWriteCommand(parts[1],parts[2]);
+                break;
+            case "dump":
+                dumpMemory(parts[1],parts[2]);
+                break;
             default:
                 System.err.println("Command not recognized: " + parts[0]);
         }
     }
 
+    private void dumpMemory(String add, String size) throws Exception{
+        char address = (char) (Integer.parseInt(add, 16) & 0xFFFF);
+        int sizeBytes = Integer.parseInt(size);
+        JFileChooser fileChooser = new JFileChooser();
+        if (fileChooser.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            byte[] dump = memory.readRange(address,sizeBytes);
+            Files.write(file.toPath(), dump);
+            System.out.println("Saved dump to  " + file.toPath());
+            // save to file
+        }
+    }
     private void parseMemCommand(String add) {
         char address = (char) (Integer.parseInt(add, 16) & 0xFFFF);
         byte value = memory.read(address);
         System.out.println("Read " + f(value) + " at @" + f(address));
     }
+
+    private void parseMemWriteCommand(String add, String val) {
+        char address = (char) (Integer.parseInt(add, 16) & 0xFFFF);
+        byte value = (byte) (Integer.parseInt(val,16) & 0xFF);
+        memory.write(address,value);
+        System.out.println("Written " + f(value) + " at @" + f(address));
+    }
+
 
     private void parseBreakCycleCommand(String[] parts) {
         if (parts[1].equals("add")) {
@@ -137,6 +167,6 @@ public class ConsoleController implements DebuggerController {
     }
 
     private String f(byte data) {
-        return String.format("%02X", data);
+        return String.format("%04X", data);
     }
 }

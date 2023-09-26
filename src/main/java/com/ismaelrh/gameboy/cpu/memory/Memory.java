@@ -135,6 +135,14 @@ public class Memory {
         return read(address, false);
     }
 
+    public byte[] readRange(char address, int size) {
+        byte[] data = new byte[size];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = read((char) ((address + i) & 0xFFFF), false);
+        }
+        return data;
+    }
+
     public byte read(char address, boolean privileged) {
 
         byte result = (byte) 0xFF; //Default bus value
@@ -199,6 +207,10 @@ public class Memory {
 
     public void write(char address, byte data) {
 
+        if(address == (char) 0xFF44){
+            int a = 3;
+        }
+
         //Apply write interceptors
         for (MemoryInterceptor i : interceptors) {
             data = i.onWrite(address, data);
@@ -238,7 +250,7 @@ public class Memory {
         } else if (address >= INTERNAL_RAM_START) {
             internalRAM[address - INTERNAL_RAM_START] = data;
         } else if (address >= EXTERNAL_RAM_START) {
-            cartridge.write(address,data);
+            cartridge.write(address, data);
         } else if (address >= VIDEO_RAM_START) {
             if (canUseVRAM()) {
                 videoRAM[address - VIDEO_RAM_START] = data;

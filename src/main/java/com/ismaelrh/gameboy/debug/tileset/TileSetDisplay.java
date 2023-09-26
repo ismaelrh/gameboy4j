@@ -34,15 +34,16 @@ public class TileSetDisplay {
     }
 
     public void display() {
+        //Each tileset has 256 tiles of 8x8 bytes. I can display all of them in a 128x128 screen (16x16 tiles)
         //Display everything
         for (int line = 0; line < 128; line++) {
-            int tileY = line / 8;
-            int tileRow = line - tileY * 8;
-            for (int tileX = 0; tileX < 16; tileX++) {
+            int tileY = line / 8;   //no of vertical tile
+            int tileRow = line - tileY * 8; //row inside the specific tile row
+            for (int tileX = 0; tileX < 16; tileX++) {  //each tile (there are 16)
                 int totalTileNumber = tileY * 16 + tileX;
                 int tileStartOffset = totalTileNumber * 16;
                 char tileAddress = (char) (startAddress + tileStartOffset);
-                int[] pixels = TileUtils.getRowOfTileColors(memory, gpu.getPallete(), tileAddress, tileRow);
+                int[] pixels = TileUtils.getRowOfTileColors(memory, gpu.getBgPalette(), tileAddress, tileRow);
                 for (int pixel : pixels) {
                     panel.pushPixel(pixel);
                 }

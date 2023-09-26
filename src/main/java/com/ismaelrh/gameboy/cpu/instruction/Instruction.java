@@ -130,7 +130,7 @@ public class Instruction {
 
     public String getInstrBytes() {
         String res = "";
-        if (getDescription().isCb()) {
+        if (getDescription() != null && getDescription().isCb()) {
             res += "CB ";
         }
         res += String.format("%02X", getOpcode()) + " ";

@@ -35,8 +35,11 @@ public class BinJgbLogStatusProvider implements LogStatusProvider {
     public LogStatus next() {
         try {
             String line = reader.readLine();
+            if(line==null){
+                return null;
+            }
             return parseLine(line);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
