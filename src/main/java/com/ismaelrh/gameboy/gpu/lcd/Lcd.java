@@ -3,18 +3,16 @@ package com.ismaelrh.gameboy.gpu.lcd;
 
 public abstract class Lcd {
 
-    public final static int COLOR_BLACK = rgbToInt(255, 255, 255, 255);
-    public final static int COLOR_DARK_GRAY = rgbToInt(192, 192, 192, 255);
+    public final static int COLOR_0_WHITE = rgbToInt(255, 255, 255, 255);
+    public final static int COLOR_1_LIGHT_GRAY = rgbToInt(192, 192, 192, 255);
+    public final static int COLOR_2_DARK_GRAY = rgbToInt(96, 96, 96, 255);
+    public final static int COLOR_3_BLACK = rgbToInt(0, 0, 0, 255);
 
-    public final static int COLOR_LIGHT_GRAY = rgbToInt(96, 96, 96, 255);
-
-    public final static int COLOR_WHITE = rgbToInt(0, 0, 0, 255);
-
-    public final static int COLOR_TRANSPARENT = rgbToInt(0, 0, 0, 0);
+    public final static int COLOR_0_TRANSPARENT = rgbToInt(0, 0, 0, 0);
 
 
-    public final static int[] BG_COLORS = new int[]{COLOR_BLACK, COLOR_DARK_GRAY, COLOR_LIGHT_GRAY, COLOR_WHITE};
-    public final static int[] SPRITE_COLORS = new int[]{COLOR_TRANSPARENT,COLOR_DARK_GRAY, COLOR_LIGHT_GRAY, COLOR_WHITE};
+    public final static int[] BG_COLORS = new int[]{COLOR_0_WHITE, COLOR_1_LIGHT_GRAY, COLOR_2_DARK_GRAY, COLOR_3_BLACK};
+    public final static int[] SPRITE_COLORS = new int[]{COLOR_0_TRANSPARENT, COLOR_1_LIGHT_GRAY, COLOR_2_DARK_GRAY, COLOR_3_BLACK};
 
     public abstract void pushPixel(int color); //0,1,2,3
 

@@ -7,9 +7,8 @@ public class SpritesInfo extends MemoryInterceptor {
     private Sprite[] sprites = new Sprite[40];
 
     public SpritesInfo() {
-
         for (int i = 0; i < sprites.length; i++) {
-            sprites[i] = new Sprite();
+            sprites[i] = new Sprite(i);
         }
     }
 
@@ -18,7 +17,7 @@ public class SpritesInfo extends MemoryInterceptor {
         if (address >= 0xFE00 && address <= 0xFE9F) {
             //Must now which sprite number I'm writing to (4 bytes per sprite)
             int spriteNumber = (address - 0xFE00) / 4;
-            int bytePosition = (address - 0xFE00) - spriteNumber*4;
+            int bytePosition = (address - 0xFE00) - spriteNumber * 4;
             char spriteStartAddress = (char) ((0xFE00 + 4 * spriteNumber) & 0xFFFF);
 
             byte[] spriteData = memory.readRange(spriteStartAddress, 4);
@@ -42,16 +41,20 @@ public class SpritesInfo extends MemoryInterceptor {
                 return result;
             }
         }
-
-        return result;
+        Sprite[] notNullResult = new Sprite[added];
+        System.arraycopy(result, 0, notNullResult, 0, added);
+        return notNullResult;
     }
 
     private boolean spriteIsConsideredForLine(int screenLY, int spritePos, int spriteSizeMode) {
+        if(screenLY==40 && spritePos==4){
+            int a = 3;
+        }
         int spriteHeightPixels = spriteSizeMode == 0 ? 8 : 16;
         Sprite sprite = sprites[spritePos];
         return
                 screenLY >= sprite.getPosY() &&
-                screenLY < sprite.getPosY() + spriteHeightPixels;
+                        screenLY < sprite.getPosY() + spriteHeightPixels;
 
     }
 

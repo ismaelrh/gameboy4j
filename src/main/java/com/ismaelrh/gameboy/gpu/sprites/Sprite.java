@@ -6,6 +6,8 @@ public class Sprite {
 
     private int posX = 0;
 
+    private int spriteNumber = 0;
+
     private byte tileNumber = 0;
 
     private byte palette = 0;
@@ -15,6 +17,10 @@ public class Sprite {
     private byte yFlip = 0;
 
     private byte priority = 0;
+
+    public Sprite(int spriteNumber){
+        this.spriteNumber = spriteNumber;
+    }
 
     protected void refresh(byte[] data) { //It receives 4 bytes
         posY = Byte.toUnsignedInt(data[0]);
@@ -71,5 +77,9 @@ public class Sprite {
 
     public byte getPriority() {
         return priority;
+    }
+
+    public int getSpriteNumber() {
+        return spriteNumber;
     }
 }
