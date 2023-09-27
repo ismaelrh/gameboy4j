@@ -1,15 +1,16 @@
 package com.ismaelrh.gameboy.gpu;
 
 import com.ismaelrh.gameboy.cpu.memory.Memory;
+import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 
 public class TileUtils {
 
     /**
      * A row of a tile is 2 bytes, in 2BPP format.
-     * Returns an array of rgb colors to display, already transformed by the pallete.
+     * Returns an array of rgb colors to display, already transformed by the palette.
      */
-    public static int[] getRowOfTileColors(Memory memory, int[] pallete, char tileAddress, int rowNumber) {
-        return applyPalleteToIndexes(getRowOfTileIndexes(memory, tileAddress, rowNumber, false, false), pallete);
+    public static int[] getRowOfTileColors(Memory memory, int[] palette, char tileAddress, int rowNumber) {
+        return applyPaletteToIndexes(getRowOfTileIndexes(memory, tileAddress, rowNumber, false, false), palette);
     }
 
     /**
@@ -45,12 +46,26 @@ public class TileUtils {
     }
 
 
-    public static int[] applyPalleteToIndexes(int[] colorIndexes, int[] pallete) {
+    public static int[] applyPaletteToIndexes(int[] colorIndexes, int[] palette) {
         int[] result = new int[colorIndexes.length];
         for (int i = 0; i < colorIndexes.length; i++) {
-            result[i] = pallete[colorIndexes[i]];
+            result[i] = palette[colorIndexes[i]];
         }
         return result;
+    }
+
+    public static int bgApplyPaletteToIndex(int colorIndex, int[] palette) {
+        if(colorIndex==-1){ //No bg defined, we use black.
+            return Lcd.COLOR_0_WHITE;
+        }
+        return palette[colorIndex];
+    }
+
+    public static int spriteApplyPaletteToIndex(int colorIndex, int[] palette) {
+        if(colorIndex==-1){
+            return Lcd.COLOR_2_DARK_GRAY;
+        }
+        return palette[colorIndex];
     }
 
 

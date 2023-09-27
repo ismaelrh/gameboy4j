@@ -4,6 +4,7 @@ import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 import com.ismaelrh.gameboy.cpu.memory.MMIODevice;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.gpu.sprites.Sprite;
+import com.ismaelrh.gameboy.gpu.sprites.SpriteRenderInfo;
 import com.ismaelrh.gameboy.gpu.sprites.SpritesInfo;
 
 import java.util.Arrays;
@@ -36,11 +37,13 @@ public class Gpu extends MMIODevice {
     private boolean windowEnabled = false;  //0xFF40, bit 5
     private int windowTileMap = 0;
 
-    private final char LCD_WINDOW_Y_ADDRESS = (char) 0xFF4A;
-    private byte windowY = 0x00;    //0xFF4A
-    private final char LCD_WINDOW_X_ADDRESS = (char) 0xFF4B;
-    private byte windowX = 0x00;    //0xFF4B
+    private final char LCD_WY_ADDRESS = (char) 0xFF4A;
+    private byte wY = 0x00;    //0xFF4A
+    private final char LCD_WX_ADDRESS = (char) 0xFF4B;
+    private byte wX = 0x00;    //0xFF4B
 
+    //Internal window line counter
+    private byte windowY = 0x00;
 
     private boolean spritesEnabled = false;
 
@@ -139,11 +142,11 @@ public class Gpu extends MMIODevice {
             case LCD_SCROLL_X_ADDRESS:
                 scrollX = data;
                 break;
-            case LCD_WINDOW_Y_ADDRESS:
-                windowY = data;
+            case LCD_WY_ADDRESS:
+                wY = data;
                 break;
-            case LCD_WINDOW_X_ADDRESS:
-                windowX = data;
+            case LCD_WX_ADDRESS:
+                wX = data;
                 break;
             default:
                 //Any other is not written
@@ -195,10 +198,10 @@ public class Gpu extends MMIODevice {
                 return scrollY;
             case LCD_SCROLL_X_ADDRESS:
                 return scrollX;
-            case LCD_WINDOW_Y_ADDRESS:
-                return windowY;
-            case LCD_WINDOW_X_ADDRESS:
-                return windowX;
+            case LCD_WY_ADDRESS:
+                return wY;
+            case LCD_WX_ADDRESS:
+                return wX;
             default:
                 return (byte) 0xFF;
         }
@@ -267,6 +270,7 @@ public class Gpu extends MMIODevice {
     }
 
     private void vblankMode() {
+
         //Fire Blank interruption, a new frame was drawn
         if (currentClock >= VBLANK_CYCLES) { //One vblank line
             currentClock -= VBLANK_CYCLES;
@@ -302,6 +306,7 @@ public class Gpu extends MMIODevice {
         checkForStatIRQ();
 
         if (mode == VBLANK_MODE) {
+            windowY = 0x00; //Reset every VBLANK
             lcd.flush();
             memory.fireVBlankInterruption();
         }
@@ -403,7 +408,7 @@ public class Gpu extends MMIODevice {
 
     }
 
-    private int[] getBackgroundLine(int drawingLine){
+    private int[] getBackgroundIndexes(int drawingLine) {
         //Need to get the tile row and the pixel row we are going to draw,
         //according to scrollY and drawingLine
         int fullMapY = drawingLine + (scrollY & 0xFF);  //Line of the whole view to paint
@@ -415,44 +420,39 @@ public class Gpu extends MMIODevice {
         }
 
         //Need to read the line (# of tile, row of the tile, x scroll)
-        int[] lineIndexes = readBackgroundLine(verticalTilePos, tileRow, scrollX);
-
-        //Transform indexes to emulator colors
-        return TileUtils.applyPalleteToIndexes(lineIndexes, bgPalette);
-        //TODO: return WHITE if bgDisabled
+        return readBackgroundLine(verticalTilePos, tileRow, scrollX);
     }
 
-    private int[] getWindowLine(int drawingLine){
-        //Need to get the tile row and the pixel row we are going to draw,
-        //according to scrollY and drawingLine
-        int fullMapY = drawingLine + (scrollY & 0xFF);  //Line of the whole view to paint
-        int verticalTilePos = fullMapY / 8; //Tile to draw
-        int tileRow = fullMapY - verticalTilePos * 8;   //#row inside the tile (0..7)
+    private int[] getWindowIndexes(int drawingLine) {
 
-        if (verticalTilePos >= 32) {
-            verticalTilePos -= 32; //Wrap
+        boolean windowReached = drawingLine - wY >= 0;
+        int tileMapRow = windowY; //Row of tilemap to draw. If negative, we do not draw.
+        int verticalTilePos = tileMapRow / 8; //Tile to draw. Never will be >= 32.
+        int tileRow = tileMapRow - verticalTilePos * 8;   //#row inside the tile (0..7)
+
+        //if WY > 144 or WX > 166 or Y < 0, we do not draw
+        if (Byte.compareUnsigned(wY, (byte) 144) > 0 || Byte.compareUnsigned(wX, (byte) 166) > 0 || !windowReached) {
+            //TODO: CONSTANT
+            int[] whiteLine = new int[160];
+            Arrays.fill(whiteLine, -1);
+            return whiteLine;
         }
 
-        //Need to read the line (# of tile, row of the tile, x scroll)
-        int[] lineIndexes = readBackgroundLine(verticalTilePos, tileRow, scrollX);
+        return readWindowLine(verticalTilePos, tileRow, wX);
 
-        //Transform indexes to emulator colors
-        return TileUtils.applyPalleteToIndexes(lineIndexes, bgPalette);
-        //TODO: return WHITE if bgDisabled
     }
 
+    private SpriteRenderInfo[] getSpriteRenderInfo(int line) {
 
-    private void doScanline() {
-
-        int[] backgroundLine = getBackgroundLine(line);
-        int[] windowLine = getWindowLine(line);
-
+        SpriteRenderInfo[] spritesRenderInfo = new SpriteRenderInfo[160];
         int[] spritesIndexes = new int[160];
-        int[] spritesLines = new int[160];
         byte[] bgPriority = new byte[160];
+        byte[] spritePalletIdxs = new byte[160];
+
 
         Sprite[] spritesToDraw = spritesInfo.getSpritesToDrawOnLine(line, spritesSizeMode);
-        //TODO: refactor, but it works. We first print the lowest priority ones so they are then overriden.
+
+        //We first print the lowest priority ones so they are then overriden.
         //so, higher posX has lower priority. higher sprite number has lower priority.
         Arrays.sort(spritesToDraw, (o1, o2) -> {
             if (o1.getPosX() != o2.getPosX()) {
@@ -461,7 +461,6 @@ public class Gpu extends MMIODevice {
             return o2.getSpriteNumber() - o1.getSpriteNumber();
         });
 
-        //Naive implementation: just draw all, no priorities!
         for (Sprite sprite : spritesToDraw) {
 
             int spriteRow = line - sprite.getPosY();
@@ -471,31 +470,43 @@ public class Gpu extends MMIODevice {
                 tileNumber = (byte) (tileNumber & 0xFE);
             }
 
-
             int[] spriteIndexes = readSpriteLine(tileNumber, spriteRow, sprite.hFlip(), sprite.vFlip());
-            int[] spriteLine = TileUtils.applyPalleteToIndexes(spriteIndexes, spritePalletes[sprite.getPalette()]);
 
             int spriteStartX = sprite.getPosX() >= 0 ? 0 : -sprite.getPosX();
             int spriteLength = (sprite.getPosX() + 7) <= 159 ? 8 : 8 - ((sprite.getPosX() + 7) - 159);
             byte[] spritePriority = new byte[spriteLength];
-            Arrays.fill(spritePriority, sprite.getPriority());
+            byte[] spritePalette = new byte[spriteLength];
 
+            Arrays.fill(spritePriority, sprite.getPriority());
+            Arrays.fill(spritePalette, sprite.getPalette());
             int drawStartX = Math.max(sprite.getPosX(), 0);
             if (spriteStartX + spriteLength > 0) {
                 System.arraycopy(spriteIndexes, spriteStartX, spritesIndexes, drawStartX, spriteLength);
-                System.arraycopy(spriteLine, spriteStartX, spritesLines, drawStartX, spriteLength);
+                System.arraycopy(spritePalette, spriteStartX, spritePalletIdxs, drawStartX, spriteLength);
                 System.arraycopy(spritePriority, spriteStartX, bgPriority, drawStartX, spriteLength);
             }
         }
 
+        for (int i = 0; i < spritesRenderInfo.length; i++) {
+            spritesRenderInfo[i] = new SpriteRenderInfo(spritesIndexes[i], bgPriority[i], spritePalletIdxs[i]);
+        }
 
-        int[] lineToDraw = mergeLines(backgroundLine, spritesLines, bgPriority);
+        return spritesRenderInfo;
+    }
+
+
+    private void doScanline() {
+
+        int[] backgroundIndexes = getBackgroundIndexes(line);
+        int[] windowIndexes = getWindowIndexes(line);
+        SpriteRenderInfo[] spritesRenderInfo = getSpriteRenderInfo(line);
+
+        int[] lineToDraw = mergeLines(backgroundIndexes, windowIndexes, spritesRenderInfo);
 
         //Push data to screen!
         for (int lineColor : lineToDraw) {
             lcd.pushPixel(lineColor);
         }
-
     }
 
 
@@ -505,51 +516,40 @@ public class Gpu extends MMIODevice {
      * 2) If the BG-to-OBJ-Priority bit is 1 and the color number of the Background Pixel is anything other than 0, the Background Pixel is pushed to the LCD.
      * 3) If none of the above conditions apply, the Sprite Pixel is pushed to the LCD.
      */
-    private int[] mergeLines(int[] background, int[] objects, byte[] bgPriority) {
+    private int[] mergeLines(int[] bgIndexes, int[] windowIndexes, SpriteRenderInfo[] spriteInfo) {
 
-        int[] mergedLine = new int[background.length];
+        int[] mergedLine = new int[bgIndexes.length];
 
         for (int x = 0; x < mergedLine.length; x++) {
 
-            if (bgWindowEnabled) {
-                mergedLine[x] = background[x];
-            }
+            int bgIndex = windowIndexes[x] == -1 ? bgIndexes[x] : windowIndexes[x];
+            int bgColor = TileUtils.bgApplyPaletteToIndex(bgIndex, bgPalette);
+            mergedLine[x] = bgColor;
 
             if (spritesEnabled) {
 
-                if (objects[x] == Lcd.COLOR_0_TRANSPARENT) {    //If transparent, continue
+                int spriteIdx = spriteInfo[x].getIndex();
+                int[] spritePalette = spritePalletes[spriteInfo[x].getPaletteIdx()];
+                int spriteColor = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
+                byte spriteBgPriority = spriteInfo[x].getBgPriority();
+
+                if (spriteColor == 0) {    //If index 0, continue
                     continue;
                 }
 
                 //Priority 0 = Sprite on top of BG
-                //Priority 1 = Only visible if background is color 0
-                if (bgPriority[x] == 0 || background[x] == Lcd.COLOR_0_WHITE) {
-                    mergedLine[x] = objects[x];
+                //Priority 1 = Only visible if background is color 0, or background is disabled
+                if (spriteBgPriority == 0 || !bgWindowEnabled || bgColor == Lcd.COLOR_0_WHITE) {
+                    mergedLine[x] = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
                 }
 
-            }
-
-            if (!bgWindowEnabled && !spritesEnabled) {
-                mergedLine[x] = Lcd.COLOR_0_WHITE;
             }
 
         }
 
         return mergedLine;
-        //TODO: implement with correct priorities
-        /*int[] mergedLine = new int[background.length];
-        for(int x = 0; x < mergedLine.length; x++){
-            if(objects[x]==-1){ //TODO: what?
-                mergedLine[x] = background[x];
-            }
-            else{
-                mergedLine[x] = objects[x];
-            }
-             return mergedLine;
-        */
-
-
     }
+
 
     private int[] readSpriteLine(byte tileNumber, int spriteRow, boolean hFlip, boolean vFlip) {
         //Need to read 8 pixels
@@ -558,12 +558,47 @@ public class Gpu extends MMIODevice {
         return TileUtils.getRowOfTileIndexes(memory, tileAddress, spriteRow, hFlip, vFlip, spritesHeight);
     }
 
+    private int[] readWindowLine(int verticalTilePos, int tileRow, int windowX) {
+
+        int windowRealX = windowX - 7;
+
+        int[] line = new int[160];
+        Arrays.fill(line, -1);
+
+        if (!bgWindowEnabled || !windowEnabled) {
+            return line;    //All empty
+        }
+
+
+        int currentScreenPixel = Math.max(windowRealX, 0); //if < 0, we start drawing at 0 in screen.
+        int currentTileLinePixel = 0;
+
+        //In this scanline, there is window to draw, so we increase.
+        if (currentScreenPixel < 160) {
+            windowY += 1;
+        }
+
+        while (currentScreenPixel < 160) {
+            int remainingPixels = 160 - currentScreenPixel;
+            int dataLength = Math.min(remainingPixels, 8);
+            int horizontalTilePos = currentTileLinePixel / 8;
+            char tileAddress = getTileAddress(verticalTilePos, horizontalTilePos, true);
+            int[] data = TileUtils.getRowOfTileIndexes(memory, tileAddress, tileRow, false, false);
+            System.arraycopy(data, 0, line, currentScreenPixel, dataLength);
+            currentScreenPixel += dataLength;
+            currentTileLinePixel += dataLength;
+        }
+
+        return line;
+    }
+
     private int[] readBackgroundLine(int verticalTilePos, int tileRow, int scrollX) {
 
         //Need to read 160 pixels (5 tiles, but can be in the middle)
         int[] line = new int[160];
 
         if (!bgWindowEnabled) {
+            Arrays.fill(line, -1);
             return line;
         }
 
@@ -574,7 +609,7 @@ public class Gpu extends MMIODevice {
 
         while (readPixels < 160) {
 
-            char tileAddress = getTileAddress(verticalTilePos, horizontalTilePos);
+            char tileAddress = getTileAddress(verticalTilePos, horizontalTilePos, false);
             int[] data = TileUtils.getRowOfTileIndexes(memory, tileAddress, tileRow, false, false);
 
             int startIdx = 0;
@@ -598,10 +633,10 @@ public class Gpu extends MMIODevice {
         return line;
     }
 
-    private char getTileAddress(int verticalTilePos, int horizontalTilePos) {
+    private char getTileAddress(int verticalTilePos, int horizontalTilePos, boolean isWindow) {
 
         //Normalized, from 0 to 255
-        int tileIndex = getRelativeTileIndex(verticalTilePos, horizontalTilePos);
+        int tileIndex = getRelativeTileIndex(verticalTilePos, horizontalTilePos, isWindow);
 
         //Each tile is 16bytes long, so retrieve the corresponding tile
         return (char) (TILE_ADDRESSING_MODES_START[tileAddressingMode] + tileIndex * 16);
@@ -609,9 +644,11 @@ public class Gpu extends MMIODevice {
     //ERROR ON //tileSet = 0, tileMap = 1
 
     //Normalized, from 0 to 255
-    private int getRelativeTileIndex(int verticalTilePos, int horizontalTilePos) {
+    private int getRelativeTileIndex(int verticalTilePos, int horizontalTilePos, boolean isWindow) {
 
-        char bgMapAddress = TILEMAP_START_ADDRESSES[bgTileMap];
+        int tileMap = isWindow ? windowTileMap : bgTileMap;
+
+        char bgMapAddress = TILEMAP_START_ADDRESSES[tileMap];
 
         //The position of tile index to read inside the bgMap
         int tileIndexAddress = 32 * verticalTilePos + horizontalTilePos;
@@ -621,9 +658,6 @@ public class Gpu extends MMIODevice {
         if (tileAddressingMode == 1) {  //Unsigned method
             return relativeIndex & 0xFF;    //Remove all signed.
         } else {
-            if (relativeIndex == 37) {
-                int a = 3;
-            }
             return (relativeIndex + 128) & 0xFF;
         }
     }

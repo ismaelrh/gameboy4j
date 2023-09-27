@@ -53,7 +53,7 @@ public class GameBoyDebugger {
         memory.addMMIODevice(gpu);
 
         //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
-        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/dmg-acid2.gb");
+        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/dr_mario.gb");
         memory.insertCartridge(cartridge);
         //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
