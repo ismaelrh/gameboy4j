@@ -13,10 +13,14 @@ import com.ismaelrh.gameboy.debug.logCheck.binjgb.BinJgbLogStatusProvider;
 import com.ismaelrh.gameboy.debug.tileset.TileSetDisplay;
 import com.ismaelrh.gameboy.gpu.Gpu;
 import com.ismaelrh.gameboy.gpu.lcd.swing.SwingLcd;
+import com.ismaelrh.gameboy.input.InputDevice;
+import com.ismaelrh.gameboy.input.InputState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -27,8 +31,8 @@ public class GameBoyDebugger {
     public static void main(String[] args) throws Exception {
 
         Memory memory = new Memory();
-        memory.write((char)0xFF40,(byte)0x91);
-        byte a = memory.read((char)0xFF40);
+        memory.write((char) 0xFF40, (byte) 0x91);
+        byte a = memory.read((char) 0xFF40);
         Registers registers = new Registers();
         registers.initForRealGB();
         Timer timer = new Timer(memory);
@@ -47,18 +51,22 @@ public class GameBoyDebugger {
         //Log status provider
         //controlUnit.setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/log.txt"));
 
+        InputState inputState = new InputState();
+        InputDevice inputDevice = new InputDevice(inputState,memory);
+
         //Register blargg interceptor to get output and put it on console
         memory.addInterceptor(new BlarggTestInterceptor());
         memory.addMMIODevice(timer);
         memory.addMMIODevice(gpu);
+        memory.addMMIODevice(inputDevice);
 
         //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
-        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/mbc1/space_invaders.gb");
+        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/tetris.gb");
         memory.insertCartridge(cartridge);
         //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
 
-        startGUI(cartridge,lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
+        startGUI(cartridge, inputState, lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
 
         double remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
         long nanosStartFrame = System.nanoTime();
@@ -101,17 +109,33 @@ public class GameBoyDebugger {
         registers.setPC((char) 0x0000);
     }
 
-    private static JFrame startGUI(Cartridge cartridge,JPanel display, JPanel tileset0, JPanel tileset1) {
+    private static JFrame startGUI(Cartridge cartridge, InputState inputState, JPanel display, JPanel tileset0, JPanel tileset1) {
         JFrame window = new JFrame("gameboy4j v0.1");
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
+
+        window.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                setKey(inputState, e.getKeyCode(), true);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                setKey(inputState, e.getKeyCode(), false);
+            }
+        });
 
         JLabel coordinates = new JLabel("Coords");
 
         display.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-               coordinates.setText("coords=[" + e.getX()/2 + "," +e.getY()/2 +"], tile=[" + 1 + "]");
+                coordinates.setText("coords=[" + e.getX() / 2 + "," + e.getY() / 2 + "], tile=[" + 1 + "]");
             }
         });
         JPanel mainPanel = new JPanel();
@@ -147,10 +171,42 @@ public class GameBoyDebugger {
         return window;
     }
 
-    private static String generateTitle(Cartridge cartridge){
+    private static void setKey(InputState inputState, int keyCode, boolean state) {
+        switch (keyCode) {
+            case 87:
+                inputState.setUp(state);
+                break;
+            case 65:
+                inputState.setLeft(state);
+                break;
+            case 83:
+                inputState.setDown(state);
+                break;
+            case 68:
+                inputState.setRight(state);
+                break;
+            case 74:
+                inputState.setB(state);
+                break;
+            case 75:
+                inputState.setA(state);
+                break;
+            case 8:
+                inputState.setSelect(state);
+                break;
+            case 10:
+                inputState.setStart(state);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static String generateTitle(Cartridge cartridge) {
         return cartridge.getTitle() + " - " + cartridge.getCartridgeType();
     }
-    private static String generateDetails(Cartridge cartridge){
-        return "ROM: " + cartridge.getRomSizeBytes()/1024 + "KB, RAM: " + cartridge.getRamSizeBytes()/1024 + "KB";
+
+    private static String generateDetails(Cartridge cartridge) {
+        return "ROM: " + cartridge.getRomSizeBytes() / 1024 + "KB, RAM: " + cartridge.getRamSizeBytes() / 1024 + "KB";
     }
 }
