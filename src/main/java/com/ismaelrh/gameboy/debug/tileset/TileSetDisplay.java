@@ -3,8 +3,8 @@ package com.ismaelrh.gameboy.debug.tileset;
 
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.gpu.Gpu;
-import com.ismaelrh.gameboy.gpu.tiles.TileUtils;
 import com.ismaelrh.gameboy.gpu.lcd.swing.DisplayPanel;
+import com.ismaelrh.gameboy.gpu.tiles.TileUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,7 +18,7 @@ public class TileSetDisplay {
     private final Memory memory;
     private final Gpu gpu;
 
-    int[] currentScreen = new int[128*128];
+    int[] currentScreen = new int[128 * 128];
 
     public TileSetDisplay(Memory memory, Gpu gpu, char startAddress) {
         this.panel = new DisplayPanel(LCD_WIDTH, LCD_HEIGHT, 1);

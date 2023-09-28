@@ -52,20 +52,18 @@ public class SpriteRenderer {
             int[] spriteIndexes = readSpriteLine(tileNumber, spriteRow, sprite.hFlip(), sprite.vFlip());
 
             int spriteStartX = sprite.getPosX() >= 0 ? 0 : -sprite.getPosX();
-            int spriteLength = getSpriteLength(sprite);
-            if (spriteLength <= 0) {
-                continue;
-            }
-            byte[] spritePriority = new byte[8];
-            byte[] spritePalette = new byte[8];
+            int spriteLength = (sprite.getPosX() + 7) <= 159 ? 8 : 8 - ((sprite.getPosX() + 7) - 159);
+            byte[] spritePriority = new byte[spriteLength];
+            byte[] spritePalette = new byte[spriteLength];
 
             Arrays.fill(spritePriority, sprite.getPriority());
             Arrays.fill(spritePalette, sprite.getPalette());
             int drawStartX = Math.max(sprite.getPosX(), 0);
-
-            System.arraycopy(spriteIndexes, spriteStartX, spritesIndexes, drawStartX, spriteLength);
-            System.arraycopy(spritePalette, spriteStartX, spritePalletIdxs, drawStartX, spriteLength);
-            System.arraycopy(spritePriority, spriteStartX, bgPriority, drawStartX, spriteLength);
+            if (spriteStartX + spriteLength > 0) {
+                System.arraycopy(spriteIndexes, spriteStartX, spritesIndexes, drawStartX, spriteLength);
+                System.arraycopy(spritePalette, spriteStartX, spritePalletIdxs, drawStartX, spriteLength);
+                System.arraycopy(spritePriority, spriteStartX, bgPriority, drawStartX, spriteLength);
+            }
         }
 
         for (int i = 0; i < spritesRenderInfo.length; i++) {
@@ -75,15 +73,6 @@ public class SpriteRenderer {
         return spritesRenderInfo;
     }
 
-    private int getSpriteLength(Sprite sprite) {
-        if (sprite.getPosX() + 7 > 159) { //Out of screen in the right
-            return 8 - ((sprite.getPosX() + 7) - 159);
-        } else if (sprite.getPosX() < 0) {
-            return Math.max(0, 8 + sprite.getPosX());
-        } else {
-            return 8;
-        }
-    }
 
     private int[] readSpriteLine(byte tileNumber, int spriteRow, boolean hFlip, boolean vFlip) {
         //Need to read 8 pixels

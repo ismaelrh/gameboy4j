@@ -301,6 +301,7 @@ public class Memory {
         this.interruptFlags |= JOYPAD_MASK;
     }
 
+
     public void insertCartridge(Cartridge cartridge) {
         this.cartridge = cartridge;
     }

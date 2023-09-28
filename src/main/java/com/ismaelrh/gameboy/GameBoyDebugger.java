@@ -61,9 +61,9 @@ public class GameBoyDebugger {
         memory.addMMIODevice(inputDevice);
 
         //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
-        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/tetris.gb");
+        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/mbc1/zelda.gb");
         memory.insertCartridge(cartridge);
-        //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
+        setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
 
         startGUI(cartridge, inputState, lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
