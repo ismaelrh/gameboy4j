@@ -250,7 +250,7 @@ public class Gpu extends MMIODevice {
                 //Priority 0 = Sprite on top of BG
                 //Priority 1 = Only visible if background is color 0, or background is disabled
                 if (spriteBgPriority == 0 || !gpuRegisters.bgWindowEnabled || bgColor == Lcd.COLOR_0_WHITE) {
-                    mergedLine[x] = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
+                    mergedLine[x] = spriteColor;
                 }
             }
         }
