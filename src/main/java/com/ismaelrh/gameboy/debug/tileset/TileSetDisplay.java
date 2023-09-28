@@ -3,7 +3,7 @@ package com.ismaelrh.gameboy.debug.tileset;
 
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.gpu.Gpu;
-import com.ismaelrh.gameboy.gpu.TileUtils;
+import com.ismaelrh.gameboy.gpu.tiles.TileUtils;
 import com.ismaelrh.gameboy.gpu.lcd.swing.DisplayPanel;
 
 import javax.swing.*;

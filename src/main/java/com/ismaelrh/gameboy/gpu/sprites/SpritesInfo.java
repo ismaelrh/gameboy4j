@@ -2,6 +2,9 @@ package com.ismaelrh.gameboy.gpu.sprites;
 
 import com.ismaelrh.gameboy.cpu.memory.MemoryInterceptor;
 
+import static com.ismaelrh.gameboy.gpu.Gpu.OAM_END_ADDRESS;
+import static com.ismaelrh.gameboy.gpu.Gpu.OAM_START_ADDRESS;
+
 public class SpritesInfo extends MemoryInterceptor {
 
     private Sprite[] sprites = new Sprite[40];
@@ -14,11 +17,11 @@ public class SpritesInfo extends MemoryInterceptor {
 
     @Override
     public byte onWrite(char address, byte data) {
-        if (address >= 0xFE00 && address <= 0xFE9F) {
+        if (address >= OAM_START_ADDRESS && address <= OAM_END_ADDRESS) {
             //Must now which sprite number I'm writing to (4 bytes per sprite)
-            int spriteNumber = (address - 0xFE00) / 4;
-            int bytePosition = (address - 0xFE00) - spriteNumber * 4;
-            char spriteStartAddress = (char) ((0xFE00 + 4 * spriteNumber) & 0xFFFF);
+            int spriteNumber = (address - OAM_START_ADDRESS) / 4;
+            int bytePosition = (address - OAM_START_ADDRESS) - spriteNumber * 4;
+            char spriteStartAddress = (char) ((OAM_START_ADDRESS + 4 * spriteNumber) & 0xFFFF);
 
             byte[] spriteData = memory.readRange(spriteStartAddress, 4);
             spriteData[bytePosition] = data;

@@ -10,6 +10,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.ismaelrh.gameboy.gpu.Gpu.OAM_START_ADDRESS;
+
 public class Memory {
 
     //For interruptions
@@ -103,6 +105,8 @@ public class Memory {
     private final static char INTERRUPT_FLAGS_ADDRESS = 0xFF0f;
     public byte interruptFlags;
 
+    private final static char DMA_ADDRESS = 0xFF46;
+
 
     public Memory() {
         clear();
@@ -168,7 +172,7 @@ public class Memory {
             if (log.isWarnEnabled()) {
                 log.warn("Read unusable RAM @" + String.format("%04x", (int) address));
             }
-            result = (byte) 0xFF; //reads return $FF (which is the "default value" in the main Game Boy data bus).
+            //reads return $FF (which is the "default value" in the main Game Boy data bus).
         } else if (address >= SPRITE_RAM_START) {
             if (canUseOAM() || privileged) {
                 result = spriteRAM[address - SPRITE_RAM_START];
@@ -205,11 +209,14 @@ public class Memory {
         return result;
     }
 
-    public void write(char address, byte data) {
-
-        if(address == (char) 0xFF44){
-            int a = 3;
+    public byte[] writeRange(char address, byte[] data, int size) {
+        for (int i = 0; i < size; i++) {
+            write((char) ((address + i) & 0xFFFF), data[i]);
         }
+        return data;
+    }
+
+    public void write(char address, byte data) {
 
         //Apply write interceptors
         for (MemoryInterceptor i : interceptors) {
@@ -226,6 +233,10 @@ public class Memory {
         } else if (address >= HIGH_RAM_START) {
             highRAM[address - HIGH_RAM_START] = data;
         } else if (address >= IO_RAM_START) {
+            if (address == DMA_ADDRESS) {
+                doDma(data);
+                return;
+            }
             boolean mmioFound = false;
             for (MMIODevice device : mmioDevices) {
                 if (address >= device.startAddress && address <= device.endAddress) {
@@ -267,6 +278,13 @@ public class Memory {
         }
     }
 
+    //Copies 160 bytes from the specified address to OAM.
+    private void doDma(byte startAddressUpperBytes) {
+        char completeSrcAddress = (char) ((startAddressUpperBytes << 8) & 0xFFFF);
+        byte[] dataToMove = readRange(completeSrcAddress, 160);
+        writeRange(OAM_START_ADDRESS,dataToMove,160);
+    }
+
     public void fireTimerInterruption() {
         this.interruptFlags |= TIMER_MASK;
     }
@@ -287,7 +305,6 @@ public class Memory {
     public void removeCartridge() {
         this.cartridge = null;
     }
-
 
     protected byte[] getVideoRAM() {
         return videoRAM;

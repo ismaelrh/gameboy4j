@@ -53,7 +53,7 @@ public class GameBoyDebugger {
         memory.addMMIODevice(gpu);
 
         //Cartridge cartridge = new BasicCartridge("Blargg CPU test 6", "/Users/ismaelrh/gb/dr_mario.gb");
-        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/dr_mario.gb");
+        Cartridge cartridge = CartridgeFactory.create("/Users/ismaelrh/gb/mbc1/space_invaders.gb");
         memory.insertCartridge(cartridge);
         //setBootrom(memory, registers, "/Users/ismaelrh/gb/dmg_boot.bin");
 
@@ -68,7 +68,6 @@ public class GameBoyDebugger {
         long totalC = 0;
         long startTime = System.currentTimeMillis();
         while (true) {
-
             int cycles = controlUnit.runInstruction();
             controlUnit.checkInterruptions();
             timer.tick(cycles);
@@ -94,14 +93,7 @@ public class GameBoyDebugger {
             }
 
             totalC += cycles;
-            /*if (totalC % 1000000 == 0) {
-                double totalTime = (System.currentTimeMillis() - startTime) / 1000.0;
-                System.out.println("Pace: " + totalC / (totalTime * Const.CYCLES_PER_FRAME) + " frames/s");
-            }*/
-
-
         }
-        //blargg.flush();
     }
 
     private static void setBootrom(Memory memory, Registers registers, String filePath) throws Exception {

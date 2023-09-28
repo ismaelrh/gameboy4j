@@ -1,7 +1,11 @@
-package com.ismaelrh.gameboy.gpu;
+package com.ismaelrh.gameboy.gpu.tiles;
 
 import com.ismaelrh.gameboy.cpu.memory.Memory;
+import com.ismaelrh.gameboy.gpu.GpuRegisters;
 import com.ismaelrh.gameboy.gpu.lcd.Lcd;
+
+import static com.ismaelrh.gameboy.gpu.Gpu.TILEMAP_START_ADDRESSES;
+import static com.ismaelrh.gameboy.gpu.Gpu.TILE_ADDRESSING_MODES_START_ADDRESSES;
 
 public class TileUtils {
 
@@ -46,6 +50,35 @@ public class TileUtils {
     }
 
 
+    public static char getTileAddress(Memory memory, GpuRegisters gpuRegisters, int verticalTilePos, int horizontalTilePos, boolean isWindow) {
+
+        //Normalized, from 0 to 255
+        int tileIndex = getRelativeTileIndex(memory,gpuRegisters,verticalTilePos, horizontalTilePos, isWindow);
+
+        //Each tile is 16bytes long, so retrieve the corresponding tile
+        return (char) (TILE_ADDRESSING_MODES_START_ADDRESSES[gpuRegisters.tileAddressingMode] + tileIndex * 16);
+    }
+
+
+    //Normalized, from 0 to 255
+    private static int getRelativeTileIndex(Memory memory, GpuRegisters gpuRegisters,int verticalTilePos, int horizontalTilePos, boolean isWindow) {
+
+        int tileMap = isWindow ? gpuRegisters.windowTileMap : gpuRegisters.bgTileMap;
+
+        char bgMapAddress = TILEMAP_START_ADDRESSES[tileMap];
+
+        //The position of tile index to read inside the bgMap
+        int tileIndexAddress = 32 * verticalTilePos + horizontalTilePos;
+
+        byte relativeIndex = memory.read((char) (bgMapAddress + tileIndexAddress));
+
+        if (gpuRegisters.tileAddressingMode == 1) {  //Unsigned method
+            return relativeIndex & 0xFF;    //Remove all signed.
+        } else {
+            return (relativeIndex + 128) & 0xFF;
+        }
+    }
+
     public static int[] applyPaletteToIndexes(int[] colorIndexes, int[] palette) {
         int[] result = new int[colorIndexes.length];
         for (int i = 0; i < colorIndexes.length; i++) {
@@ -67,6 +100,5 @@ public class TileUtils {
         }
         return palette[colorIndex];
     }
-
 
 }
