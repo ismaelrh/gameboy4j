@@ -58,7 +58,6 @@ class MBC1Cartridge extends Cartridge {
     }
 
 
-
     protected void setRam(byte[] ram) throws Exception {
         if (ram.length > EXTERNAL_RAM_SIZE_BYTES) {
             throw new Exception("Given RAM cannot be more than " + EXTERNAL_RAM_SIZE_BYTES + " bytes");
@@ -117,7 +116,7 @@ class MBC1Cartridge extends Cartridge {
         else if (inRange(address, 0x0000, 0x1FFF)) {
             boolean oldValue = ramEnabled;
             ramEnabled = (data & 0x0F) == 0x0A;
-            if(oldValue && !ramEnabled){    //Disabled RAM
+            if (oldValue && !ramEnabled) {    //Disabled RAM
                 writeSaveFile();
             }
         }
@@ -219,19 +218,18 @@ class MBC1Cartridge extends Cartridge {
     private void readSaveFile() throws Exception {
         if (savePath != null && Files.exists(Path.of(savePath))) {
             byte[] saveFile = Cartridge.readFile(savePath);
-            for(int i = 0; i < EXTERNAL_RAM_SIZE_BYTES; i++) {
+            for (int i = 0; i < Math.min(saveFile.length, externalRam.length); i++) {
                 externalRam[i] = saveFile[i];
             }
         }
     }
 
     private void writeSaveFile() {
-        try{
-            if(savePath != null){
+        try {
+            if (savePath != null) {
                 Files.write(Path.of(savePath), externalRam);
             }
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Error writing savefile to " + savePath, ex);
         }
     }

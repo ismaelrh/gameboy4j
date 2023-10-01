@@ -55,12 +55,12 @@ class MBC3Cartridge extends Cartridge {
         //A000-BFFF: RAM Bank 00-03, if any (Switchable 8KBytes of RAM)
         if (inRange(address, 0xA000, 0xBFFF)) {
 
-                if(ramRtcRegisterSelect >= 0x00 && ramRtcRegisterSelect <= 0x03){
-                    int relativeAddress = (address - 0xA000) & 0xFFFF;
-                    int bankStartAddress = RAM_BANK_SIZE_BYTES * getRamBank();
-                    return externalRam[bankStartAddress + relativeAddress];
-                }
-                //TODO read rtc
+            if (ramRtcRegisterSelect >= 0x00 && ramRtcRegisterSelect <= 0x03) {
+                int relativeAddress = (address - 0xA000) & 0xFFFF;
+                int bankStartAddress = RAM_BANK_SIZE_BYTES * getRamBank();
+                return externalRam[bankStartAddress + relativeAddress];
+            }
+            //TODO read rtc
 
             return (byte) 0xFF; //Cannot read, returns open bus value (mostly 0xFF, not guaranteed)
         }
@@ -83,8 +83,7 @@ class MBC3Cartridge extends Cartridge {
                 int relativeAddress = (address - 0xA000) & 0xFFFF;
                 int bankStartAddress = RAM_BANK_SIZE_BYTES * getRamBank();
                 externalRam[bankStartAddress + relativeAddress] = data;
-            }
-            else{
+            } else {
                 //TODO: write into RTC register
             }
         } //Ram and Timer Enable
@@ -96,13 +95,13 @@ class MBC3Cartridge extends Cartridge {
                 ramWriteEnabled = false;
             }
 
-            if(oldValue && !ramWriteEnabled){
+            if (oldValue && !ramWriteEnabled) {
                 writeSaveFile();
             }
         }
         //ROM Bank Number
         else if (inRange(address, 0x2000, 0x3FFF)) {
-            romBank = (byte)(data & 0x7F);
+            romBank = (byte) (data & 0x7F);
         }
         //RAM Bank Number or RTC Register Select
         else if (inRange(address, 0x4000, 0x5FFF)) {
@@ -157,19 +156,18 @@ class MBC3Cartridge extends Cartridge {
     private void readSaveFile() throws Exception {
         if (savePath != null && Files.exists(Path.of(savePath))) {
             byte[] saveFile = Cartridge.readFile(savePath);
-            for(int i = 0; i < EXTERNAL_RAM_SIZE_BYTES; i++) {
+            for (int i = 0; i < Math.min(saveFile.length, externalRam.length); i++) {
                 externalRam[i] = saveFile[i];
             }
         }
     }
 
     private void writeSaveFile() {
-        try{
-            if(savePath != null){
+        try {
+            if (savePath != null) {
                 Files.write(Path.of(savePath), externalRam);
             }
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             log.error("Error writing savefile to " + savePath, ex);
         }
     }
