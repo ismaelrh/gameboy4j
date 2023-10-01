@@ -40,6 +40,7 @@ public class SpriteRenderer {
             return o2.getSpriteNumber() - o1.getSpriteNumber();
         });
 
+
         for (Sprite sprite : spritesToDraw) {
 
             int spriteRow = line - sprite.getPosY();
@@ -52,18 +53,21 @@ public class SpriteRenderer {
             int[] spriteIndexes = readSpriteLine(tileNumber, spriteRow, sprite.hFlip(), sprite.vFlip());
 
             int spriteStartX = sprite.getPosX() >= 0 ? 0 : -sprite.getPosX();
-            int spriteLength = (sprite.getPosX() + 7) <= 159 ? 8 : 8 - ((sprite.getPosX() + 7) - 159);
-            byte[] spritePriority = new byte[spriteLength];
-            byte[] spritePalette = new byte[spriteLength];
+            int spriteLength = getSpriteLength(sprite);
+            if (spriteLength <= 0) {
+                continue;
+            }
+            byte[] spritePriority = new byte[8];
+            byte[] spritePalette = new byte[8];
 
             Arrays.fill(spritePriority, sprite.getPriority());
             Arrays.fill(spritePalette, sprite.getPalette());
             int drawStartX = Math.max(sprite.getPosX(), 0);
-            if (spriteStartX + spriteLength > 0) {
-                System.arraycopy(spriteIndexes, spriteStartX, spritesIndexes, drawStartX, spriteLength);
-                System.arraycopy(spritePalette, spriteStartX, spritePalletIdxs, drawStartX, spriteLength);
-                System.arraycopy(spritePriority, spriteStartX, bgPriority, drawStartX, spriteLength);
-            }
+
+            copyRespectingTransparency(
+                    spriteIndexes, spritePalette, spritePriority,
+                    spritesIndexes, spritePalletIdxs, bgPriority,
+                    spriteStartX, drawStartX, spriteLength);
         }
 
         for (int i = 0; i < spritesRenderInfo.length; i++) {
@@ -73,6 +77,33 @@ public class SpriteRenderer {
         return spritesRenderInfo;
     }
 
+    private void copyRespectingTransparency(int[] srcIndexes, byte[] srcPalette, byte[] srcPriority,
+                                            int[] dstIndexes, byte[] dstPalette, byte[] dstPriority,
+                                            int srcPos, int dstPos, int length) {
+        int position = 0;
+        while (position < length) {
+            int newIndex = srcIndexes[srcPos + position];
+
+            if (newIndex != 0) {   //Copy new data
+                dstIndexes[dstPos + position] = srcIndexes[srcPos + position];
+                dstPalette[dstPos + position] = srcPalette[srcPos + position];
+                dstPriority[dstPos + position] = srcPriority[srcPos + position];
+            }
+
+            position++;
+        }
+
+    }
+
+    private int getSpriteLength(Sprite sprite) {
+        if (sprite.getPosX() + 7 > 159) { //Out of screen in the right
+            return 8 - ((sprite.getPosX() + 7) - 159);
+        } else if (sprite.getPosX() < 0) {
+            return Math.max(0, 8 + sprite.getPosX());
+        } else {
+            return 8;
+        }
+    }
 
     private int[] readSpriteLine(byte tileNumber, int spriteRow, boolean hFlip, boolean vFlip) {
         //Need to read 8 pixels

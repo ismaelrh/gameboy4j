@@ -96,7 +96,7 @@ public class TileUtils {
 
     public static int spriteApplyPaletteToIndex(int colorIndex, int[] palette) {
         if(colorIndex==-1){
-            return Lcd.COLOR_2_DARK_GRAY;
+            return Lcd.COLOR_0_TRANSPARENT;
         }
         return palette[colorIndex];
     }

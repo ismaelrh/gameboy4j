@@ -29,7 +29,7 @@ public class Debugger {
     private final Set<String> instructionBreakpoints = new HashSet<>();
 
 
-    private boolean breakpointsEnabled = false;
+    private boolean breakpointsEnabled = true;
     private Boolean isPaused = false;
     private boolean stepMode = false; //Whether step by step mode is activated
 

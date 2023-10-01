@@ -1,6 +1,6 @@
 package com.ismaelrh.gameboy.cpu.cartridge;
 
-class BasicCartridge extends Cartridge {
+public class BasicCartridge extends Cartridge {
 
 
     //Cartridge: 0x0000 to 0x7FFF (32KB)

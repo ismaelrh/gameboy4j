@@ -36,7 +36,7 @@ public class GpuRegisters {
 
 
     // LCD
-    public byte lcd_control = (byte) 0x91;
+    public byte lcd_control = (byte) 0x000;
     public byte lcd_stat = (byte) 0x87; //8th bit is always set at start
     public byte scrollY = (byte) 0x00;
     public byte scrollX = (byte) 0x00;

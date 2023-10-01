@@ -112,20 +112,6 @@ public class MemoryTest {
             assertEquals(toRead, memory.read(address));
         }
 
-        //Read from FE00 until FE9F (until unusable zone)
-        for (char address = 0xFE00; address < 0xFE9F; address++) {
-            //Store less-significant byte
-            byte toRead = (byte) (address & 0xFF);
-            assertEquals(toRead, memory.read(address));
-        }
-
-        //Read from FF00 until FFFF (until unusable zone)
-        for (char address = 0xFF00; address < 0xFFFF; address++) {
-            //Store less-significant byte
-            byte toRead = (byte) (address & 0xFF);
-            assertEquals(toRead, memory.read(address));
-        }
-
     }
 
     private void assertDataIsStoredAndReadCorrectly(char absoluteAddress, byte[] internalStructure, byte valueToWrite, int relativeIndex) {

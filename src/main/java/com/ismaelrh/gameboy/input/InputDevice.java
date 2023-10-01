@@ -12,9 +12,9 @@ public class InputDevice extends MMIODevice {
     private final InputState inputState;
     private final Memory memory;
 
-    public InputDevice(InputState inputState, Memory memory) {
+    public InputDevice(Memory memory) {
         super((char) 0xFF00, (char) 0xFF00);
-        this.inputState = inputState;
+        this.inputState = new InputState();
         this.memory = memory;
         this.inputState.registerCallback(memory::fireJoypadInterruption);
     }
@@ -43,5 +43,9 @@ public class InputDevice extends MMIODevice {
         if (bit1) result = (byte) (result | 0x02);
         if (bit0) result = (byte) (result | 0x01);
         return (byte) (result & 0xFF);
+    }
+
+    public InputState getInputState() {
+        return inputState;
     }
 }

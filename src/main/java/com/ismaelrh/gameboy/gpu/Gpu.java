@@ -243,14 +243,14 @@ public class Gpu extends MMIODevice {
                 int spriteColor = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
                 byte spriteBgPriority = spriteInfo[x].getBgPriority();
 
-                if (spriteColor == 0) {    //If index 0, continue
+                if (spriteIdx == 0) {    //If index 0, continue
                     continue;
                 }
 
                 //Priority 0 = Sprite on top of BG
                 //Priority 1 = Only visible if background is color 0, or background is disabled
                 if (spriteBgPriority == 0 || !gpuRegisters.bgWindowEnabled || bgColor == Lcd.COLOR_0_WHITE) {
-                    mergedLine[x] = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
+                    mergedLine[x] = spriteColor;
                 }
             }
         }
