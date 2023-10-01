@@ -22,9 +22,8 @@ public class DevGui {
     public static void main(String[] args) throws Exception {
 
         SwingLcd lcd = new SwingLcd(2);
-
         GameBoy gameBoy = new GameBoy(lcd);
-        gameBoy.loadCartridge("/Users/ismaelrh/gb/mbc1/multicart_rom_8Mb.gb");
+        gameBoy.loadCartridge("/Users/ismaelrh/gb/mbc1/zelda.gb");
 
         TileSetDisplay displayTileset0 = new TileSetDisplay((char) 0x8000);
         TileSetDisplay displayTileset1 = new TileSetDisplay((char) 0x8800);
@@ -36,7 +35,7 @@ public class DevGui {
         //gameBoy.setBootrom("/Users/ismaelrh/gb/dmg_boot.bin");
 
         startGUI(gameBoy, lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
-        gameBoy.run(new GameBoyOptions(250_000_000,-1));
+        gameBoy.run(new GameBoyOptions(-1,-1));
         System.out.println("Finished execution. Cycles = " + gameBoy.getTotalCycles() +  " LCD md5=" + lcd.getHash());
     }
 

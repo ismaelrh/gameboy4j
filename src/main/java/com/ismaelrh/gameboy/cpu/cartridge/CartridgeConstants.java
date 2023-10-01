@@ -16,7 +16,7 @@ public class CartridgeConstants {
             Map.entry((byte) 0x0C, "MMM01+RAM"),
             Map.entry((byte) 0x0D, "MMM01+RAM+BATTERY"),
             Map.entry((byte) 0x0F, "MBC3+TIMER+BATTERY"),
-            Map.entry((byte) 0x10, "MBC3+TIMER+RAM`BATTERY"),
+            Map.entry((byte) 0x10, "MBC3+TIMER+RAM+BATTERY"),
             Map.entry((byte) 0x11, "MBC3"),
             Map.entry((byte) 0x12, "MBC3+RAM"),
             Map.entry((byte) 0x13, "MBC3+RAM+BATTERY"),

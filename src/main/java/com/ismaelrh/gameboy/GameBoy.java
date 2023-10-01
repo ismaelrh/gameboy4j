@@ -54,8 +54,23 @@ public class GameBoy {
     }
 
     public void loadCartridge(String path) throws Exception {
-        this.cartridge = CartridgeFactory.create(path);
+        //TODO: derive path of save
+        this.cartridge = CartridgeFactory.create(path,getSaveName(path));
         memory.insertCartridge(cartridge);
+    }
+
+    private String getSaveName(String fullPath){
+        return getPath(  fullPath) + "/" + getFileName(fullPath) + ".sav";
+    }
+    private String getPath(String fullPath){
+        int lastSlash = fullPath.lastIndexOf("/");
+        return fullPath.substring(0, lastSlash);
+    }
+
+    private String getFileName(String fullPath){
+        int lastSlash = fullPath.lastIndexOf("/");
+        int lastDot = fullPath.lastIndexOf(".");
+        return fullPath.substring(lastSlash,lastDot);
     }
 
     //TODO: set speed, etc.

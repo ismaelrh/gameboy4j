@@ -27,15 +27,20 @@ public abstract class Cartridge {
 
     private final int MAX_CARTRIDGE_SIZE_BYTES;
 
+    protected final String savePath;
+
     protected final byte[] rawData;
 
-    protected Cartridge(String cartridgeType, int maxCartridgeSizeBytes, String path) throws Exception {
-        this(cartridgeType, maxCartridgeSizeBytes, Cartridge.readFile(path));
+
+
+    protected Cartridge(String cartridgeType, int maxCartridgeSizeBytes, String path, String savePath) throws Exception {
+        this(cartridgeType, maxCartridgeSizeBytes, Cartridge.readFile(path),savePath);
     }
 
-    protected Cartridge(String cartridgeType, int maxCartridgeSizeBytes, byte[] data) throws Exception {
+    protected Cartridge(String cartridgeType, int maxCartridgeSizeBytes, byte[] data, String savePath) throws Exception {
         MAX_CARTRIDGE_SIZE_BYTES = maxCartridgeSizeBytes;
         rawData = new byte[MAX_CARTRIDGE_SIZE_BYTES];
+        this.savePath = savePath;
         int realSize = loadContent(data);
         populateMetadata(data);
         if (realSize > MAX_CARTRIDGE_SIZE_BYTES) {

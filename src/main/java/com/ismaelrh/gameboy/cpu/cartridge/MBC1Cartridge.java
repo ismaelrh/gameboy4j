@@ -3,6 +3,9 @@ package com.ismaelrh.gameboy.cpu.cartridge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 class MBC1Cartridge extends Cartridge {
 
     private static final Logger log = LogManager.getLogger(MBC1Cartridge.class);
@@ -38,17 +41,22 @@ class MBC1Cartridge extends Cartridge {
 
     private boolean multicart;
 
-    public MBC1Cartridge(byte[] content) throws Exception {
-        super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, content);
-        this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
-        this.multicart = isMulticart();
+    public MBC1Cartridge(byte[] content, String savePath) throws Exception {
+        super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, content, savePath);
+        initialize();
     }
 
-    public MBC1Cartridge(String path) throws Exception {
-        super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, path);
+    public MBC1Cartridge(String path, String savePath) throws Exception {
+        super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, path, savePath);
+        initialize();
+    }
+
+    private void initialize() throws Exception {
         this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
         this.multicart = isMulticart();
+        readSaveFile();
     }
+
 
 
     protected void setRam(byte[] ram) throws Exception {
@@ -70,9 +78,6 @@ class MBC1Cartridge extends Cartridge {
 
         //4000-7FFF: Rom Bank 01-7F (Switchable 16KBytes of ROM)
         if (inRange(address, 0x4000, 0x7FFF)) {
-            if (romBankLow == 0x04) {
-                int a = 3;
-            }
             int relativeAddress = (address - 0x4000) & 0xFFFF;
             int bankStartAddress = ROM_BANK_SIZE_BYTES * getRomBankForSwitchableBanks();
 
@@ -110,22 +115,23 @@ class MBC1Cartridge extends Cartridge {
         }
         //RAM Enable (any value with 0A in the lower 4 bits enables RAM)
         else if (inRange(address, 0x0000, 0x1FFF)) {
+            boolean oldValue = ramEnabled;
             ramEnabled = (data & 0x0F) == 0x0A;
+            if(oldValue && !ramEnabled){    //Disabled RAM
+                writeSaveFile();
+            }
         }
         //ROM Bank Number (lower 5 bits of the ROM Bank Number)
         else if (inRange(address, 0x2000, 0x3FFF)) {
             romBankLow = (byte) (data & 0x1F);
-            //printBankInfo();
         }
         //RAM Bank Number - or - Upper Bits of ROM Bank Number
         else if (inRange(address, 0x4000, 0x5FFF)) {
             ramBankRomUpper = (byte) (data & 0x03); //Two lower bits
-            //printBankInfo();
         }
         //ROM/RAM Mode Select
         else if (inRange(address, 0x6000, 0x7FFF)) {
             bankMode = (char) (data & 0x01);
-            //printBankInfo();
         } else {
             String addressString = String.format("0x%04X", (short) address);
             String dataString = String.format("0x%02X", data);
@@ -143,20 +149,11 @@ class MBC1Cartridge extends Cartridge {
         return String.format("%04X", (int) data);
     }
 
-    private void printBankInfo() {
-        System.out.println("Up: " + f(ramBankRomUpper) + " Low:" + f(romBankLow) + " Mode: " + f(bankMode));
-    }
-
-    //Upper 2 bits of bank only used if RAM is big enough (> 8 KiB)
-    private boolean ramNeeds2upperBits() {
-        return getRamSizeBytes() > 8 * 1024;
-    }
-
     private byte getRomBankForBaseBank() {
 
         if (bankMode == BANK_MODE_RAM) {
             byte result = (byte) (((ramBankRomUpper & 0x03) << 5) & 0xFF);
-            if(multicart){
+            if (multicart) {
                 result >>= 1;
             }
             return (byte) ((result % getRomBanks()) & 0xFF);
@@ -178,7 +175,7 @@ class MBC1Cartridge extends Cartridge {
 
         result = correctRomBank(result); //Banks 0x00, 0x20, 0x40 and 0x60  are added 1
 
-        if(multicart){
+        if (multicart) {
             result = (byte) (((result >> 1) & 0x30) | (result & 0x0f));
         }
 
@@ -203,8 +200,8 @@ class MBC1Cartridge extends Cartridge {
     private boolean isMulticart() {
         int logoCount = 0;
         for (int i = 0; i < rawData.length; i += 0x4000) {
-            if(hasNintendoLogo(i)){
-                logoCount+=1;
+            if (hasNintendoLogo(i)) {
+                logoCount += 1;
             }
         }
         return getRomBanks() == 64 && logoCount > 1;
@@ -219,7 +216,24 @@ class MBC1Cartridge extends Cartridge {
         return true;
     }
 
-    //TODO: last comment
-    //https://www.reddit.com/r/EmuDev/comments/dsa875/emulating_gb_memory_controllers/
-    //apply 2 bits to the largest one
+    private void readSaveFile() throws Exception {
+        if (savePath != null && Files.exists(Path.of(savePath))) {
+            byte[] saveFile = Cartridge.readFile(savePath);
+            for(int i = 0; i < EXTERNAL_RAM_SIZE_BYTES; i++) {
+                externalRam[i] = saveFile[i];
+            }
+        }
+    }
+
+    private void writeSaveFile() {
+        try{
+            if(savePath != null){
+                Files.write(Path.of(savePath), externalRam);
+            }
+        }
+        catch (Exception ex){
+            log.error("Error writing savefile to " + savePath, ex);
+        }
+    }
+
 }

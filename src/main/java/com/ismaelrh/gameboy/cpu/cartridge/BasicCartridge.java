@@ -8,11 +8,11 @@ public class BasicCartridge extends Cartridge {
     private final static int CARTRIDGE_SIZE_BYTES = 32 * 1024;
 
     public BasicCartridge(String filePath) throws Exception {
-        super(CARTRIDGE_TYPE, CARTRIDGE_SIZE_BYTES, filePath);
+        super(CARTRIDGE_TYPE, CARTRIDGE_SIZE_BYTES, filePath, null);
     }
 
     public BasicCartridge(byte[] data) throws Exception {
-        super(CARTRIDGE_TYPE, CARTRIDGE_SIZE_BYTES, data);
+        super(CARTRIDGE_TYPE, CARTRIDGE_SIZE_BYTES, data, null);
     }
 
     @Override

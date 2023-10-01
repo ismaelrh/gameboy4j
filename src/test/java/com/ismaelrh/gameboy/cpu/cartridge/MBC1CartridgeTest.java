@@ -15,7 +15,7 @@ public class MBC1CartridgeTest {
         byte[] romContent = generateRom();
         byte[] ramContent = generateRam();
 
-        cartridge = new MBC1Cartridge(romContent);
+        cartridge = new MBC1Cartridge(romContent,null);
         cartridge.setRam(ramContent);
     }
 

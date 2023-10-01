@@ -6,8 +6,8 @@ public class FakeCartridge extends Cartridge {
     private final static int CARTRIDGE_SIZE_BYTES = 32768;
     private byte[] cartridge = new byte[CARTRIDGE_SIZE_BYTES];
 
-    public FakeCartridge() throws Exception{
-        super("FAKE", CARTRIDGE_SIZE_BYTES, new byte[]{});
+    public FakeCartridge() throws Exception {
+        super("FAKE", CARTRIDGE_SIZE_BYTES, new byte[]{}, "");
     }
 
     @Override
