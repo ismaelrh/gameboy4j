@@ -20,14 +20,13 @@ public class WindowRenderer {
 
     public int[] getWindowIndexes(int drawingLine) {
 
-        boolean windowReached = drawingLine - gpuRegisters.wY >= 0;
+        boolean windowReached = drawingLine - (gpuRegisters.wY & 0xFF) >= 0;
         int tileMapRow = gpuRegisters.windowY; //Row of tilemap to draw. If negative, we do not draw.
         int verticalTilePos = tileMapRow / 8; //Tile to draw. Never will be >= 32.
         int tileRow = tileMapRow - verticalTilePos * 8;   //#row inside the tile (0..7)
 
         //if WY > 144 or WX > 166 or Y < 0, we do not draw
         if (Byte.compareUnsigned(gpuRegisters.wY, (byte) 144) > 0 || Byte.compareUnsigned(gpuRegisters.wX, (byte) 166) > 0 || !windowReached) {
-            //TODO: CONSTANT
             int[] whiteLine = new int[160];
             Arrays.fill(whiteLine, -1);
             return whiteLine;

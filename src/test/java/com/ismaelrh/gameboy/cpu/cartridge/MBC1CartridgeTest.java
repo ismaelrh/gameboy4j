@@ -74,10 +74,12 @@ public class MBC1CartridgeTest {
     }
 
     @Test
-    public void readRomBanks20_7F_ROMMode() {
+    public void readRomBanks20_7F_ROMMode_UpperBitsHaveEffect() {
 
         //Select ROM Mode
         cartridge.write((char) 0x6000, (byte) 0x00);
+        cartridge.setRomSizeBytes(1024*1024);
+        cartridge.setRamSizeBytes(8*1024);
 
         for (int bank = 0x20; bank <= 0x7F; bank++) {
             if (bank != 0x20 && bank != 0x40 && bank != 0x60) { //Not accessible
@@ -93,6 +95,8 @@ public class MBC1CartridgeTest {
             }
         }
     }
+
+
 
 
 

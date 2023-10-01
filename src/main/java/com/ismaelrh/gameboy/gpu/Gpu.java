@@ -243,7 +243,7 @@ public class Gpu extends MMIODevice {
                 int spriteColor = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
                 byte spriteBgPriority = spriteInfo[x].getBgPriority();
 
-                if (spriteColor == 0) {    //If index 0, continue
+                if (spriteIdx == 0) {    //If index 0, continue
                     continue;
                 }
 

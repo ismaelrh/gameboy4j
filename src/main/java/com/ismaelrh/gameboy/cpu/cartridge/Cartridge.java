@@ -12,6 +12,9 @@ import static com.ismaelrh.gameboy.cpu.cartridge.CartridgeConstants.*;
 
 public abstract class Cartridge {
 
+    protected final static int ROM_BANK_SIZE_BYTES = 16 * 1024;
+    protected final static int RAM_BANK_SIZE_BYTES = 8 * 1024;
+
     protected static final Logger log = LogManager.getLogger(Cartridge.class);
 
     private String title;
@@ -90,4 +93,25 @@ public abstract class Cartridge {
         }
         return Files.readAllBytes(file.toPath());
     }
+
+    public int getRomBanks() {
+        return romSizeBytes / ROM_BANK_SIZE_BYTES;
+    }
+
+    public int getRamBanks() {
+        if (ramSizeBytes == ramSizeBytesMap.get((byte) 0x01) || ramSizeBytes == ramSizeBytesMap.get((byte)0x02)){
+            return 1;
+        }
+        return ramSizeBytes / RAM_BANK_SIZE_BYTES;
+    }
+
+    protected void setRomSizeBytes(int size) {
+        this.romSizeBytes = size;
+    }
+
+    protected void setRamSizeBytes(int size) {
+        this.ramSizeBytes = size;
+    }
+
+
 }
