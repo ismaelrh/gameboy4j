@@ -5,7 +5,13 @@ import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Base64;
+
+import static com.ismaelrh.gameboy.gpu.lcd.Lcd.getColorCode;
 
 public class DisplayPanel extends JPanel implements Runnable {
 
@@ -34,7 +40,7 @@ public class DisplayPanel extends JPanel implements Runnable {
     }
 
     public void pushPixel(int color) {
-        synchronized(this){
+        synchronized (this) {
             rgb[pixel] = color;
             pixel++;
             pixel = pixel % rgb.length;
@@ -101,5 +107,15 @@ public class DisplayPanel extends JPanel implements Runnable {
             }
 
         }
+    }
+
+    public String getHash() throws Exception {
+        ByteBuffer buffer = ByteBuffer.allocate(4 * frozenRgb.length);
+        buffer.order(ByteOrder.BIG_ENDIAN);
+        for (int pixel : frozenRgb) {
+            buffer.putInt(getColorCode(pixel));
+        }
+        byte[] hash = MessageDigest.getInstance("MD5").digest(buffer.array());
+        return Base64.getEncoder().encodeToString(hash);
     }
 }

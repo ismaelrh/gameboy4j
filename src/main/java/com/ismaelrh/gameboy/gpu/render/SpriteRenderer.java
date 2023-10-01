@@ -40,6 +40,7 @@ public class SpriteRenderer {
             return o2.getSpriteNumber() - o1.getSpriteNumber();
         });
 
+
         for (Sprite sprite : spritesToDraw) {
 
             int spriteRow = line - sprite.getPosY();
@@ -63,9 +64,10 @@ public class SpriteRenderer {
             Arrays.fill(spritePalette, sprite.getPalette());
             int drawStartX = Math.max(sprite.getPosX(), 0);
 
-            System.arraycopy(spriteIndexes, spriteStartX, spritesIndexes, drawStartX, spriteLength);
-            System.arraycopy(spritePalette, spriteStartX, spritePalletIdxs, drawStartX, spriteLength);
-            System.arraycopy(spritePriority, spriteStartX, bgPriority, drawStartX, spriteLength);
+            copyRespectingTransparency(
+                    spriteIndexes, spritePalette, spritePriority,
+                    spritesIndexes, spritePalletIdxs, bgPriority,
+                    spriteStartX, drawStartX, spriteLength);
         }
 
         for (int i = 0; i < spritesRenderInfo.length; i++) {
@@ -73,6 +75,24 @@ public class SpriteRenderer {
         }
 
         return spritesRenderInfo;
+    }
+
+    private void copyRespectingTransparency(int[] srcIndexes, byte[] srcPalette, byte[] srcPriority,
+                                            int[] dstIndexes, byte[] dstPalette, byte[] dstPriority,
+                                            int srcPos, int dstPos, int length) {
+        int position = 0;
+        while (position < length) {
+            int newIndex = srcIndexes[srcPos + position];
+
+            if (newIndex != 0) {   //Copy new data
+                dstIndexes[dstPos + position] = srcIndexes[srcPos + position];
+                dstPalette[dstPos + position] = srcPalette[srcPos + position];
+                dstPriority[dstPos + position] = srcPriority[srcPos + position];
+            }
+
+            position++;
+        }
+
     }
 
     private int getSpriteLength(Sprite sprite) {

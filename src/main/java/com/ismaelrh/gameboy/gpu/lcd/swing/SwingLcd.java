@@ -40,6 +40,11 @@ public class SwingLcd extends Lcd {
         this.panel.enableLcd();
     }
 
+    @Override
+    public String getHash() throws Exception {
+        return this.panel.getHash();
+    }
+
     public JPanel getDisplayPanel() {
         return panel;
     }

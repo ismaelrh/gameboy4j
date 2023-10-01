@@ -7,6 +7,12 @@ class MBC1Cartridge extends Cartridge {
 
     private static final Logger log = LogManager.getLogger(MBC1Cartridge.class);
 
+    private static final int[] NINTENDO_LOGO = {
+            0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D,
+            0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99,
+            0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E
+    };
+
     private final static String CARTRIDGE_TYPE = "MBC1";
     private final static int MAX_CARTRIDGE_SIZE_BYTES = 2 * 1024 * 1024;
 
@@ -30,14 +36,18 @@ class MBC1Cartridge extends Cartridge {
 
     private byte[] externalRam;
 
+    private boolean multicart;
+
     public MBC1Cartridge(byte[] content) throws Exception {
         super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, content);
         this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
+        this.multicart = isMulticart();
     }
 
     public MBC1Cartridge(String path) throws Exception {
         super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, path);
         this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
+        this.multicart = isMulticart();
     }
 
 
@@ -64,9 +74,6 @@ class MBC1Cartridge extends Cartridge {
                 int a = 3;
             }
             int relativeAddress = (address - 0x4000) & 0xFFFF;
-            if (ramBankRomUpper == 0x01 && romBankLow == 0x00 && bankMode == 0x01) {
-                int a = 3;
-            }
             int bankStartAddress = ROM_BANK_SIZE_BYTES * getRomBankForSwitchableBanks();
 
             return rawData[bankStartAddress + relativeAddress];
@@ -149,6 +156,9 @@ class MBC1Cartridge extends Cartridge {
 
         if (bankMode == BANK_MODE_RAM) {
             byte result = (byte) (((ramBankRomUpper & 0x03) << 5) & 0xFF);
+            if(multicart){
+                result >>= 1;
+            }
             return (byte) ((result % getRomBanks()) & 0xFF);
         } else {
             return 0x00;
@@ -167,6 +177,11 @@ class MBC1Cartridge extends Cartridge {
         }
 
         result = correctRomBank(result); //Banks 0x00, 0x20, 0x40 and 0x60  are added 1
+
+        if(multicart){
+            result = (byte) (((result >> 1) & 0x30) | (result & 0x0f));
+        }
+
         return (byte) ((result % getRomBanks()) & 0xFF);
     }
 
@@ -183,6 +198,25 @@ class MBC1Cartridge extends Cartridge {
             return (byte) (romBank + 1);
         }
         return romBank;
+    }
+
+    private boolean isMulticart() {
+        int logoCount = 0;
+        for (int i = 0; i < rawData.length; i += 0x4000) {
+            if(hasNintendoLogo(i)){
+                logoCount+=1;
+            }
+        }
+        return getRomBanks() == 64 && logoCount > 1;
+    }
+
+    private boolean hasNintendoLogo(int sectionStart) {
+        for (int i = 0; i < NINTENDO_LOGO.length; i++) {
+            if (rawData[sectionStart + i + 0x104] != (byte) (NINTENDO_LOGO[i] & 0xFF)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     //TODO: last comment
