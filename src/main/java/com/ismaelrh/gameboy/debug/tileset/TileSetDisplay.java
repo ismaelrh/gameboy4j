@@ -6,7 +6,7 @@ import com.ismaelrh.gameboy.GameBoy;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.gpu.Gpu;
 import com.ismaelrh.gameboy.gpu.tiles.TileUtils;
-import com.ismaelrh.gameboy.gpu.lcd.swing.DisplayPanel;
+import com.ismaelrh.gameboy.gpu.lcd.swing.FrameDisplayPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,11 +15,11 @@ public class TileSetDisplay implements FrameFinishedListener {
 
     private final static int LCD_WIDTH = 128;
     private final static int LCD_HEIGHT = 128;
-    private final DisplayPanel panel;
+    private final FrameDisplayPanel panel;
     private final char startAddress;
 
     public TileSetDisplay(char startAddress) {
-        this.panel = new DisplayPanel(LCD_WIDTH, LCD_HEIGHT, 1);
+        this.panel = new FrameDisplayPanel(LCD_WIDTH, LCD_HEIGHT, 1);
         this.panel.setPreferredSize(new Dimension(LCD_WIDTH, LCD_HEIGHT));
         new Thread(this.panel).start();
         this.startAddress = startAddress;
@@ -51,7 +51,7 @@ public class TileSetDisplay implements FrameFinishedListener {
             }
         }
 
-        panel.requestRefresh();
+        panel.onFrameFinished();
     }
 
 

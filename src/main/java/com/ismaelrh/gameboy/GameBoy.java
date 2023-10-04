@@ -30,6 +30,8 @@ public class GameBoy {
     private List<FrameFinishedListener> frameFinishedListeners = new ArrayList<>();
     private long totalCycles;
 
+    private volatile boolean paused = false;
+
 
     public GameBoy(Lcd lcd) {
         this.memory = new Memory();
@@ -79,32 +81,40 @@ public class GameBoy {
         long nanosStartFrame = System.nanoTime();
 
         while (options.getCycles() == -1 || totalCycles < options.getCycles()) {
-            int instrCycles = controlUnit.runInstruction();
-            controlUnit.checkInterruptions();
-            timer.tick(instrCycles);
-            gpu.tick(instrCycles);
 
-            remainingCyclesPerFrame -= instrCycles;
+            if(!paused){
+                int instrCycles = controlUnit.runInstruction();
+                controlUnit.checkInterruptions();
+                timer.tick(instrCycles);
+                gpu.tick(instrCycles);
 
-            if (remainingCyclesPerFrame <= 0) {
-                callFrameFinishedListeners();
-                if(options.getSpeed()!=-1){
-                    long nanosEndFrame = System.nanoTime();
-                    long elapsedTimeNanos = (nanosEndFrame - nanosStartFrame);
-                    long remainingTimeNanos = Const.NANOS_PER_FRAME - elapsedTimeNanos;
+                remainingCyclesPerFrame -= instrCycles;
 
-                    if (remainingTimeNanos > 0) {
-                        long millisToSleep = remainingTimeNanos / 1000000;
-                        int nanosToSleep = (int) (remainingTimeNanos - millisToSleep * 1000000);
-                        Thread.sleep(millisToSleep, nanosToSleep);
+                if (remainingCyclesPerFrame <= 0) {
+                    callFrameFinishedListeners();
+                    if(options.getSpeed()!=-1){
+                        long nanosEndFrame = System.nanoTime();
+                        long elapsedTimeNanos = (nanosEndFrame - nanosStartFrame);
+                        long remainingTimeNanos = Const.NANOS_PER_FRAME - elapsedTimeNanos;
+
+                        if (remainingTimeNanos > 0) {
+                            long millisToSleep = remainingTimeNanos / 1000000;
+                            int nanosToSleep = (int) (remainingTimeNanos - millisToSleep * 1000000);
+                            Thread.sleep(millisToSleep, nanosToSleep);
+                        }
+                        nanosStartFrame = System.nanoTime();
                     }
-                    nanosStartFrame = System.nanoTime();
-                }
-                remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
+                    remainingCyclesPerFrame = Const.CYCLES_PER_FRAME;
 
+                }
+                totalCycles += instrCycles;
             }
-            totalCycles += instrCycles;
+
         }
+    }
+
+    public void togglePause(){
+        paused = !paused;
     }
 
     public Memory getMemory() {
@@ -154,5 +164,21 @@ public class GameBoy {
 
     public Lcd getLcd() {
         return lcd;
+    }
+
+    public synchronized void toggleBackground(){
+        gpu.setBackgroundOn(!gpu.isBackgroundOn());
+    }
+
+    public synchronized void toggleWindow(){
+        gpu.setWindowOn(!gpu.isWindowOn());
+    }
+
+    public synchronized void toggleSprites(){
+        gpu.setSpritesOn(!gpu.areSpritesOn());
+    }
+
+    public ControlUnit getControlUnit() {
+        return controlUnit;
     }
 }

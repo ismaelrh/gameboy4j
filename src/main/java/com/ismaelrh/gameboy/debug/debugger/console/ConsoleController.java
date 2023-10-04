@@ -167,6 +167,7 @@ public class ConsoleController implements DebuggerController {
     }
 
     private String f(byte data) {
-        return String.format("%04X", data);
+        return String.format("%02X", data);
     }
+
 }

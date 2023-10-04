@@ -14,8 +14,12 @@ public class SwingLcd extends Lcd {
     private final static int LCD_HEIGHT = 144;
     private final DisplayPanel panel;
 
+    public int getPixel() {
+        return panel.getPixel();
+    }
+
     public SwingLcd(int scale) {
-        this.panel = new DisplayPanel(LCD_WIDTH, LCD_HEIGHT, scale);
+        this.panel = new FrameDisplayPanel(LCD_WIDTH, LCD_HEIGHT, scale);
         this.panel.setPreferredSize(new Dimension(LCD_WIDTH * scale, LCD_HEIGHT * scale));
         new Thread(this.panel).start();
     }
@@ -26,8 +30,13 @@ public class SwingLcd extends Lcd {
     }
 
     @Override
-    public void flush() {
-        this.panel.requestRefresh();
+    public void frameFinished() {
+        this.panel.onFrameFinished();
+    }
+
+    @Override
+    public void lineFinished() {
+        this.panel.onLineFinished();
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.ismaelrh.gameboy.gpu.sprites.Sprite;
 import com.ismaelrh.gameboy.gpu.sprites.SpriteRenderInfo;
 import com.ismaelrh.gameboy.gpu.sprites.SpritesInfo;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SpriteRenderer {
@@ -21,9 +22,10 @@ public class SpriteRenderer {
         this.spritesInfo = spritesInfo;
     }
 
-    public SpriteRenderInfo[] getSpriteRenderInfo(int line) {
+    public SpriteRenderInfo[] getSpriteRenderInfo(int line, boolean spritesOn) {
 
         SpriteRenderInfo[] spritesRenderInfo = new SpriteRenderInfo[160];
+
         int[] spritesIndexes = new int[160];
         byte[] bgPriority = new byte[160];
         byte[] spritePalletIdxs = new byte[160];
@@ -31,6 +33,10 @@ public class SpriteRenderer {
 
         Sprite[] spritesToDraw = spritesInfo.getSpritesToDrawOnLine(line, gpuRegisters.spritesSizeMode);
 
+
+        if (!spritesOn) {
+            spritesToDraw  = new Sprite[0];
+        }
         //We first print the lowest priority ones so they are then overriden.
         //so, higher posX has lower priority. higher sprite number has lower priority.
         Arrays.sort(spritesToDraw, (o1, o2) -> {

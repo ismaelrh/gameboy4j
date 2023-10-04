@@ -5,7 +5,6 @@ import com.ismaelrh.gameboy.gpu.lcd.Lcd;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -19,7 +18,7 @@ public class TestLcd extends Lcd {
     private boolean enabled = true;
 
     public TestLcd() {
-        flush();
+        frameFinished();
     }
 
     @Override
@@ -31,9 +30,14 @@ public class TestLcd extends Lcd {
     }
 
     @Override
-    public void flush() {
+    public void frameFinished() {
         nextPixel = 0;
         frozenPixels = Arrays.copyOf(pixels, pixels.length);
+    }
+
+    @Override
+    public void lineFinished() {
+
     }
 
     @Override
@@ -63,6 +67,11 @@ public class TestLcd extends Lcd {
         }
         byte[] hash = MessageDigest.getInstance("MD5").digest(buffer.array());
         return Base64.getEncoder().encodeToString(hash);
+    }
+
+    @Override
+    public int getPixel() {
+        return 0;
     }
 
 

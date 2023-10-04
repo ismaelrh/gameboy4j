@@ -1,5 +1,6 @@
 package com.ismaelrh.gameboy.cpu.cartridge;
 
+import com.ismaelrh.gameboy.cpu.cartridge.rtc.RtcRegisters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,6 +22,8 @@ class MBC3Cartridge extends Cartridge {
 
     private byte[] externalRam;
 
+    private RtcRegisters rtcRegisters;
+
     public MBC3Cartridge(byte[] content, String savePath) throws Exception {
         super(CARTRIDGE_TYPE, MAX_CARTRIDGE_SIZE_BYTES, content, savePath);
         initialize();
@@ -33,6 +36,7 @@ class MBC3Cartridge extends Cartridge {
 
     private void initialize() throws Exception {
         this.externalRam = new byte[EXTERNAL_RAM_SIZE_BYTES];
+        this.rtcRegisters = new RtcRegisters();
         readSaveFile();
     }
 
@@ -54,15 +58,13 @@ class MBC3Cartridge extends Cartridge {
 
         //A000-BFFF: RAM Bank 00-03, if any (Switchable 8KBytes of RAM)
         if (inRange(address, 0xA000, 0xBFFF)) {
-
             if (ramRtcRegisterSelect >= 0x00 && ramRtcRegisterSelect <= 0x03) {
                 int relativeAddress = (address - 0xA000) & 0xFFFF;
                 int bankStartAddress = RAM_BANK_SIZE_BYTES * getRamBank();
                 return externalRam[bankStartAddress + relativeAddress];
+            } else {
+                return rtcRegisters.readRegister(ramRtcRegisterSelect);
             }
-            //TODO read rtc
-
-            return (byte) 0xFF; //Cannot read, returns open bus value (mostly 0xFF, not guaranteed)
         }
 
         String addressString = String.format("0x%04X", (short) address);
@@ -78,13 +80,12 @@ class MBC3Cartridge extends Cartridge {
     public void write(char address, byte data) {
         //Write into RAM Bank
         if (inRange(address, 0xA000, 0xBFFF) && ramWriteEnabled) {
-            //TODO:
             if (ramRtcRegisterSelect >= 0x00 && ramRtcRegisterSelect <= 0x03) {
                 int relativeAddress = (address - 0xA000) & 0xFFFF;
                 int bankStartAddress = RAM_BANK_SIZE_BYTES * getRamBank();
                 externalRam[bankStartAddress + relativeAddress] = data;
             } else {
-                //TODO: write into RTC register
+                rtcRegisters.writeRegister(ramRtcRegisterSelect, data);
             }
         } //Ram and Timer Enable
         else if (inRange(address, 0x0000, 0x1FFF)) {
@@ -106,18 +107,11 @@ class MBC3Cartridge extends Cartridge {
         //RAM Bank Number or RTC Register Select
         else if (inRange(address, 0x4000, 0x5FFF)) {
             ramRtcRegisterSelect = data;
-
-            if (data >= 0x08 && data <= 0x0C) {
-                /**
-                 * TODO:
-                 * When writing a value of $08-$0C, this will map the corresponding RTC register into memory at A000-BFFF. That register could then be read/written by accessing any address in that area, typically that is done by using address A000.
-                 */
-            }
         }
 
         //Latch Clock Data (Write Only)
         else if (inRange(address, 0x6000, 0x7FFF)) {
-            //TODO
+            rtcRegisters.writeLatch(data);
         } else {
             String addressString = String.format("0x%04X", (short) address);
             String dataString = String.format("0x%02X", data);

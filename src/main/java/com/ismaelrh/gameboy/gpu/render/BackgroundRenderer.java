@@ -18,7 +18,7 @@ public class BackgroundRenderer {
         this.memory = memory;
     }
 
-    public int[] getBackgroundIndexes(int drawingLine) {
+    public int[] getBackgroundIndexes(int drawingLine, boolean backgroundOn) {
         //Need to get the tile row and the pixel row we are going to draw,
         //according to scrollY and drawingLine
         int fullMapY = drawingLine + (gpuRegisters.scrollY & 0xFF);  //Line of the whole view to paint
@@ -30,15 +30,15 @@ public class BackgroundRenderer {
         }
 
         //Need to read the line (# of tile, row of the tile, x scroll)
-        return readBackgroundLine(verticalTilePos, tileRow, gpuRegisters.scrollX);
+        return readBackgroundLine(verticalTilePos, tileRow, gpuRegisters.scrollX, backgroundOn);
     }
 
-    private int[] readBackgroundLine(int verticalTilePos, int tileRow, int scrollX) {
+    private int[] readBackgroundLine(int verticalTilePos, int tileRow, int scrollX, boolean backgroundOn) {
 
         //Need to read 160 pixels (5 tiles, but can be in the middle)
         int[] line = new int[160];
 
-        if (!gpuRegisters.bgWindowEnabled) {
+        if (!gpuRegisters.bgWindowEnabled || !backgroundOn) {
             Arrays.fill(line, -1);
             return line;
         }

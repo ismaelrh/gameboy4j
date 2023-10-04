@@ -109,11 +109,17 @@ public class GpuRegistersMapping{
         }
     }
 
+    private String f(byte data) {
+        return String.format("%04X", data);
+    }
+
     private void updateBgPalettes() {
+
         for (int i = 0; i < 4; i++) {
             int value = ((gpuRegisters.bg_palette_reg & (3 << 2 * i)) >> 2 * i) & 0xFF;
             gpuRegisters.bgPalette[i] = Lcd.BG_COLORS[value];
         }
+
     }
 
     private void updateSpritesPalettes() {

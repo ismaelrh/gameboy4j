@@ -16,7 +16,9 @@ public abstract class Lcd {
     public abstract void pushPixel(int color); //0,1,2,3
 
     //Flush to actual screen
-    public abstract void flush();
+    public abstract void frameFinished();
+
+    public abstract void lineFinished();
 
     public abstract void disableLcd();
 
@@ -51,4 +53,5 @@ public abstract class Lcd {
         return Opacity | Red | Green | Blue; //0xFF000000 for 100% Alpha. Bitwise OR everything together.
     }
 
+    public abstract int getPixel();
 }

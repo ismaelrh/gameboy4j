@@ -11,6 +11,11 @@ import com.ismaelrh.gameboy.gpu.sprites.SpritesInfo;
 import com.ismaelrh.gameboy.gpu.tiles.TileUtils;
 
 public class Gpu extends MMIODevice {
+
+    private boolean backgroundOn = true;
+    private boolean windowOn = true;
+    private boolean spritesOn = true;
+
     //Addresses
     public static final char OAM_START_ADDRESS = 0xFE00;
     public static final char OAM_END_ADDRESS = 0xFE9F;
@@ -156,7 +161,7 @@ public class Gpu extends MMIODevice {
 
         if (gpuRegisters.mode == VBLANK_MODE) {
             gpuRegisters.windowY = 0x00; //Reset every VBLANK
-            lcd.flush();
+            lcd.frameFinished();
             memory.fireVBlankInterruption();
         }
     }
@@ -207,9 +212,9 @@ public class Gpu extends MMIODevice {
 
 
     private void doScanline() {
-        int[] backgroundIndexes = backgroundRenderer.getBackgroundIndexes(gpuRegisters.line);
-        int[] windowIndexes = windowRenderer.getWindowIndexes(gpuRegisters.line);
-        SpriteRenderInfo[] spritesRenderInfo = spriteRenderer.getSpriteRenderInfo(gpuRegisters.line);
+        int[] backgroundIndexes = backgroundRenderer.getBackgroundIndexes(gpuRegisters.line, backgroundOn);
+        int[] windowIndexes = windowRenderer.getWindowIndexes(gpuRegisters.line, windowOn);
+        SpriteRenderInfo[] spritesRenderInfo = spriteRenderer.getSpriteRenderInfo(gpuRegisters.line, spritesOn);
 
         int[] lineToDraw = mergeLines(backgroundIndexes, windowIndexes, spritesRenderInfo);
 
@@ -217,6 +222,9 @@ public class Gpu extends MMIODevice {
         for (int lineColor : lineToDraw) {
             lcd.pushPixel(lineColor);
         }
+
+        lcd.lineFinished();
+
     }
 
 
@@ -239,7 +247,7 @@ public class Gpu extends MMIODevice {
             if (gpuRegisters.spritesEnabled) {
 
                 int spriteIdx = spriteInfo[x].getIndex();
-                int[] spritePalette = gpuRegisters.spritePalletes[spriteInfo[x].getPaletteIdx()];
+                int[] spritePalette = gpuRegisters.spritePalettes[spriteInfo[x].getPaletteIdx()];
                 int spriteColor = TileUtils.spriteApplyPaletteToIndex(spriteIdx, spritePalette);
                 byte spriteBgPriority = spriteInfo[x].getBgPriority();
 
@@ -262,4 +270,27 @@ public class Gpu extends MMIODevice {
         return gpuRegisters.bgPalette;
     }
 
+    public boolean isBackgroundOn() {
+        return backgroundOn;
+    }
+
+    public void setBackgroundOn(boolean backgroundOn) {
+        this.backgroundOn = backgroundOn;
+    }
+
+    public boolean areSpritesOn() {
+        return spritesOn;
+    }
+
+    public void setSpritesOn(boolean spritesOn) {
+        this.spritesOn = spritesOn;
+    }
+
+    public boolean isWindowOn() {
+        return windowOn;
+    }
+
+    public void setWindowOn(boolean windowOn) {
+        this.windowOn = windowOn;
+    }
 }

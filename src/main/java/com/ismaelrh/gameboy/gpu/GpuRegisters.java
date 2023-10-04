@@ -32,7 +32,7 @@ public class GpuRegisters {
     public byte sprite_palette_0_reg = (byte) 0x00;
     public final int[] spritePalette1 = new int[4];
     public byte sprite_palette_1_reg = (byte) 0x00;
-    public final int[][] spritePalletes = new int[][]{spritePalette0, spritePalette1};
+    public final int[][] spritePalettes = new int[][]{spritePalette0, spritePalette1};
 
 
     // LCD

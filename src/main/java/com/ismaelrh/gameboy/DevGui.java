@@ -3,13 +3,14 @@ package com.ismaelrh.gameboy;
 import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
 import com.ismaelrh.gameboy.debug.FpsInfo;
 import com.ismaelrh.gameboy.debug.debugger.console.ConsoleController;
+import com.ismaelrh.gameboy.debug.logCheck.binjgb.BinJgbLogStatusProvider;
 import com.ismaelrh.gameboy.debug.tileset.TileSetDisplay;
 import com.ismaelrh.gameboy.gpu.lcd.swing.SwingLcd;
-import com.ismaelrh.gameboy.input.InputState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -23,7 +24,7 @@ public class DevGui {
 
         SwingLcd lcd = new SwingLcd(2);
         GameBoy gameBoy = new GameBoy(lcd);
-        gameBoy.loadCartridge("/Users/ismaelrh/gb/mbc1/zelda.gb");
+        gameBoy.loadCartridge("/Users/ismaelrh/gb/mbc3/pokemon_oro.gbc");
 
         TileSetDisplay displayTileset0 = new TileSetDisplay((char) 0x8000);
         TileSetDisplay displayTileset1 = new TileSetDisplay((char) 0x8800);
@@ -32,10 +33,11 @@ public class DevGui {
         gameBoy.addFrameFinishedListener(displayTileset1);
 
         gameBoy.setDebuggerController(new ConsoleController());
+        //gameBoy.getControlUnit().setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/log.txt"));
         //gameBoy.setBootrom("/Users/ismaelrh/gb/dmg_boot.bin");
 
         startGUI(gameBoy, lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
-        gameBoy.run(new GameBoyOptions(-1,-1));
+        gameBoy.run(new GameBoyOptions(-1,1));
         System.out.println("Finished execution. Cycles = " + gameBoy.getTotalCycles() +  " LCD md5=" + lcd.getHash());
     }
 
@@ -52,12 +54,12 @@ public class DevGui {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                setKey(gameBoy.getInputState(), e.getKeyCode(), true);
+                setKey(gameBoy, e.getKeyCode(), true);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                setKey(gameBoy.getInputState(), e.getKeyCode(), false);
+                setKey(gameBoy, e.getKeyCode(), false);
             }
         });
 
@@ -69,6 +71,7 @@ public class DevGui {
                 coordinates.setText("coords=[" + e.getX() / 2 + "," + e.getY() / 2 + "], tile=[" + 1 + "]");
             }
         });
+        display.setBorder(BorderFactory.createLineBorder(Color.BLUE));
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -102,31 +105,46 @@ public class DevGui {
         return window;
     }
 
-    private static void setKey(InputState inputState, int keyCode, boolean state) {
+    private static void setKey(GameBoy gameboy, int keyCode, boolean state) {
+        System.out.println(keyCode);
         switch (keyCode) {
             case 87:
-                inputState.setUp(state);
+                gameboy.getInputState().setUp(state);
                 break;
             case 65:
-                inputState.setLeft(state);
+                gameboy.getInputState().setLeft(state);
                 break;
             case 83:
-                inputState.setDown(state);
+                gameboy.getInputState().setDown(state);
                 break;
             case 68:
-                inputState.setRight(state);
+                gameboy.getInputState().setRight(state);
                 break;
             case 74:
-                inputState.setB(state);
+                gameboy.getInputState().setB(state);
                 break;
             case 75:
-                inputState.setA(state);
+                gameboy.getInputState().setA(state);
                 break;
             case 8:
-                inputState.setSelect(state);
+                gameboy.getInputState().setSelect(state);
                 break;
             case 10:
-                inputState.setStart(state);
+                gameboy.getInputState().setStart(state);
+                break;
+            case 32:
+                if(!state){
+                    gameboy.togglePause();
+                }
+                break;
+            case 49:
+                if(!state) gameboy.toggleBackground();
+                break;
+            case 50:
+                if(!state) gameboy.toggleWindow();
+                break;
+            case 51:
+                if(!state) gameboy.toggleSprites();;
                 break;
             default:
                 break;
