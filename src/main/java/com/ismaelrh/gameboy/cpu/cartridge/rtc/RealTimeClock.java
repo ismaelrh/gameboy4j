@@ -1,5 +1,7 @@
 package com.ismaelrh.gameboy.cpu.cartridge.rtc;
 
+import com.ismaelrh.gameboy.cpu.Const;
+
 public class RealTimeClock implements Clock {
 
     private ElapsedTime currentValue;
@@ -18,9 +20,9 @@ public class RealTimeClock implements Clock {
     }
 
     public void setHalt(boolean halt) {
-        if(halt != isHalted){
+        if (halt != isHalted) {
             isHalted = halt;
-            if(!halt){
+            if (!halt) {
                 valueTimestamp = System.currentTimeMillis();
             }
         }
@@ -61,7 +63,7 @@ public class RealTimeClock implements Clock {
     public void setDays(int days) {
         updateValue();
         int daysToSet = days;
-        if(currentValue.isDaysOverflow()){
+        if (currentValue.isDaysOverflow()) {
             daysToSet += 511;
         }
         currentValue.setDays(daysToSet);
@@ -92,16 +94,16 @@ public class RealTimeClock implements Clock {
         if (isHalted) {
             return;
         }
+
         long currentTime = System.currentTimeMillis();
         int elapsedS = (int) ((currentTime - valueTimestamp) / 1000.0);
         if (elapsedS >= 1) {
             currentValue = currentValue.getPlusSeconds(elapsedS);
             valueTimestamp = currentTime;
         }
-
     }
 
-    public boolean getHalted(){
+    public boolean getHalted() {
         return isHalted;
     }
 

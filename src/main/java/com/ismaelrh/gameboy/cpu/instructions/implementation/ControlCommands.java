@@ -45,7 +45,7 @@ public class ControlCommands {
     }
 
     public static short stop(Instruction inst, Memory memory, Registers registers) throws Exception {
-        throw new Exception("Operation HALT not implemented");
+        throw new Exception("Operation STOP not implemented");
     }
 
     public static short di(Instruction inst, Memory memory, Registers registers) {

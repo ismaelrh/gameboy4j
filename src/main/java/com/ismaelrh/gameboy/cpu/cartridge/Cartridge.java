@@ -32,9 +32,8 @@ public abstract class Cartridge {
     protected final byte[] rawData;
 
 
-
     protected Cartridge(String cartridgeType, int maxCartridgeSizeBytes, String path, String savePath) throws Exception {
-        this(cartridgeType, maxCartridgeSizeBytes, Cartridge.readFile(path),savePath);
+        this(cartridgeType, maxCartridgeSizeBytes, Cartridge.readFile(path), savePath);
     }
 
     protected Cartridge(String cartridgeType, int maxCartridgeSizeBytes, byte[] data, String savePath) throws Exception {
@@ -104,7 +103,7 @@ public abstract class Cartridge {
     }
 
     public int getRamBanks() {
-        if (ramSizeBytes == ramSizeBytesMap.get((byte) 0x01) || ramSizeBytes == ramSizeBytesMap.get((byte)0x02)){
+        if (ramSizeBytes == ramSizeBytesMap.get((byte) 0x01) || ramSizeBytes == ramSizeBytesMap.get((byte) 0x02)) {
             return 1;
         }
         return ramSizeBytes / RAM_BANK_SIZE_BYTES;
@@ -117,6 +116,4 @@ public abstract class Cartridge {
     protected void setRamSizeBytes(int size) {
         this.ramSizeBytes = size;
     }
-
-
 }

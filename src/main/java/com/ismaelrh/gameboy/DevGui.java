@@ -24,7 +24,7 @@ public class DevGui {
 
         SwingLcd lcd = new SwingLcd(2);
         GameBoy gameBoy = new GameBoy(lcd);
-        gameBoy.loadCartridge("/Users/ismaelrh/gb/mbc3/pokemon_oro.gbc");
+        gameBoy.loadCartridge("/Users/ismaelrh/gb/instr_timing.gb");
 
         TileSetDisplay displayTileset0 = new TileSetDisplay((char) 0x8000);
         TileSetDisplay displayTileset1 = new TileSetDisplay((char) 0x8800);
@@ -35,9 +35,8 @@ public class DevGui {
         gameBoy.setDebuggerController(new ConsoleController());
         //gameBoy.getControlUnit().setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/log.txt"));
         //gameBoy.setBootrom("/Users/ismaelrh/gb/dmg_boot.bin");
-
         startGUI(gameBoy, lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
-        gameBoy.run(new GameBoyOptions(-1,1));
+        gameBoy.run(new GameBoyOptions(4000000,1));
         System.out.println("Finished execution. Cycles = " + gameBoy.getTotalCycles() +  " LCD md5=" + lcd.getHash());
     }
 

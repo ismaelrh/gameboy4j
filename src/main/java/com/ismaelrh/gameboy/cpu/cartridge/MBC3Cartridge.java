@@ -40,7 +40,6 @@ class MBC3Cartridge extends Cartridge {
         readSaveFile();
     }
 
-
     @Override
     public byte read(char address) {
 
