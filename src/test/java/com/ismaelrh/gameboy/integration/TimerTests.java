@@ -26,7 +26,7 @@ public class TimerTests extends IntegrationTest{
 
     @Test
     public void doTim01DivTrigger() throws Exception {
-        check("tim01_div_trigger.gb",10_000_000,"igHALfPAMYIkBXMbgZ3f1Q==");
+        check("tim01_div_trigger.gb",10_000_000,"f6SuJuwQoKfpEpF8UI5yxw==");
     }
 
     @Test

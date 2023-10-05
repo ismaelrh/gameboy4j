@@ -36,7 +36,7 @@ public class DevGui {
         //gameBoy.getControlUnit().setLogStatusProvider(new BinJgbLogStatusProvider("/Users/ismaelrh/gb/log.txt"));
         //gameBoy.setBootrom("/Users/ismaelrh/gb/dmg_boot.bin");
         startGUI(gameBoy, lcd.getDisplayPanel(), displayTileset0.getDisplayPanel(), displayTileset1.getDisplayPanel());
-        gameBoy.run(new GameBoyOptions(4000000,1));
+        gameBoy.run(new GameBoyOptions(5000000,1));
         System.out.println("Finished execution. Cycles = " + gameBoy.getTotalCycles() +  " LCD md5=" + lcd.getHash());
     }
 

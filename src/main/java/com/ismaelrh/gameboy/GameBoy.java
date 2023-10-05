@@ -7,6 +7,7 @@ import com.ismaelrh.gameboy.cpu.cartridge.Cartridge;
 import com.ismaelrh.gameboy.cpu.cartridge.CartridgeFactory;
 import com.ismaelrh.gameboy.cpu.memory.Memory;
 import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer;
+import com.ismaelrh.gameboy.cpu.periphericals.timer.Timer2;
 import com.ismaelrh.gameboy.debug.debugger.DebuggerController;
 import com.ismaelrh.gameboy.gpu.Gpu;
 import com.ismaelrh.gameboy.gpu.lcd.Lcd;
@@ -85,7 +86,10 @@ public class GameBoy {
             if(!paused){
                 int instrCycles = controlUnit.runInstruction();
                 controlUnit.checkInterruptions();
-                timer.tick(instrCycles);
+                for(int i = 0; i < instrCycles; i++){
+                    timer.tick();
+                }
+
                 gpu.tick(instrCycles);
 
                 remainingCyclesPerFrame -= instrCycles;
